@@ -15,9 +15,9 @@ const MessageForm = ({ name }: Props) => {
       <form
         noValidate={true}
         onSubmit={handleSubmit}
-        className="container w-full max-w-xl p-2 lg:p-8 mx-auto space-y-6 rounded-md shadow dark:bg-gray-900 ng-untouched ng-pristine ng-valid"
+        className="container w-full max-w-xl p-2 md:p-8 mx-auto space-y-6 rounded-md shadow dark:bg-gray-900 ng-untouched ng-pristine ng-valid"
       >
-        <h2 className="w-full text-2xl lg:text-3xl font-bold leading-tight">
+        <h2 className="w-full text-2xl md:text-3xl font-bold leading-tight">
           Поделись хорошим настроением
         </h2>
 
@@ -74,7 +74,7 @@ const MessageForm = ({ name }: Props) => {
           <textarea
             id="message"
             placeholder="Привет! Когда у меня плохое настроение, я открываю плейлист по ссылке и представляю, что я маленький корабль в океане..."
-            className="block w-full h-32 lg:h-24 p-2 rounded autoexpand focus:outline-none focus:ring focus:ring-opacity-25 focus:ring-violet-400 dark:bg-gray-800"
+            className="block w-full h-32 md:h-24 p-2 rounded autoexpand focus:outline-none focus:ring focus:ring-opacity-25 focus:ring-violet-400 dark:bg-gray-800"
           ></textarea>
         </div>
         <div>
@@ -119,7 +119,7 @@ const MessageForm = ({ name }: Props) => {
                 type="file"
                 name="images"
                 id="images"
-                className="w-full px-2 lg:px-8 py-2 lg:py-4 border-2 border-dashed rounded-md dark:border-gray-700 dark:text-gray-400 dark:bg-gray-800"
+                className="w-full px-2 md:px-8 py-2 md:py-4 border-2 border-dashed rounded-md dark:border-gray-700 dark:text-gray-400 dark:bg-gray-800"
               />
             </div>
           </fieldset>

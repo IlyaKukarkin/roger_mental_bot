@@ -11,12 +11,12 @@ export default async function handler(
       const result = await checkFormId(req.query.form_id as string);
 
       if (result) {
-        res.status(200).json({ name: result });
+        return res.status(200).json({ name: result });
       }
-      res.status(403).json({});
+      return res.status(403).json({});
     } catch (e: any) {
       console.log(e);
-      res.status(500).json({
+      return res.status(500).json({
         error: e.toString(),
       });
     }
