@@ -1,20 +1,30 @@
 import type { NextPage } from "next";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 
 import { MessageForm, PageLayout } from "../components";
 
 const Home: NextPage = () => {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [name, setName] = useState("");
 
   useEffect(() => {
     fetch(`/api/message${window.location.search}`)
       .then((res) => {
-        console.log("PAGE:", res);
-        res.status === 200 ? setLoading(false) : console.log("error");
+        if (res.status !== 200) {
+          router.push(`/${res.status}`);
+          return;
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setName(data.name);
+        setLoading(false);
       })
       .catch((err) => {
-        console.log("ERROR:", err);
+        router.push(`/500?error=${err.toString()}`);
       });
   }, []);
 
@@ -26,7 +36,7 @@ const Home: NextPage = () => {
     );
   }
 
-  return <MessageForm />;
+  return <MessageForm name={name} />;
 };
 
 export default Home;

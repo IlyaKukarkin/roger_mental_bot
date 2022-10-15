@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const Page500: NextPage = () => {
   return (
-    <section className="flex items-center h-full sm:p-16 dark:bg-gray-900 dark:text-gray-100">
+    <section className="flex items-center h-full min-h-screen sm:p-16 dark:bg-gray-900 dark:text-gray-100">
       <div className="container flex flex-col items-center justify-center px-5 mx-auto my-8 space-y-8 text-center sm:max-w-md">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -30,9 +30,7 @@ const Page500: NextPage = () => {
             points="383.958 182.63 360.042 161.37 338.671 185.412 314.63 164.042 293.37 187.958 317.412 209.329 296.042 233.37 319.958 254.63 341.329 230.588 365.37 251.958 386.63 228.042 362.588 206.671 383.958 182.63"
           ></polygon>
         </svg>
-        <p className="text-3xl">
-          Похоже наш сервис оффлайн
-        </p>
+        <p className="text-3xl">Похоже, наш сервис оффлайн</p>
         <Link href="/">
           <a
             rel="noopener noreferrer"
