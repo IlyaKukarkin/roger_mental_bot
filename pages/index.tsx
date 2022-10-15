@@ -20,7 +20,7 @@ const Home: NextPage = () => {
         return res.json();
       })
       .then((data) => {
-        setName(data.name);
+        setName(data?.name);
         setLoading(false);
       })
       .catch((err) => {
