@@ -1,10 +1,21 @@
-import { Action, ActionType, MessageForm } from "./types";
+import {
+  Action,
+  ActionType,
+  ImagesError,
+  MessageForm,
+  SubmitResult,
+} from "./types";
 
 export const initialState: MessageForm = {
   anonymous: false,
   message: "",
   link: "",
-  images: [],
+  images: null,
+  linkError: false,
+  imagesError: ImagesError.VALID,
+  formSubmitted: false,
+  submitting: false,
+  submitResult: SubmitResult.UNKNOWN,
 };
 
 export const reducer = (state: MessageForm, action: Action): MessageForm => {
@@ -17,6 +28,16 @@ export const reducer = (state: MessageForm, action: Action): MessageForm => {
       return { ...state, anonymous: !state.anonymous };
     case ActionType.CHANGE_IMAGES:
       return { ...state, images: action.payload };
+    case ActionType.VALIDATE_LINK:
+      return { ...state, linkError: action.payload };
+    case ActionType.VALIDATE_IMAGE:
+      return { ...state, imagesError: action.payload };
+    case ActionType.FORM_SUBMIT:
+      return { ...state, formSubmitted: true };
+    case ActionType.SUBMIT_START:
+      return { ...state, submitting: true, submitResult: SubmitResult.UNKNOWN };
+    case ActionType.SUBMIT_END:
+      return { ...state, submitting: false, submitResult: action.payload };
     default:
       throw new Error();
   }

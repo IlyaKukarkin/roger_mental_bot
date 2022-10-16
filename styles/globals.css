@@ -7,6 +7,49 @@
   min-height: 100vh;
 }
 
+/* Change Autocomplete styles in Chrome*/
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: black;
+  -webkit-box-shadow: 0 0 0 1000px white inset;
+  border-width: 1px;
+}
+
+input:-webkit-autofill:hover,
+textarea:-webkit-autofill:hover,
+select:-webkit-autofill:hover {}
+
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px white inset;
+  border-color: #a78bfa;
+  border-width: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  input:-webkit-autofill,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-text-fill-color: white;
+    -webkit-box-shadow: 0 0 0 1000px rgb(31 41 55 / var(--tw-bg-opacity)) inset;
+    border-width: 1px;
+  }
+
+  input:-webkit-autofill:hover,
+  textarea:-webkit-autofill:hover,
+  select:-webkit-autofill:hover {}
+
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px rgb(17 24 39 / var(--tw-bg-opacity)) inset;
+    border-color: rgb(167 139 250 / var(--tw-border-opacity));
+    border-width: 1px;
+  }
+}
+
 #images::-webkit-file-upload-button {
   margin-left: 25%;
 }

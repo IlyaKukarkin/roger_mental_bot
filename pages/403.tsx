@@ -17,7 +17,7 @@ const Page403: NextPage = () => {
           <a
             rel="noopener noreferrer"
             href="https://t.me/roger_mental_bot"
-            className="px-8 py-3 font-semibold rounded dark:bg-violet-400 dark:text-gray-900"
+            className="px-8 py-3 font-semibold rounded bg-gray-300 dark:bg-violet-400 dark:text-gray-900"
           >
             Перейти в Бота
           </a>

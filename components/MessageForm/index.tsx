@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useRef, useEffect, useMemo } from "react";
 
 import { reducer, initialState } from "./reducer";
 import { ActionType } from "./types";
@@ -7,23 +7,73 @@ interface Props {
   name: string;
 }
 
+const URL_REGEX =
+  /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/i;
+
 const MessageForm = ({ name }: Props) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { message, anonymous, images, link } = state;
+  const fileInput = useRef<null | HTMLInputElement>(null);
+  const {
+    message,
+    anonymous,
+    images,
+    link,
+    formSubmitted,
+    submitting,
+    imagesError,
+    linkError,
+    submitResult,
+  } = state;
+
+  useEffect(() => {
+    console.log(images);
+  }, [images]);
+
+  useEffect(() => {
+    if (link) {
+      dispatch({
+        type: ActionType.VALIDATE_LINK,
+        payload: !URL_REGEX.test(link),
+      });
+    }
+  }, [link]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    console.log(event);
+    dispatch({ type: ActionType.FORM_SUBMIT });
   };
 
+  const renderImages = useMemo(() => {
+    if (!images) {
+      return <></>;
+    }
+
+    return (
+      <div className="flex gap-2 mt-2 justify-center md:justify-start">
+        {Object.values(images)
+          .slice(0, 3)
+          .map((img: File) => {
+            return (
+              <img
+                key={img.name}
+                src={URL.createObjectURL(img)}
+                alt=""
+                className="w-20 h-20 bg-center bg-cover rounded-md dark:bg-gray-500 dark:bg-gray-700"
+              />
+            );
+          })}
+      </div>
+    );
+  }, [images]);
+
   return (
-    <section className="p-6 h-full min-h-screen flex justify-center items-center dark:text-gray-100 dark:bg-gray-800">
+    <section className="p-6 h-full min-h-screen max-h-screen flex justify-center items-center dark:text-gray-100 dark:bg-gray-800">
       <form
         noValidate={true}
         onSubmit={handleSubmit}
-        className="container w-full max-w-xl p-2 md:p-8 mx-auto space-y-6 rounded-md shadow dark:bg-gray-900 ng-untouched ng-pristine ng-valid"
+        className="container w-full max-w-xl p-2 md:p-8 mx-auto space-y-6 rounded-md shadow bg-gray-100 dark:bg-gray-900 ng-untouched ng-pristine ng-valid"
       >
-        <h2 className="w-full text-2xl md:text-3xl font-bold leading-tight">
+        <h2 className="w-full text-center text-2xl md:text-3xl font-bold leading-tight">
           Поделись хорошим настроением
         </h2>
 
@@ -72,7 +122,7 @@ const MessageForm = ({ name }: Props) => {
                 id="name"
                 disabled={true}
                 value={state.anonymous ? "Аноним" : name}
-                className="w-full py-2 pl-10 text-sm rounded-md focus:outline-none dark:bg-gray-800 dark:text-gray-100 focus:dark:bg-gray-900 focus:dark:border-violet-400"
+                className="w-full py-2 pl-10 text-sm rounded-md focus:outline-none dark:bg-gray-800 dark:text-gray-100 focus:dark:bg-gray-900 focus:border-violet-400"
               />
             </div>
           </fieldset>
@@ -82,7 +132,7 @@ const MessageForm = ({ name }: Props) => {
             id="anonymous"
             aria-label="Заполнить анонимно?"
             onChange={() => dispatch({ type: ActionType.CHANGE_ANONYMOUS })}
-            className="mr-1 rounded-sm focus:ring-violet-400 focus:dark:border-violet-400 focus:ring-2 accent-violet-400"
+            className="mr-1 rounded-sm focus:ring-violet-400 focus:border-violet-400 focus:ring-2 accent-violet-400"
           />
           <label htmlFor="anonymous" className="text-sm dark:text-gray-400">
             Заполнить анонимно?
@@ -106,7 +156,7 @@ const MessageForm = ({ name }: Props) => {
             }
             maxLength={5000}
             placeholder="Привет! Когда у меня плохое настроение, я открываю плейлист по ссылке и представляю, что я маленький корабль в океане..."
-            className="block w-full max-h-96 min-h-12 h-32 md:h-24 p-2 rounded autoexpand focus:outline-none focus:ring focus:ring-opacity-25 focus:ring-violet-400 dark:bg-gray-800"
+            className="block w-full max-h-96 min-h-12 h-32 md:h-24 p-2 rounded autoexpand focus:outline-none focus:ring-violet-400 focus:dark:bg-gray-900 focus:border-violet-400 dark:bg-gray-800"
           ></textarea>
         </div>
         <div>
@@ -144,7 +194,7 @@ const MessageForm = ({ name }: Props) => {
                   })
                 }
                 placeholder="https://youtu.be/o-YBDTqX_ZU"
-                className="w-full py-2 pl-10 text-sm rounded-md focus:outline-none dark:bg-gray-800 dark:text-gray-100 focus:dark:bg-gray-900 focus:dark:border-violet-400"
+                className="w-full py-2 pl-10 text-sm rounded-md focus:outline-none focus:ring-violet-400 dark:bg-gray-800 dark:text-gray-100 focus:dark:bg-gray-900 focus:border-violet-400"
               />
             </div>
           </fieldset>
@@ -156,21 +206,30 @@ const MessageForm = ({ name }: Props) => {
             </label>
             <div className="flex">
               <input
+                ref={fileInput}
                 type="file"
                 name="images"
                 accept="image/png, image/jpeg, image/jpg, image/gif"
                 multiple
                 id="images"
-                onChange={(e) => console.log(e)}
-                className="w-full px-2 md:px-8 py-2 md:py-4 border-2 border-dashed rounded-md dark:border-gray-700 dark:text-gray-400 dark:bg-gray-800"
+                onChange={() =>
+                  dispatch({
+                    type: ActionType.CHANGE_IMAGES,
+                    payload: fileInput.current?.files,
+                  })
+                }
+                className="w-full px-2 md:px-8 py-2 bg-white border-gray-500 border border-dashed rounded-md dark:border-gray-700 focus:ring-violet-400 focus:outline-none dark:border-2 dark:text-gray-400 dark:bg-gray-800 focus:dark:bg-gray-900 focus:border-violet-400"
               />
             </div>
           </fieldset>
+
+          {renderImages}
         </div>
         <div>
           <button
             type="submit"
-            className="w-full px-4 py-2 font-bold rounded shadow focus:outline-none focus:ring hover:ring focus:ring-opacity-50 dark:bg-violet-400 focus:ring-violet-400 hover:ring-violet-400 dark:text-gray-900"
+            className="w-full px-4 py-2 font-bold rounded shadow focus:outline-none focus:ring hover:ring focus:ring-opacity-50
+            bg-violet-400 focus:ring-violet-400 hover:ring-violet-400 text-gray-900"
           >
             Отправить
           </button>
