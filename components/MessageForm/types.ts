@@ -8,6 +8,8 @@ export type MessageForm = {
   formSubmitted: boolean;
   submitting: boolean;
   submitResult: SubmitResult;
+  alert_visible: boolean;
+  timeoutId: NodeJS.Timeout | null;
 };
 
 export enum ImagesError {
@@ -32,6 +34,9 @@ export enum ActionType {
   FORM_SUBMIT = "FORM_SUBMIT",
   SUBMIT_START = "SUBMIT_START",
   SUBMIT_END = "SUBMIT_END",
+  SHOW_ALERT = "SHOW_ALERT",
+  HIDE_ALERT = "HIDE_ALERT",
+  SAVE_TIMER_ID = "SAVE_TIMER_ID",
 }
 
 export type Action =
@@ -43,11 +48,17 @@ export type Action =
       type:
         | ActionType.CHANGE_ANONYMOUS
         | ActionType.FORM_SUBMIT
+        | ActionType.SHOW_ALERT
+        | ActionType.HIDE_ALERT
         | ActionType.SUBMIT_START;
     }
   | {
       type: ActionType.CHANGE_IMAGES;
       payload: FileList | undefined | null;
+    }
+  | {
+      type: ActionType.SAVE_TIMER_ID;
+      payload: NodeJS.Timeout;
     }
   | { type: ActionType.VALIDATE_LINK; payload: boolean }
   | { type: ActionType.VALIDATE_IMAGE; payload: ImagesError }

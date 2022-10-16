@@ -1,14 +1,17 @@
-import React, { useReducer, useRef, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useReducer, useRef } from "react";
+import Image from "next/future/image";
 
-import { reducer, initialState } from "./reducer";
-import { ActionType } from "./types";
+import Alert from "../Alert";
+import { initialState, reducer } from "./reducer";
+import { ActionType, ImagesError, SubmitResult } from "./types";
+import { imageValidator, linkValidator } from "./validators";
+import { AlertTypes } from "../Alert/types";
 
 interface Props {
   name: string;
 }
 
-const URL_REGEX =
-  /[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/i;
+const ERROR_INPUT_STYLES = "border-rose-500 dark:border-rose-500";
 
 const MessageForm = ({ name }: Props) => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -22,25 +25,53 @@ const MessageForm = ({ name }: Props) => {
     submitting,
     imagesError,
     linkError,
+    alert_visible,
     submitResult,
+    timeoutId,
   } = state;
 
   useEffect(() => {
-    console.log(images);
+    if (images) {
+      dispatch({
+        type: ActionType.VALIDATE_IMAGE,
+        payload: imageValidator(images),
+      });
+    }
   }, [images]);
 
   useEffect(() => {
-    if (link) {
-      dispatch({
-        type: ActionType.VALIDATE_LINK,
-        payload: !URL_REGEX.test(link),
-      });
-    }
+    dispatch({
+      type: ActionType.VALIDATE_LINK,
+      payload: link ? linkValidator(link) : false,
+    });
   }, [link]);
+
+  useEffect(() => {
+    if (alert_visible) {
+      const id = setTimeout(() => {
+        dispatch({ type: ActionType.HIDE_ALERT });
+      }, 3000);
+
+      dispatch({ type: ActionType.SAVE_TIMER_ID, payload: id });
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [alert_visible]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     dispatch({ type: ActionType.FORM_SUBMIT });
+
+    if (!message || linkError || imagesError) {
+      dispatch({ type: ActionType.SHOW_ALERT });
+      return;
+    }
+
+    dispatch({ type: ActionType.SUBMIT_START });
   };
 
   const renderImages = useMemo(() => {
@@ -49,25 +80,66 @@ const MessageForm = ({ name }: Props) => {
     }
 
     return (
-      <div className="flex gap-2 mt-2 justify-center md:justify-start">
+      <div className="flex relative gap-2 mt-2 justify-center md:justify-start">
         {Object.values(images)
           .slice(0, 3)
           .map((img: File) => {
             return (
-              <img
-                key={img.name}
-                src={URL.createObjectURL(img)}
-                alt=""
-                className="w-20 h-20 bg-center bg-cover rounded-md dark:bg-gray-500 dark:bg-gray-700"
-              />
+              <div key={img.name} className="relative h-16 w-16">
+                <Image
+                  src={URL.createObjectURL(img)}
+                  alt=""
+                  fill
+                  className="w-20 h-20 bg-center bg-cover rounded-md dark:bg-gray-500 dark:bg-gray-700"
+                />
+              </div>
             );
           })}
       </div>
     );
   }, [images]);
 
+  const renderAlert = () => {
+    let messageText = "Мы всё сохранили, спасибо!";
+
+    if (submitResult === SubmitResult.ERROR) {
+      messageText = "Какие-то проблемы при сохранении, попробуй позже";
+    }
+    if (linkError) {
+      messageText = "Ссылка не ссылка";
+    }
+    if (imagesError === ImagesError.MORE_THAN_3) {
+      messageText = "Только 3 картинки прикрепи";
+    }
+    if (imagesError === ImagesError.LARGE_FILE) {
+      messageText = "Одна или несколько картинок очень большие";
+    }
+    if (!message) {
+      messageText = "Куда, напиши слова поддержки";
+    }
+
+    let alertType = AlertTypes.SUCCESS;
+    if (
+      !message ||
+      linkError ||
+      imagesError !== ImagesError.VALID ||
+      submitResult === SubmitResult.ERROR
+    ) {
+      alertType = AlertTypes.ERROR;
+    }
+
+    return (
+      <Alert
+        message={messageText}
+        is_displayed={alert_visible}
+        type={alertType}
+      />
+    );
+  };
+
   return (
     <section className="p-6 h-full min-h-screen max-h-screen flex justify-center items-center dark:text-gray-100 dark:bg-gray-800">
+      {renderAlert()}
       <form
         noValidate={true}
         onSubmit={handleSubmit}
@@ -156,7 +228,9 @@ const MessageForm = ({ name }: Props) => {
             }
             maxLength={5000}
             placeholder="Привет! Когда у меня плохое настроение, я открываю плейлист по ссылке и представляю, что я маленький корабль в океане..."
-            className="block w-full max-h-96 min-h-12 h-32 md:h-24 p-2 rounded autoexpand focus:outline-none focus:ring-violet-400 focus:dark:bg-gray-900 focus:border-violet-400 dark:bg-gray-800"
+            className={`block w-full max-h-96 min-h-12 h-32 md:h-24 p-2 rounded autoexpand focus:outline-none focus:ring-violet-400 focus:dark:bg-gray-900 focus:border-violet-400 dark:bg-gray-800 ${
+              formSubmitted && !message ? ERROR_INPUT_STYLES : ""
+            }`}
           ></textarea>
         </div>
         <div>
@@ -194,7 +268,9 @@ const MessageForm = ({ name }: Props) => {
                   })
                 }
                 placeholder="https://youtu.be/o-YBDTqX_ZU"
-                className="w-full py-2 pl-10 text-sm rounded-md focus:outline-none focus:ring-violet-400 dark:bg-gray-800 dark:text-gray-100 focus:dark:bg-gray-900 focus:border-violet-400"
+                className={`w-full py-2 pl-10 text-sm rounded-md focus:outline-none focus:ring-violet-400 dark:bg-gray-800 dark:text-gray-100 focus:dark:bg-gray-900 focus:border-violet-400 ${
+                  formSubmitted && linkError ? ERROR_INPUT_STYLES : ""
+                }`}
               />
             </div>
           </fieldset>
@@ -218,7 +294,11 @@ const MessageForm = ({ name }: Props) => {
                     payload: fileInput.current?.files,
                   })
                 }
-                className="w-full px-2 md:px-8 py-2 bg-white border-gray-500 border border-dashed rounded-md dark:border-gray-700 focus:ring-violet-400 focus:outline-none dark:border-2 dark:text-gray-400 dark:bg-gray-800 focus:dark:bg-gray-900 focus:border-violet-400"
+                className={`w-full px-2 md:px-8 py-2 bg-white border-dark-500 border border-dashed rounded-md dark:border-gray-700 focus:ring-violet-400 focus:outline-none dark:border-2 dark:text-gray-400 dark:bg-gray-800 focus:dark:bg-gray-900 focus:border-violet-400 ${
+                  formSubmitted && imagesError !== ImagesError.VALID
+                    ? ERROR_INPUT_STYLES
+                    : ""
+                }`}
               />
             </div>
           </fieldset>
@@ -228,10 +308,19 @@ const MessageForm = ({ name }: Props) => {
         <div>
           <button
             type="submit"
-            className="w-full px-4 py-2 font-bold rounded shadow focus:outline-none focus:ring hover:ring focus:ring-opacity-50
-            bg-violet-400 focus:ring-violet-400 hover:ring-violet-400 text-gray-900"
+            disabled={submitting}
+            className="w-full px-4 py-2 h-10 font-bold rounded shadow focus:outline-none focus:ring focus:ring-opacity-50
+            bg-violet-400 focus:ring-violet-400 hover:bg-violet-500 text-gray-900 disabled:bg-gray-800"
           >
-            Отправить
+            {submitting ? (
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-4 h-4 rounded-full animate-pulse dark:bg-violet-400"></div>
+                <div className="w-4 h-4 rounded-full animate-pulse dark:bg-violet-400"></div>
+                <div className="w-4 h-4 rounded-full animate-pulse dark:bg-violet-400"></div>
+              </div>
+            ) : (
+              "Отправить"
+            )}
           </button>
         </div>
       </form>

@@ -16,6 +16,8 @@ export const initialState: MessageForm = {
   formSubmitted: false,
   submitting: false,
   submitResult: SubmitResult.UNKNOWN,
+  alert_visible: false,
+  timeoutId: null,
 };
 
 export const reducer = (state: MessageForm, action: Action): MessageForm => {
@@ -38,6 +40,12 @@ export const reducer = (state: MessageForm, action: Action): MessageForm => {
       return { ...state, submitting: true, submitResult: SubmitResult.UNKNOWN };
     case ActionType.SUBMIT_END:
       return { ...state, submitting: false, submitResult: action.payload };
+    case ActionType.SHOW_ALERT:
+      return { ...state, alert_visible: true };
+    case ActionType.HIDE_ALERT:
+      return { ...state, alert_visible: false, timeoutId: null };
+    case ActionType.SAVE_TIMER_ID:
+      return { ...state, timeoutId: action.payload };
     default:
       throw new Error();
   }

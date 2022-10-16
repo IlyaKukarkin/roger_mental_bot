@@ -5,7 +5,17 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      keyframes: {
+        alert: {
+          "0%": { transform: "translateY(-20px)" },
+          "100%": { transform: "translateY(0px)" },
+        },
+      },
+      animation: {
+        alert: "alert 0.25s ease-out",
+      },
+    },
   },
   plugins: [require("@tailwindcss/forms")],
 };
