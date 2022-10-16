@@ -54,6 +54,11 @@ select:-webkit-autofill:focus {
   margin-left: 25%;
 }
 
+/* Add pseudo-element only if data attribute is set */
+input[data-file]::after {
+  content: attr(data-file);
+  margin-left: 0.375em;
+}
 
 @media (max-width: 600px) {
   #images::-webkit-file-upload-button {

@@ -1,8 +1,7 @@
 import { ImagesError } from "./types";
 
-export const imageValidator = (files: FileList): ImagesError => {
-  console.log(files);
-  if (files.length == 0) {
+export const imageValidator = (files: File[]): ImagesError => {
+  if (files.length === 0) {
     return ImagesError.VALID;
   }
 
@@ -11,7 +10,7 @@ export const imageValidator = (files: FileList): ImagesError => {
   }
 
   let bigImages = false;
-  Object.values(files).forEach((file) => {
+  files.forEach((file) => {
     if (file.size > 5000000) {
       bigImages = true;
     }

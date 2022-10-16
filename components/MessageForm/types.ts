@@ -2,7 +2,7 @@ export type MessageForm = {
   anonymous: boolean;
   message: string;
   link?: string;
-  images?: FileList | null;
+  images?: File[] | null;
   linkError: boolean;
   imagesError: ImagesError;
   formSubmitted: boolean;
@@ -54,7 +54,7 @@ export type Action =
     }
   | {
       type: ActionType.CHANGE_IMAGES;
-      payload: FileList | undefined | null;
+      payload: File[] | undefined | null;
     }
   | {
       type: ActionType.SAVE_TIMER_ID;

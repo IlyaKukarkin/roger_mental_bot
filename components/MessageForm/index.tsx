@@ -36,6 +36,20 @@ const MessageForm = ({ name }: Props) => {
         type: ActionType.VALIDATE_IMAGE,
         payload: imageValidator(images),
       });
+
+      if (fileInput.current) {
+        const dataTransfer = new DataTransfer();
+
+        images.forEach((image) => {
+          dataTransfer.items.add(image);
+        });
+
+        fileInput.current.files = dataTransfer.files;
+
+        if (fileInput.current.webkitEntries.length) {
+          fileInput.current.dataset.file = `${dataTransfer.files[0].name}`;
+        }
+      }
     }
   }, [images]);
 
@@ -66,7 +80,7 @@ const MessageForm = ({ name }: Props) => {
     event.preventDefault();
     dispatch({ type: ActionType.FORM_SUBMIT });
 
-    if (!message || linkError || imagesError) {
+    if (!message || linkError || imagesError !== ImagesError.VALID) {
       dispatch({ type: ActionType.SHOW_ALERT });
       return;
     }
@@ -80,16 +94,47 @@ const MessageForm = ({ name }: Props) => {
     }
 
     return (
-      <div className="flex relative gap-2 mt-2 justify-center md:justify-start">
+      <div className="grid grid-cols-3 md:grid-cols-4 relative gap-2 mt-2">
         {Object.values(images)
-          .slice(0, 3)
-          .map((img: File) => {
+          .slice(0, 10)
+          .map((img: File, index) => {
             return (
-              <div key={img.name} className="relative h-16 w-16">
+              <div key={img.name} className="relative aspect-video">
+                <div className="relative w-full z-10 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const tempArr = [...images];
+                      tempArr.splice(index, 1);
+
+                      dispatch({
+                        type: ActionType.CHANGE_IMAGES,
+                        payload: tempArr,
+                      });
+                    }}
+                    className="text-violet-400 dark:text-violet-400 hover:cursor-pointer hover:text-violet-500 hover:dark:text-violet-500"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
                 <Image
                   src={URL.createObjectURL(img)}
                   alt=""
                   fill
+                  sizes="122px"
                   className="w-20 h-20 bg-center bg-cover rounded-md dark:bg-gray-500 dark:bg-gray-700"
                 />
               </div>
@@ -99,7 +144,7 @@ const MessageForm = ({ name }: Props) => {
     );
   }, [images]);
 
-  const renderAlert = () => {
+  const renderAlert = useMemo(() => {
     let messageText = "Мы всё сохранили, спасибо!";
 
     if (submitResult === SubmitResult.ERROR) {
@@ -135,11 +180,11 @@ const MessageForm = ({ name }: Props) => {
         type={alertType}
       />
     );
-  };
+  }, [alert_visible]);
 
   return (
     <section className="p-6 h-full min-h-screen max-h-screen flex justify-center items-center dark:text-gray-100 dark:bg-gray-800">
-      {renderAlert()}
+      {renderAlert}
       <form
         noValidate={true}
         onSubmit={handleSubmit}
@@ -291,7 +336,7 @@ const MessageForm = ({ name }: Props) => {
                 onChange={() =>
                   dispatch({
                     type: ActionType.CHANGE_IMAGES,
-                    payload: fileInput.current?.files,
+                    payload: Object.values(fileInput.current?.files || {}),
                   })
                 }
                 className={`w-full px-2 md:px-8 py-2 bg-white border-dark-500 border border-dashed rounded-md dark:border-gray-700 focus:ring-violet-400 focus:outline-none dark:border-2 dark:text-gray-400 dark:bg-gray-800 focus:dark:bg-gray-900 focus:border-violet-400 ${
