@@ -45,10 +45,6 @@ const MessageForm = ({ name }: Props) => {
         });
 
         fileInput.current.files = dataTransfer.files;
-
-        if (fileInput.current.webkitEntries.length) {
-          fileInput.current.dataset.file = `${dataTransfer.files[0].name}`;
-        }
       }
     }
   }, [images]);
@@ -135,7 +131,7 @@ const MessageForm = ({ name }: Props) => {
                   alt=""
                   fill
                   sizes="122px"
-                  className="w-20 h-20 bg-center bg-cover rounded-md dark:bg-gray-500 dark:bg-gray-700"
+                  className="w-20 h-20 bg-center object-cover bg-cover rounded-md dark:bg-gray-500 dark:bg-gray-700"
                 />
               </div>
             );

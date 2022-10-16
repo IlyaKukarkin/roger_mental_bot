@@ -50,30 +50,24 @@ select:-webkit-autofill:focus {
   }
 }
 
-#images::-webkit-file-upload-button {
-  margin-left: 25%;
-}
-
-/* Add pseudo-element only if data attribute is set */
-input[data-file]::after {
-  content: attr(data-file);
-  margin-left: 0.375em;
+input[type = "file"] {
+  padding-left: 25%;
 }
 
 @media (max-width: 600px) {
-  #images::-webkit-file-upload-button {
-    margin-left: 20%;
+  input[type = "file"] {
+    padding-left: 20%;
   }
 }
 
 @media (max-width: 500px) {
-  #images::-webkit-file-upload-button {
-    margin-left: 10%;
+  input[type = "file"] {
+    padding-left: 10%;
   }
 }
 
 @media (max-width: 400px) {
-  #images::-webkit-file-upload-button {
-    margin-left: 0;
+  input[type = "file"] {
+    padding-left: 0;
   }
 }
