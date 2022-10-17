@@ -1,47 +1,95 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-import { checkFormId } from "../../lib/api/messages";
+const multipart = require("parse-multipart-data");
+
+import {
+  checkFormId,
+  FormDataType,
+  ImageData,
+  submitForm,
+  uploadImage,
+} from "../../lib/api/messages";
+import { Asset } from "contentful-management";
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method === "GET") {
-    try {
-      const result = await checkFormId(req.query.form_id as string);
+  switch (req.method) {
+    case "GET":
+      try {
+        const result = await checkFormId(req.query.form_id as string);
 
-      if (result) {
-        return res.status(200).json({ name: result });
+        if (result) {
+          return res.status(200).json({ ...result });
+        }
+        return res.status(403).json({});
+      } catch (e: any) {
+        console.log(e);
+        return res.status(500).json({
+          error: e.toString(),
+        });
       }
-      return res.status(403).json({});
-    } catch (e: any) {
-      console.log(e);
-      return res.status(500).json({
-        error: e.toString(),
-      });
-    }
-  } else if (req.method === "POST") {
-    // const { username, bio } = req.body;
-    // const session = await getSession({ req });
-    // if (!session || session.username !== username) {
-    //   return res.status(401).json({
-    //     error: "Unauthorized",
-    //   });
-    // }
-    // try {
-    //   const result = await updateUser(username, bio);
-    //   if (result) {
-    //     await res.unstable_revalidate(`/${username}`);
-    //   }
-    //   const bioMdx = await getMdxSource(bio); // return bioMdx to optimistically show updated state
-    //   return res.status(200).json(bioMdx);
-    // } catch (e: any) {
-    //   console.log(e);
-    //   return res.status(500).json({
-    //     error: e.toString(),
-    //   });
-    // }
-  } else {
-    return res.status(405).end(`Method ${req.method} Not Allowed`);
+    case "PUT":
+      try {
+        const contentType = req.headers["content-type"];
+        const boundary = contentType?.slice(
+          contentType?.indexOf("boundary=") + 9
+        );
+
+        const chunks: Uint8Array[] = [];
+        req.on("data", (chunk) => {
+          chunks.push(chunk);
+        });
+        req.on("end", async () => {
+          const body = Buffer.concat(chunks);
+
+          if (body && boundary) {
+            const parts = multipart.parse(body, boundary);
+
+            try {
+              const uploadArr = await Promise.all([
+                ...parts.map((img: ImageData) => uploadImage(img)),
+              ]);
+
+              return res
+                .status(200)
+                .json([...uploadArr.map((asset: Asset) => asset.sys.id)]);
+            } catch (e) {
+              return res.status(422).json({});
+            }
+          }
+
+          return res.status(422).json({});
+        });
+      } catch (e) {
+        console.log(e);
+        return res.status(422).json({});
+      }
+      break;
+    case "POST":
+      try {
+        let body = "";
+        req.on("data", (data) => {
+          body += data;
+        });
+        req.on("end", async () => {
+          await submitForm(JSON.parse(body) as FormDataType);
+
+          return res.status(200).json({});
+        });
+      } catch (e) {
+        console.log(e);
+        return res.status(422).json({});
+      }
+      break;
+    default:
+      return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }

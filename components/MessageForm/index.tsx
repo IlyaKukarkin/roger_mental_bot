@@ -6,14 +6,11 @@ import { initialState, reducer } from "./reducer";
 import { ActionType, ImagesError, SubmitResult } from "./types";
 import { imageValidator, linkValidator } from "./validators";
 import { AlertTypes } from "../Alert/types";
-
-interface Props {
-  name: string;
-}
+import { FormDataType, User } from "../../lib/api/messages";
 
 const ERROR_INPUT_STYLES = "border-rose-500 dark:border-rose-500";
 
-const MessageForm = ({ name }: Props) => {
+const MessageForm = ({ name, user_id }: User) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const fileInput = useRef<null | HTMLInputElement>(null);
   const {
@@ -72,7 +69,7 @@ const MessageForm = ({ name }: Props) => {
     };
   }, [alert_visible]);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     dispatch({ type: ActionType.FORM_SUBMIT });
 
@@ -82,6 +79,67 @@ const MessageForm = ({ name }: Props) => {
     }
 
     dispatch({ type: ActionType.SUBMIT_START });
+
+    const form: FormDataType = {
+      id_user: user_id,
+      text: message,
+      is_anonymous: anonymous,
+      is_approved: false,
+      media_link: link || "",
+      image_ids: [],
+    };
+    const formData = new FormData();
+
+    if (
+      fileInput.current &&
+      fileInput.current?.files &&
+      fileInput.current?.files.length !== 0
+    ) {
+      Object.values(fileInput.current.files).forEach((image, index) => {
+        formData.append(`image-${index}`, image);
+      });
+
+      try {
+        const res = await fetch(`/api/message`, {
+          method: "PUT",
+          body: formData,
+        });
+
+        if (res.ok) {
+          const imagesIdArray = await res.json();
+
+          await fetch(`/api/message`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ ...form, image_ids: imagesIdArray }),
+          });
+
+          dispatch({
+            type: ActionType.SUBMIT_END,
+            payload: SubmitResult.SUCCESS,
+          });
+          return;
+        }
+
+        dispatch({ type: ActionType.SUBMIT_END, payload: SubmitResult.ERROR });
+      } catch (e) {
+        console.log(e);
+        dispatch({ type: ActionType.SUBMIT_END, payload: SubmitResult.ERROR });
+      }
+    } else {
+      await fetch(`/api/message`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...form }),
+      });
+
+      dispatch({ type: ActionType.SUBMIT_END, payload: SubmitResult.SUCCESS });
+      return;
+    }
   };
 
   const renderImages = useMemo(() => {
@@ -99,6 +157,7 @@ const MessageForm = ({ name }: Props) => {
                 <div className="relative w-full z-10 flex justify-end">
                   <button
                     type="button"
+                    disabled={submitting}
                     onClick={() => {
                       const tempArr = [...images];
                       tempArr.splice(index, 1);
@@ -138,7 +197,7 @@ const MessageForm = ({ name }: Props) => {
           })}
       </div>
     );
-  }, [images]);
+  }, [images, submitting]);
 
   const renderAlert = useMemo(() => {
     let messageText = "Мы всё сохранили, спасибо!";
@@ -261,6 +320,7 @@ const MessageForm = ({ name }: Props) => {
           <textarea
             id="message"
             value={message}
+            disabled={submitting}
             onChange={(e) =>
               dispatch({
                 type: ActionType.CHANGE_MESSAGE,
@@ -300,6 +360,7 @@ const MessageForm = ({ name }: Props) => {
                 type="text"
                 name="url"
                 id="url"
+                disabled={submitting}
                 maxLength={1000}
                 value={link}
                 onChange={(e) =>
@@ -328,6 +389,7 @@ const MessageForm = ({ name }: Props) => {
                 name="images"
                 accept="image/png, image/jpeg, image/jpg, image/gif"
                 multiple
+                disabled={submitting}
                 id="images"
                 onChange={() =>
                   dispatch({

@@ -39,7 +39,12 @@ export const reducer = (state: MessageForm, action: Action): MessageForm => {
     case ActionType.SUBMIT_START:
       return { ...state, submitting: true, submitResult: SubmitResult.UNKNOWN };
     case ActionType.SUBMIT_END:
-      return { ...state, submitting: false, submitResult: action.payload };
+      return {
+        ...state,
+        submitting: false,
+        alert_visible: true,
+        submitResult: action.payload,
+      };
     case ActionType.SHOW_ALERT:
       return { ...state, alert_visible: true };
     case ActionType.HIDE_ALERT:
