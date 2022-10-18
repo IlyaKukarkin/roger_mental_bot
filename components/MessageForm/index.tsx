@@ -237,14 +237,45 @@ const MessageForm = ({ name, user_id }: User) => {
     );
   }, [alert_visible]);
 
+  const renderSuccess = useMemo(() => {
+    if (submitResult === SubmitResult.SUCCESS) {
+      return (
+        <div className="absolute top-0 left-0 right-0 bottom-0 rounded-md backdrop-blur-sm z-10 w-full h-full">
+          <div className="relative top-1/3 left-[10%] md:left-1/4 p-6 rounded-md right-[10%] md:right-1/4 bottom-1/4 w-[80%] md:w-1/2 flex flex-col gap-6 shadow-md bg-gray-100 dark:bg-gray-900 dark:text-gray-100">
+            <h2 className="text-2xl font-semibold text-center leading-tight tracking-wide">
+              Спасибо!
+            </h2>
+            <p className="flex-1 text-center dark:text-gray-400">
+              Мы всё успешно сохранили
+            </p>
+            <button
+              type="button"
+              className="px-8 py-3 font-semibold rounded bg-violet-400 dark:bg-violet-400 dark:text-gray-900"
+              onClick={() => {
+                // window.location.href = "tg:resolve";
+                window.location.href = "https://telegram.me/roger_mental_bot";
+                window.close();
+              }}
+            >
+              Закрыть
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  }, [submitResult]);
+
   return (
     <section className="p-6 h-full min-h-screen max-h-screen flex justify-center items-center dark:text-gray-100 dark:bg-gray-800">
       {renderAlert}
       <form
         noValidate={true}
         onSubmit={handleSubmit}
-        className="container w-full max-w-xl p-2 md:p-8 mx-auto space-y-6 rounded-md shadow bg-gray-100 dark:bg-gray-900 ng-untouched ng-pristine ng-valid"
+        className="container relative w-full max-w-xl p-2 md:p-8 mx-auto space-y-6 rounded-md shadow bg-gray-100 dark:bg-gray-900 ng-untouched ng-pristine ng-valid"
       >
+        {renderSuccess}
         <h2 className="w-full text-center text-2xl md:text-3xl font-bold leading-tight">
           Поделись хорошим настроением
         </h2>
@@ -413,13 +444,13 @@ const MessageForm = ({ name, user_id }: User) => {
             type="submit"
             disabled={submitting}
             className="w-full px-4 py-2 h-10 font-bold rounded shadow focus:outline-none focus:ring focus:ring-opacity-50
-            bg-violet-400 focus:ring-violet-400 hover:bg-violet-500 text-gray-900 disabled:bg-gray-800"
+            bg-violet-400 focus:ring-violet-400 hover:bg-violet-500 text-gray-900 disabled:dark:bg-gray-800 disabled:bg-gray-200"
           >
             {submitting ? (
               <div className="flex items-center justify-center space-x-2">
-                <div className="w-4 h-4 rounded-full animate-pulse dark:bg-violet-400"></div>
-                <div className="w-4 h-4 rounded-full animate-pulse dark:bg-violet-400"></div>
-                <div className="w-4 h-4 rounded-full animate-pulse dark:bg-violet-400"></div>
+                <div className="w-4 h-4 rounded-full animate-pulse bg-violet-400 dark:bg-violet-400"></div>
+                <div className="w-4 h-4 rounded-full animate-pulse bg-violet-400 dark:bg-violet-400"></div>
+                <div className="w-4 h-4 rounded-full animate-pulse bg-violet-400 dark:bg-violet-400"></div>
               </div>
             ) : (
               "Отправить"
