@@ -6,11 +6,16 @@ import { initialState, reducer } from "./reducer";
 import { ActionType, ImagesError, SubmitResult } from "./types";
 import { imageValidator, linkValidator } from "./validators";
 import { AlertTypes } from "../Alert/types";
-import { FormDataType, User } from "../../lib/api/messages";
+import { FormDataType } from "../../lib/api/messages";
 
 const ERROR_INPUT_STYLES = "border-rose-500 dark:border-rose-500";
 
-const MessageForm = ({ name, user_id }: User) => {
+type Props = {
+  form_id: string;
+  name: string;
+};
+
+const MessageForm = ({ name, form_id }: Props) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const fileInput = useRef<null | HTMLInputElement>(null);
   const {
@@ -97,7 +102,7 @@ const MessageForm = ({ name, user_id }: User) => {
     dispatch({ type: ActionType.SUBMIT_START });
 
     const form: FormDataType = {
-      id_user: user_id,
+      form_id,
       text: message,
       is_anonymous: anonymous,
       is_approved: false,

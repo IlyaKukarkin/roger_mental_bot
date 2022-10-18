@@ -4,12 +4,12 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
 import { MessageForm, PageLayout } from "../components";
-import { User } from "../lib/api/messages";
 
 const Home: NextPage = () => {
   const router = useRouter();
+  const { form_id } = router.query;
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`/api/message${window.location.search}`)
@@ -22,7 +22,7 @@ const Home: NextPage = () => {
       })
       .then((data) => {
         if (data) {
-          setUser(data);
+          setUserName(data?.name);
           setLoading(false);
         }
       })
@@ -31,7 +31,7 @@ const Home: NextPage = () => {
       });
   }, []);
 
-  if (loading || !user) {
+  if (loading || !userName || !form_id || Array.isArray(form_id)) {
     return (
       <PageLayout>
         <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-gray-300 dark:border-violet-400"></div>
@@ -39,7 +39,7 @@ const Home: NextPage = () => {
     );
   }
 
-  return <MessageForm user_id={user.user_id} name={user.name} />;
+  return <MessageForm name={userName} form_id={form_id} />;
 };
 
 export default Home;
