@@ -6,11 +6,6 @@ const contentful = require("contentful-management");
 
 import clientPromise from "../mongodb";
 
-export type User = {
-  name: string;
-  user_id: string;
-};
-
 export type ImageData = {
   filename: string;
   type: string;
@@ -19,7 +14,7 @@ export type ImageData = {
 };
 
 export type FormDataType = {
-  id_user: string;
+  form_id: string;
   text: string;
   media_link?: string;
   image_ids?: string[];
@@ -27,18 +22,19 @@ export type FormDataType = {
   is_anonymous: boolean;
 };
 
-export const checkFormId = async (form_id: string): Promise<User | null> => {
+export const checkFormId = async (form_id: string = ""): Promise<string> => {
   if (!form_id) {
-    return null;
+    return "";
   }
 
   const client = await clientPromise;
   const collection = client.db("roger-bot-db").collection("users");
-  const results = await collection.findOne({ form_id });
-  if (results) {
-    return { name: results.name, user_id: results._id };
+  const results = await collection.findOne({ form_id: new ObjectId(form_id) });
+
+  if (results && results.name) {
+    return results.name;
   } else {
-    return null;
+    return "";
   }
 };
 
@@ -92,8 +88,31 @@ export const uploadImage = async (image: ImageData): Promise<any> => {
   }
 };
 
-export const submitForm = async (form: FormDataType): Promise<void> => {
+export const submitForm = async ({
+  form_id,
+  ...form
+}: FormDataType): Promise<void> => {
   const client = await clientPromise;
-  const collection = client.db("roger-bot-db").collection("messages");
-  return collection.insertOne({ ...form, id_user: new ObjectId(form.id_user) });
+
+  const usersCollection = client.db("roger-bot-db").collection("users");
+  const user = await usersCollection.findOne({
+    form_id: new ObjectId(form_id),
+  });
+
+  if (user && !user.is_admin) {
+    await usersCollection.updateOne(
+      { _id: new ObjectId(user._id) },
+      {
+        $set: {
+          form_id: new ObjectId(),
+        },
+      }
+    );
+  }
+
+  const messageCollection = client.db("roger-bot-db").collection("messages");
+  return messageCollection.insertOne({
+    ...form,
+    id_user: new ObjectId(user._id),
+  });
 };
