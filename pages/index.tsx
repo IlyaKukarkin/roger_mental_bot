@@ -4,11 +4,12 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
 import { MessageForm, PageLayout } from "../components";
+import { User } from "../lib/api/messages";
 
 const Home: NextPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [name, setName] = useState("");
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     fetch(`/api/message${window.location.search}`)
@@ -20,15 +21,17 @@ const Home: NextPage = () => {
         return res.json();
       })
       .then((data) => {
-        setName(data?.name);
-        setLoading(false);
+        if (data) {
+          setUser(data);
+          setLoading(false);
+        }
       })
       .catch((err) => {
         router.push(`/500?error=${err.toString()}`);
       });
   }, []);
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <PageLayout>
         <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-gray-300 dark:border-violet-400"></div>
@@ -36,7 +39,7 @@ const Home: NextPage = () => {
     );
   }
 
-  return <MessageForm name={name} />;
+  return <MessageForm user_id={user.user_id} name={user.name} />;
 };
 
 export default Home;

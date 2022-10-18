@@ -6,14 +6,11 @@ import { initialState, reducer } from "./reducer";
 import { ActionType, ImagesError, SubmitResult } from "./types";
 import { imageValidator, linkValidator } from "./validators";
 import { AlertTypes } from "../Alert/types";
-
-interface Props {
-  name: string;
-}
+import { FormDataType, User } from "../../lib/api/messages";
 
 const ERROR_INPUT_STYLES = "border-rose-500 dark:border-rose-500";
 
-const MessageForm = ({ name }: Props) => {
+const MessageForm = ({ name, user_id }: User) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const fileInput = useRef<null | HTMLInputElement>(null);
   const {
@@ -72,7 +69,23 @@ const MessageForm = ({ name }: Props) => {
     };
   }, [alert_visible]);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  useEffect(() => {
+    let id: NodeJS.Timeout;
+    if (submitResult === SubmitResult.SUCCESS) {
+      id = setTimeout(() => {
+        window.location.href = "https://telegram.me/roger_mental_bot";
+        window.close();
+      }, 3000);
+    }
+
+    return () => {
+      if (id) {
+        clearTimeout(id);
+      }
+    };
+  }, [submitResult]);
+
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     dispatch({ type: ActionType.FORM_SUBMIT });
 
@@ -82,6 +95,67 @@ const MessageForm = ({ name }: Props) => {
     }
 
     dispatch({ type: ActionType.SUBMIT_START });
+
+    const form: FormDataType = {
+      id_user: user_id,
+      text: message,
+      is_anonymous: anonymous,
+      is_approved: false,
+      media_link: link || "",
+      image_ids: [],
+    };
+    const formData = new FormData();
+
+    if (
+      fileInput.current &&
+      fileInput.current?.files &&
+      fileInput.current?.files.length !== 0
+    ) {
+      Object.values(fileInput.current.files).forEach((image, index) => {
+        formData.append(`image-${index}`, image);
+      });
+
+      try {
+        const res = await fetch(`/api/message`, {
+          method: "PUT",
+          body: formData,
+        });
+
+        if (res.ok) {
+          const imagesIdArray = await res.json();
+
+          await fetch(`/api/message`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ ...form, image_ids: imagesIdArray }),
+          });
+
+          dispatch({
+            type: ActionType.SUBMIT_END,
+            payload: SubmitResult.SUCCESS,
+          });
+          return;
+        }
+
+        dispatch({ type: ActionType.SUBMIT_END, payload: SubmitResult.ERROR });
+      } catch (e) {
+        console.log(e);
+        dispatch({ type: ActionType.SUBMIT_END, payload: SubmitResult.ERROR });
+      }
+    } else {
+      await fetch(`/api/message`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...form }),
+      });
+
+      dispatch({ type: ActionType.SUBMIT_END, payload: SubmitResult.SUCCESS });
+      return;
+    }
   };
 
   const renderImages = useMemo(() => {
@@ -99,6 +173,7 @@ const MessageForm = ({ name }: Props) => {
                 <div className="relative w-full z-10 flex justify-end">
                   <button
                     type="button"
+                    disabled={submitting}
                     onClick={() => {
                       const tempArr = [...images];
                       tempArr.splice(index, 1);
@@ -138,7 +213,7 @@ const MessageForm = ({ name }: Props) => {
           })}
       </div>
     );
-  }, [images]);
+  }, [images, submitting]);
 
   const renderAlert = useMemo(() => {
     let messageText = "Мы всё сохранили, спасибо!";
@@ -169,14 +244,47 @@ const MessageForm = ({ name }: Props) => {
       alertType = AlertTypes.ERROR;
     }
 
-    return (
-      <Alert
-        message={messageText}
-        is_displayed={alert_visible}
-        type={alertType}
-      />
-    );
+    if (submitResult !== SubmitResult.SUCCESS) {
+      return (
+        <Alert
+          message={messageText}
+          is_displayed={alert_visible}
+          type={alertType}
+        />
+      );
+    }
+
+    return null;
   }, [alert_visible]);
+
+  const renderSuccess = useMemo(() => {
+    if (submitResult === SubmitResult.SUCCESS) {
+      return (
+        <div className="absolute top-0 left-0 right-0 bottom-0 rounded-md backdrop-blur-sm z-10 w-full h-full">
+          <div className="relative top-1/3 left-[10%] md:left-1/4 p-6 rounded-md right-[10%] md:right-1/4 bottom-1/4 w-[80%] md:w-1/2 flex flex-col gap-6 shadow-md bg-gray-100 dark:bg-gray-900 dark:text-gray-100">
+            <h2 className="text-2xl font-semibold text-center leading-tight tracking-wide">
+              Спасибо!
+            </h2>
+            <p className="flex-1 text-center dark:text-gray-400">
+              Мы всё успешно сохранили
+            </p>
+            <button
+              type="button"
+              className="px-8 py-3 font-semibold rounded bg-violet-400 dark:bg-violet-400 dark:text-gray-900"
+              onClick={() => {
+                window.location.href = "https://telegram.me/roger_mental_bot";
+                window.close();
+              }}
+            >
+              Закрыть
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  }, [submitResult]);
 
   return (
     <section className="p-6 h-full min-h-screen max-h-screen flex justify-center items-center dark:text-gray-100 dark:bg-gray-800">
@@ -184,8 +292,9 @@ const MessageForm = ({ name }: Props) => {
       <form
         noValidate={true}
         onSubmit={handleSubmit}
-        className="container w-full max-w-xl p-2 md:p-8 mx-auto space-y-6 rounded-md shadow bg-gray-100 dark:bg-gray-900 ng-untouched ng-pristine ng-valid"
+        className="container relative w-full max-w-xl p-2 md:p-8 mx-auto space-y-6 rounded-md shadow bg-gray-100 dark:bg-gray-900 ng-untouched ng-pristine ng-valid"
       >
+        {renderSuccess}
         <h2 className="w-full text-center text-2xl md:text-3xl font-bold leading-tight">
           Поделись хорошим настроением
         </h2>
@@ -261,6 +370,7 @@ const MessageForm = ({ name }: Props) => {
           <textarea
             id="message"
             value={message}
+            disabled={submitting}
             onChange={(e) =>
               dispatch({
                 type: ActionType.CHANGE_MESSAGE,
@@ -277,7 +387,7 @@ const MessageForm = ({ name }: Props) => {
         <div>
           <fieldset className="w-full space-y-1 dark:text-gray-100">
             <label htmlFor="url" className="block text-sm font-medium">
-              Приложи ссылку на плейлист/любимый фильм/мемес
+              Приложи ссылку на песню/плейлист/мем/тикток/любимый фильм
             </label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-2">
@@ -300,6 +410,7 @@ const MessageForm = ({ name }: Props) => {
                 type="text"
                 name="url"
                 id="url"
+                disabled={submitting}
                 maxLength={1000}
                 value={link}
                 onChange={(e) =>
@@ -328,6 +439,7 @@ const MessageForm = ({ name }: Props) => {
                 name="images"
                 accept="image/png, image/jpeg, image/jpg, image/gif"
                 multiple
+                disabled={submitting}
                 id="images"
                 onChange={() =>
                   dispatch({
@@ -351,13 +463,13 @@ const MessageForm = ({ name }: Props) => {
             type="submit"
             disabled={submitting}
             className="w-full px-4 py-2 h-10 font-bold rounded shadow focus:outline-none focus:ring focus:ring-opacity-50
-            bg-violet-400 focus:ring-violet-400 hover:bg-violet-500 text-gray-900 disabled:bg-gray-800"
+            bg-violet-400 focus:ring-violet-400 hover:bg-violet-500 text-gray-900 disabled:dark:bg-gray-800 disabled:bg-gray-200"
           >
             {submitting ? (
               <div className="flex items-center justify-center space-x-2">
-                <div className="w-4 h-4 rounded-full animate-pulse dark:bg-violet-400"></div>
-                <div className="w-4 h-4 rounded-full animate-pulse dark:bg-violet-400"></div>
-                <div className="w-4 h-4 rounded-full animate-pulse dark:bg-violet-400"></div>
+                <div className="w-4 h-4 rounded-full animate-pulse bg-violet-400 dark:bg-violet-400"></div>
+                <div className="w-4 h-4 rounded-full animate-pulse bg-violet-400 dark:bg-violet-400"></div>
+                <div className="w-4 h-4 rounded-full animate-pulse bg-violet-400 dark:bg-violet-400"></div>
               </div>
             ) : (
               "Отправить"
