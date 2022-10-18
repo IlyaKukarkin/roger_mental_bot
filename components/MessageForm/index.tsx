@@ -69,6 +69,22 @@ const MessageForm = ({ name, user_id }: User) => {
     };
   }, [alert_visible]);
 
+  useEffect(() => {
+    let id: NodeJS.Timeout;
+    if (submitResult === SubmitResult.SUCCESS) {
+      id = setTimeout(() => {
+        window.location.href = "https://telegram.me/roger_mental_bot";
+        window.close();
+      }, 3000);
+    }
+
+    return () => {
+      if (id) {
+        clearTimeout(id);
+      }
+    };
+  }, [submitResult]);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     dispatch({ type: ActionType.FORM_SUBMIT });
@@ -228,13 +244,17 @@ const MessageForm = ({ name, user_id }: User) => {
       alertType = AlertTypes.ERROR;
     }
 
-    return (
-      <Alert
-        message={messageText}
-        is_displayed={alert_visible}
-        type={alertType}
-      />
-    );
+    if (submitResult !== SubmitResult.SUCCESS) {
+      return (
+        <Alert
+          message={messageText}
+          is_displayed={alert_visible}
+          type={alertType}
+        />
+      );
+    }
+
+    return null;
   }, [alert_visible]);
 
   const renderSuccess = useMemo(() => {
@@ -252,7 +272,6 @@ const MessageForm = ({ name, user_id }: User) => {
               type="button"
               className="px-8 py-3 font-semibold rounded bg-violet-400 dark:bg-violet-400 dark:text-gray-900"
               onClick={() => {
-                // window.location.href = "tg:resolve";
                 window.location.href = "https://telegram.me/roger_mental_bot";
                 window.close();
               }}
@@ -368,7 +387,7 @@ const MessageForm = ({ name, user_id }: User) => {
         <div>
           <fieldset className="w-full space-y-1 dark:text-gray-100">
             <label htmlFor="url" className="block text-sm font-medium">
-              Приложи ссылку на плейлист/любимый фильм/мемес
+              Приложи ссылку на песню/плейлист/мем/тикток/любимый фильм
             </label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-2">
