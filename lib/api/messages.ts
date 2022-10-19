@@ -113,6 +113,7 @@ export const submitForm = async ({
   const messageCollection = client.db("roger-bot-db").collection("messages");
   return messageCollection.insertOne({
     ...form,
+    created_date: new Date(),
     id_user: new ObjectId(user._id),
   });
 };
