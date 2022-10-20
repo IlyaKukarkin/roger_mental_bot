@@ -23,7 +23,7 @@ export type FormDataType = {
 };
 
 export const checkFormId = async (form_id: string = ""): Promise<string> => {
-  if (!form_id) {
+  if (!form_id || !ObjectId.isValid(form_id)) {
     return "";
   }
 
