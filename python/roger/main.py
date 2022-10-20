@@ -1,25 +1,33 @@
-import asyncio
 from curses.ascii import isdigit
-from reprlib import aRepr
 from sqlite3 import Cursor
-from config import token_bot, db_token, link_to_form, contenful_access_token, contenful_space_id, contentful_api_readonly_url
+import json
+import random
+import time
+import os
+
+import asyncio
+import requests
+import datetime
+import certifi
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
 from aiogram.dispatcher import FSMContext
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-import requests
-import json
-import random
-import time
-import datetime
 from aiogram import Bot, types
 from aiogram.utils.markdown import hbold, bold, text, link
 from aiogram.types import ChatType, ParseMode, ContentTypes
-from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton 
-from states import Recording
-import json
+from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from pymongo import MongoClient
 from bson import ObjectId
+
+from states import Recording
+
+token_bot = os.getenv("TOKEN_BOT")
+db_token = os.getenv("MONGODB_URI")
+link_to_form = os.getenv("LINK_TO_FORM")
+contenful_access_token = os.getenv("CONTENTFUL_ACCESS_TOKEN")
+contenful_space_id = os.getenv("CONTENTFUL_SPACE_ID")
+contentful_api_readonly_url = os.getenv("CONTENTFUL_API_READONLY_URL")
 
 global user_name
 global user_time
@@ -48,7 +56,7 @@ bot = Bot(token=token_bot)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 def get_database():
-    client = MongoClient(db_token)
+    client = MongoClient(db_token, tlsCAFile=certifi.where())
     collection_name = client["roger-bot-db"]
     return collection_name
 
@@ -66,7 +74,7 @@ async def process_start_command(message: types.Message):
 async def process_callback_button1(callback_query: types.CallbackQuery, state:FSMContext):
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await bot.answer_callback_query(callback_query.id)
-    await get_options_color('green', callback_query.from_user.id)    
+    await get_options_color('green', callback_query.from_user.id)
     #записать в базу выбранный вариант
     return
 
@@ -78,7 +86,7 @@ async def delete_keyboard (chat_id: int, message_id: int):
 async def process_callback_button1(callback_query: types.CallbackQuery, state:FSMContext):
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await bot.answer_callback_query(callback_query.id)
-    await get_options_color('yellow', callback_query.from_user.id)    
+    await get_options_color('yellow', callback_query.from_user.id)
     #записать в базу выбранный вариант
     return
 
@@ -86,7 +94,7 @@ async def process_callback_button1(callback_query: types.CallbackQuery, state:FS
 async def process_callback_button1(callback_query: types.CallbackQuery, state:FSMContext):
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await bot.answer_callback_query(callback_query.id)
-    await get_options_color('orange', callback_query.from_user.id)    
+    await get_options_color('orange', callback_query.from_user.id)
         #записать в базу выбранный вариант
     return
 
@@ -104,7 +112,7 @@ async def process_start_command(message: types.Message):
     user = collection_name["users"].find_one({"telegram_id" : str(message.chat.id)}, {'_id': 1, 'name': 1})
     if (user==None):
         await bot.send_message(message.chat.id, "Кажется, мы уже знакомы. Ты же " + user['name'] + ", верно?")
-    else: 
+    else:
         await bot.send_message(message.chat.id, "Привет 👋 \n \nЯ Роджер — бот для твоей кукухи.")
         time.sleep(1)
         await bot.send_message(message.chat.id, """Каждый вечер я буду интересоваться твоим настроением. \nЯ умею распознавать 4 настроения: \n
@@ -124,15 +132,15 @@ async def process_start_command(message: types.Message):
         time.sleep(2)
         await bot.send_message(message.chat.id, "Давай познакомимся с тобой поближе! Только будь внимателен — зарегистрироваться можно только один раз 🙃")
         time.sleep(2)
-        await bot.send_message(message.chat.id, "Тебя зовут " + message.from_user.first_name + "? Подтверди свое имя или введи другое", reply_markup=ask_for_name_kb)         
+        await bot.send_message(message.chat.id, "Тебя зовут " + message.from_user.first_name + "? Подтверди свое имя или введи другое", reply_markup=ask_for_name_kb)
         await Recording.Name.set()
-    return     
+    return
 
 @dp.callback_query_handler(lambda c: c.data == 'name_button_yes', state=Recording.Name)
 async def process_callback_button1(callback_query: types.CallbackQuery, state:FSMContext):
     await bot.answer_callback_query(callback_query.id)
     user_name=callback_query.from_user.first_name
-    await bot.send_message(callback_query.from_user.id, 'Приятно познакомиться, ' + user_name + '!') 
+    await bot.send_message(callback_query.from_user.id, 'Приятно познакомиться, ' + user_name + '!')
     time.sleep(1)
     await state.finish()
 
@@ -141,7 +149,7 @@ async def process_callback_button1(callback_query: types.CallbackQuery, state:FS
 @dp.callback_query_handler(lambda c: c.data == 'name_button_no', state=Recording.Name)
 async def process_callback_button1(callback_query: types.CallbackQuery, state:FSMContext):
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, 'Введи свое имя ниже')  
+    await bot.send_message(callback_query.from_user.id, 'Введи свое имя ниже')
     await Recording.AwaitForAName.set()
     return
 
@@ -161,7 +169,7 @@ async def customer_name(message: types.Message, state:FSMContext):
 async def process_start_command(message: types.Message):
     await bot.send_message(message.chat.id, "Во сколько часов мне лучше интересоваться твоим настроением?", reply_markup=ask_for_time_to_send_kb)
     await Recording.AwaitForATimeToSend.set()
-    return 
+    return
 
 @dp.callback_query_handler(lambda c: c.data == 'ask_for_time_20', state=Recording.AwaitForATimeToSend)
 async def process_callback_button1(callback_query: types.CallbackQuery, state:FSMContext):
@@ -185,7 +193,7 @@ async def process_callback_button1(callback_query: types.CallbackQuery, state:FS
     user_time = 22
     await bot.send_message(callback_query.from_user.id, "Принято! Буду приходить к тебе примерно в " + str(user_time) + " часа каждый день")
     await state.finish()
-    return 
+    return
 
 @dp.callback_query_handler(lambda c: c.data == 'ask_for_time_23', state=Recording.AwaitForATimeToSend)
 async def process_callback_button1(callback_query: types.CallbackQuery, state:FSMContext):
@@ -199,7 +207,7 @@ async def process_callback_button1(callback_query: types.CallbackQuery, state:FS
 async def process_start_command(message: types.Message):
     await bot.send_message(message.chat.id, "Остался последний шаг — мне нужно знать твой часовой пояс, чтобы присылать сообщения вовремя \nНапиши, сколько у тебя сейчас времени в формате ЧАСЫ:МИНУТЫ")
     await Recording.AwaitForATimeZoneToSend.set()
-    return 
+    return
 
 @dp.message_handler(state=Recording.AwaitForATimeZoneToSend)
 async def customer_name(message: types.Message, state:FSMContext):
@@ -221,8 +229,8 @@ async def customer_name(message: types.Message, state:FSMContext):
         time_zone1 = time_zone1+24
     if (abs(time_zone1)<=abs(time_zone2)):
         time_zone = "UTC+" + str(abs(time_zone1))
-    else: 
-        time_zone = "UTC-" + str(time_zone2) 
+    else:
+        time_zone = "UTC-" + str(time_zone2)
     await create_new_user ()
     await state.finish()
     return
@@ -261,7 +269,7 @@ async def rand_select_obj_texts(arr: list):
     for item in arr:
         for i in range(item.get("frequency")):
             rand_id_array.append(j)
-        j+=1 
+        j+=1
     return arr[rand_id_array[random.randint(0, len(rand_id_array) - 1)]]
 
 async def get_texts_to_send_mood(arr: list, chat_id: int):
@@ -279,7 +287,7 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
                 messages = collection_name["messages"].find({"$and": [{'is_approved' : True}, {'id_user' : {'$ne': user_id[0]}}, {'_id': {"$nin": arr}}]}, {'_id': 0, 'text': 1, 'media_link': 1, 'id_user': 1, 'is_anonymous': 1, 'image_ids': 1})
                 if len(list(messages.clone()))>0:
                     user_who_create_message = collection_name["users"].find({"_id" : ObjectId(str(messages[0]['id_user']))}, {'name': 1})
-                    await create_message_with_support (chat_id, messages, user_who_create_message[0]['name'])       
+                    await create_message_with_support (chat_id, messages, user_who_create_message[0]['name'])
             if item == '*waiting_day_feedback*':
                 i=0
                 #поставить вызов функции
@@ -308,10 +316,10 @@ async def get_pictures (picture_id: str):
     return str(answer[2:])
 
 async def create_message_with_support (chat_id: int, cursor: Cursor, user_name: str):
-    if cursor[0]['is_anonymous'] == True: 
-        message = text(bold("Имя: ") + "Аноним" + '\n')  
-    else: 
-        message = text(bold("Имя: ") + user_name + '\n') 
+    if cursor[0]['is_anonymous'] == True:
+        message = text(bold("Имя: ") + "Аноним" + '\n')
+    else:
+        message = text(bold("Имя: ") + user_name + '\n')
     message = message + '\n'
     message = message + text(bold("Сообщение: ") + '\n' + cursor[0]['text'] + '\n')
     message = message + '\n'
