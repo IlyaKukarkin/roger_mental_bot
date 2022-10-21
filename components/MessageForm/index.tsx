@@ -7,6 +7,7 @@ import { ActionType, ImagesError, SubmitResult } from "./types";
 import { imageValidator, linkValidator } from "./validators";
 import { AlertTypes } from "../Alert/types";
 import { FormDataType } from "../../lib/api/messages";
+import { ADMIN_USER } from "../../utils/constants";
 
 const ERROR_INPUT_STYLES = "border-rose-500 dark:border-rose-500";
 
@@ -16,7 +17,13 @@ type Props = {
 };
 
 const MessageForm = ({ name, form_id }: Props) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState, (state) => {
+    if (name === ADMIN_USER) {
+      return { ...state, anonymous: true };
+    }
+    return state;
+  });
+
   const fileInput = useRef<null | HTMLInputElement>(null);
   const {
     message,
@@ -313,17 +320,22 @@ const MessageForm = ({ name, form_id }: Props) => {
               <span className="absolute inset-y-0 left-0 flex items-center pl-2">
                 {anonymous ? (
                   <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
                     stroke="currentColor"
-                    className="w-4 h-4"
+                    version="1.1"
+                    id="mdi-guy-fawkes-mask"
+                    width="16px"
+                    height="16px"
+                    viewBox="0 0 16 16"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
+                      style={{
+                        stroke: "none",
+                        fillRule: "nonzero",
+                        fill: "currentColor",
+                        fillOpacity: 1,
+                      }}
+                      d="M 14 8.667969 C 14 11.980469 11.3125 14.667969 8 14.667969 C 4.6875 14.667969 2 11.980469 2 8.667969 L 2.019531 2.953125 C 3.785156 1.921875 5.839844 1.332031 8.035156 1.332031 C 10.199219 1.332031 12.238281 1.914062 14 2.921875 L 14 8.667969 M 8.667969 13.734375 C 11.222656 13.199219 12.675781 11.757812 13.132812 8.667969 L 13.132812 3.535156 C 11.289062 2.84375 9.679688 2.226562 8.019531 2.222656 C 6.136719 2.21875 4.175781 2.902344 2.867188 3.535156 L 2.867188 8.667969 C 3.101562 10.980469 4.355469 13.175781 7.332031 13.734375 L 7.332031 12.464844 L 8.667969 12.464844 L 8.660156 13.167969 M 7.332031 10.667969 L 5.332031 10.667969 L 4 8.667969 L 6 9.332031 L 6.667969 9.332031 L 7.332031 8.667969 L 8.667969 8.667969 L 9.332031 9.332031 L 10 9.332031 L 12 8.667969 L 10.667969 10.667969 L 8.667969 10.667969 L 8 10 L 7.332031 10.667969 M 4 6.019531 C 4.425781 5.601562 5 5.367188 5.667969 5.367188 C 6.300781 5.367188 6.894531 5.601562 7.332031 6.019531 C 6.894531 6.433594 6.300781 6.667969 5.667969 6.667969 C 5 6.667969 4.425781 6.433594 4 6.019531 M 8.667969 6.019531 C 9.09375 5.601562 9.667969 5.367188 10.332031 5.367188 C 10.964844 5.367188 11.558594 5.601562 12 6.019531 C 11.558594 6.433594 10.964844 6.667969 10.332031 6.667969 C 9.667969 6.667969 9.09375 6.433594 8.667969 6.019531 Z M 8.667969 6.019531 "
                     />
                   </svg>
                 ) : (
@@ -348,7 +360,7 @@ const MessageForm = ({ name, form_id }: Props) => {
                 name="name"
                 id="name"
                 disabled={true}
-                value={state.anonymous ? "Аноним" : name}
+                value={state.anonymous || name === ADMIN_USER ? "Аноним" : name}
                 className="w-full py-2 pl-10 text-sm rounded-md focus:outline-none dark:bg-gray-800 dark:text-gray-100 focus:dark:bg-gray-900 focus:border-violet-400"
               />
             </div>
@@ -358,6 +370,8 @@ const MessageForm = ({ name, form_id }: Props) => {
             name="anonymous"
             id="anonymous"
             aria-label="Заполнить анонимно?"
+            disabled={name === ADMIN_USER}
+            defaultChecked={anonymous}
             onChange={() => dispatch({ type: ActionType.CHANGE_ANONYMOUS })}
             className="mr-1 rounded-sm focus:ring-violet-400 focus:border-violet-400 focus:ring-2 accent-violet-400"
           />

@@ -5,6 +5,7 @@ import { ContentfulEnvironmentAPI } from "contentful-management/dist/typings/cre
 const contentful = require("contentful-management");
 
 import clientPromise from "../mongodb";
+import { ADMIN_USER } from "../../utils/constants";
 
 export type ImageData = {
   filename: string;
@@ -31,11 +32,15 @@ export const checkFormId = async (form_id: string = ""): Promise<string> => {
   const collection = client.db("roger-bot-db").collection("users");
   const results = await collection.findOne({ form_id: new ObjectId(form_id) });
 
+  if (results && results.is_admin) {
+    return ADMIN_USER;
+  }
+
   if (results && results.name) {
     return results.name;
-  } else {
-    return "";
   }
+
+  return "";
 };
 
 export const uploadImage = async (image: ImageData): Promise<any> => {
