@@ -43,3 +43,21 @@ After development finished, stop environment
 ```bash
 deactivate
 ```
+
+## Load bots to server
+
+Use sFTP connection to upload bots to server
+
+Directory `/opt/`
+
+Don't forget to install all packages from `requirements.txt`
+
+To send job to background:
+
+1. Run commant as usual - example `python3 main.py`
+2. Press `cntr + z` to exit process
+3. Send it to background with command `bg`
+
+To see all running jobs use `jobs` command
+
+And to stop job use `kill $1` with number from `jobs` command
