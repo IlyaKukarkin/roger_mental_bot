@@ -272,14 +272,14 @@
 			"frequency": 4
 		},
 		{
-			"id": 2,
+			"id": 3,
 			"is_labelled": 1,
-			"answers_arrays": ["yellow_mood_reactions", "invite_to_form", "*wait_for_answer_to_form*", "good_final_message"],			
+			"answers_arrays": ["yellow_mood_reactions", "invite_to_form", "*wait_for_answer_to_form*"],			
 			"color": "yellow",
 			"frequency": 4
 		},
 		{
-			"id": 3,
+			"id": 2,
 			"is_labelled": 1,
 			"answers_arrays": ["orange_mood_reactions", "sending_support", "*support*"],
 			"color": "orange",
@@ -288,12 +288,35 @@
 		{	
 			"id": 4,
 			"is_labelled": 1,
-			"answers_arrays": ["green_mood_reactions", "invite_to_form", "*wait_for_answer_to_form*", "good_final_message"],
+			"answers_arrays": ["green_mood_reactions", "invite_to_form", "*wait_for_answer_to_form*"],
 			"color": "green",
 			"frequency": 4
 		}
 	],
 		"good_final_message":
+	[
+		{
+			"id": 1,
+			"text": "Как тебе это сообщение? Сохраняй свое прекрасное настроение — и увидимся завтра!",
+			"frequency": 3
+		},
+		{
+			"id": 2,
+			"text": "Принесу новый опрос завтра! До связи 🙃",
+			"frequency": 4
+		},
+		{
+			"id": 3,
+			"text": "Отлично! До встречи завтра 🙃",
+			"frequency": 3
+		},
+		{
+			"id": 4,
+			"text": "Топ! Спишемся завтра",
+			"frequency": 4
+		}
+	], 
+	"bad_final_message":
 	[
 		{
 			"id": 1,

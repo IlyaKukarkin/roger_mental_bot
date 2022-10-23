@@ -1,4 +1,7 @@
 from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton 
+from sqlite3 import Cursor
+from aiogram.utils.callback_data import CallbackData
+
 
 green_button_answer=InlineKeyboardButton('🟢', callback_data='green_button_answer')
 yellow_button_answer=InlineKeyboardButton('🟡', callback_data='yellow_button_answer')
@@ -19,3 +22,4 @@ ask_for_time_to_send_21 = InlineKeyboardButton('21:00-22:00', callback_data='ask
 ask_for_time_to_send_22 = InlineKeyboardButton('22:00-23:00', callback_data='ask_for_time_22')
 ask_for_time_to_send_23 = InlineKeyboardButton('23:00-00:00', callback_data='ask_for_time_23')
 ask_for_time_to_send_kb = InlineKeyboardMarkup(row_width=2).add(ask_for_time_to_send_20, ask_for_time_to_send_21, ask_for_time_to_send_22, ask_for_time_to_send_23)
+

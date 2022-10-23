@@ -9,3 +9,4 @@ class Recording(StatesGroup):
     AwaitForATimeToSend=State()
     AwaitForATimeZoneToSend = State()
     AwaitForAFeedback = State()
+    AwaitForAMessageForAll = State()
