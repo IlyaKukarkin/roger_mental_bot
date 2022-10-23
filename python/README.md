@@ -43,3 +43,8 @@ After development finished, stop environment
 ```bash
 deactivate
 ```
+
+After adding new packages, you should update requirements.txt file
+```bash
+pip freeze > requirements.txt
+```
