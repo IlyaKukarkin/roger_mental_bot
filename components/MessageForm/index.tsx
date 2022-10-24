@@ -85,7 +85,7 @@ const MessageForm = ({ name, form_id }: Props) => {
     let id: NodeJS.Timeout;
     if (submitResult === SubmitResult.SUCCESS) {
       id = setTimeout(() => {
-        window.location.href = "https://telegram.me/roger_mental_bot";
+        window.location.href = "https://telegram.me/RogerMentalBot";
         window.close();
       }, 3000);
     }
