@@ -27,7 +27,12 @@ type Settings = {
   volunteer_messages_in_day: number;
 }
 
-export const getCalculatedRates = async (): Promise<void> => {
+type RateResponse = {
+  update_to_approve: number;
+  update_to_review: number;
+}
+
+export const getCalculatedRates = async (): Promise<RateResponse> => {
   const client = await clientPromise;
   const messagesCol = client.db("roger-bot-db").collection("messages");
   const settingsCol = client.db("roger-bot-db").collection("app_settings");
@@ -206,6 +211,8 @@ export const getCalculatedRates = async (): Promise<void> => {
   } else {
     console.log(`Nothing to update to "Review"`);
   }
+
+  return { update_to_approve: updateToApproved.length, update_to_review: updateToReview.length }
 };
 
 const calculateRate = (message: MessageToRate, settings: Settings): MessageToRate => {

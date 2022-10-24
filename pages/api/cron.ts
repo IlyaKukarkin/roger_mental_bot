@@ -11,9 +11,9 @@ export default async function handler(
             const { authorization } = req.headers;
 
             if (authorization === `Bearer ${process.env.CRON_API_KEY}`) {
-                await getCalculatedRates();
+                const updateResult = await getCalculatedRates();
 
-                res.status(200).json({ success: true });
+                res.status(200).json({ success: true, result: updateResult });
             } else {
                 res.status(401).json({ success: false });
             }

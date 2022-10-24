@@ -284,7 +284,7 @@ const MessageForm = ({ name, form_id }: Props) => {
               type="button"
               className="px-8 py-3 font-semibold rounded bg-violet-400 dark:bg-violet-400 dark:text-gray-900"
               onClick={() => {
-                window.location.href = "https://telegram.me/roger_mental_bot";
+                window.location.href = "https://telegram.me/RogerMentalBot";
                 window.close();
               }}
             >
