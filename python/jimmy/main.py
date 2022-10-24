@@ -65,8 +65,8 @@ async def send_messages():
         print('отправляю сообщения')
         await send_message_to_rate()
 
-        print('жду')
-        await asyncio.sleep(30)
+        print('Жду 50 минут')
+        await asyncio.sleep(3000)
 
 
 async def on_startup(x):
