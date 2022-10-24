@@ -29,6 +29,7 @@ import pytz
 
 #tokens
 token_bot = os.getenv("TOKEN_ROGER_PROD_BOT")
+#token_bot = os.getenv("TOKEN_BOT")
 db_token = os.getenv("MONGODB_URI")
 link_to_form = os.getenv("LINK_TO_FORM")
 contenful_access_token = os.getenv("CONTENTFUL_ACCESS_TOKEN")
@@ -211,15 +212,15 @@ async def process_start_command(message: types.Message):
 🟠 — день мог бы быть сильно лучше, но еще не все потеряно
 🔴 — день был хуже некуда, тебе срочно нужна поддержка
         """)
-        time.sleep(4)
+        time.sleep(6)
         await bot.send_message(message.chat.id, "Если ты выберешь 🟠 и 🔴 настроение, тогда и начнется самое интересное 🙃 \nЯ подберу тебе ободряющее сообщение от другого пользователя, у которого настроение было отличным — и он захотел поделиться им с тобой")
-        time.sleep(3)
-        await bot.send_message(message.chat.id, "И наоборот — если у тебя выдался 🟢 и 🟡 день, то ты сможешь написать свое позитивное сообщение  \nКогда твое сообщение пройдет модерацию, я буду показывать его тем, кому это сейчас важно")
-        time.sleep(4)
+        time.sleep(5)
+        await bot.send_message(message.chat.id, "И наоборот — если у тебя выдался 🟢 и 🟡 день, то ты сможешь написать свое позитивное сообщение.  \nКогда твое сообщение пройдет модерацию, я буду показывать его тем, кому это сейчас важно")
+        time.sleep(5)
         await bot.send_message(message.chat.id, "Вот такая простая магия ✨")
-        time.sleep(2)
+        time.sleep(3)
         await bot.send_message(message.chat.id, "Давай познакомимся с тобой поближе! Только будь внимателен — зарегистрироваться можно только один раз 🙃")
-        time.sleep(2)
+        time.sleep(5)
         await bot.send_message(message.chat.id, "Тебя зовут " + message.from_user.first_name + "? Подтверди свое имя или введи другое", reply_markup=ask_for_name_kb)         
         await Recording.Name.set()
         collection_name['users'].find().close()
@@ -314,7 +315,7 @@ async def customer_name(message: types.Message, state:FSMContext):
         await bot.send_message(message.chat.id, "Кажется, ты ввел что-то не то 🙃 \nНапиши, сколько у тебя сейчас времени в формате ЧАСЫ:МИНУТЫ")
         await Recording.AwaitForATimeZoneToSend.set()
         return
-    if (int(s[0])<0 or int(s[0])>24):
+    if (int(s[0])<0 or int(s[0])>23):
         await bot.send_message(message.chat.id, "Кажется, ты ввел что-то не то 🙃 \nНапиши, сколько у тебя сейчас времени в формате ЧАСЫ:МИНУТЫ")
         await Recording.AwaitForATimeZoneToSend.set()
         return
@@ -331,7 +332,10 @@ async def customer_name(message: types.Message, state:FSMContext):
         time_zone = "-0" + str(abs(time_zone2))
     else:
         time_zone = "-" + str(abs(time_zone2))
-    await create_new_user(message.from_user.username, user_name, time_zone, str(message.chat.id), user_time)
+    s = message.from_user.username
+    if (s == None):
+        s = ""
+    await create_new_user(s, user_name, time_zone, str(message.chat.id), user_time)
     await state.finish()
 
 async def create_new_user(tg_username: str, username: str, time_zone: str, telegram_id: str, user_time: str):
@@ -539,7 +543,8 @@ async def is_enabled():
     }
 ])        
         for user in users:
-            await sendmes(int(user['telegram_id']))
+            if (await is_any_messages_sent_today(int(user['telegram_id'])) == True):
+                await sendmes(int(user['telegram_id']))
         collection_name['users'].find().close()
         collection_name['user_messages'].find().close()
         await asyncio.sleep(45*60)
@@ -587,7 +592,7 @@ async def process_callback_button1(message: types.Message, state:FSMContext):
     collection_name = get_database()
     user = collection_name["users"].find_one({"telegram_id": str(message.chat.id)}, {'_id': 1, "form_id": 1, "is_admin": 1})
     if (user["is_admin"] == False):
-        await bot.send_message(message.chat.id, "Сорри, ты не админ этого бота. Не расстраивайся, ты повышен до клиента!")
+        await bot.send_message(message.chat.id, "Сорри, ты не админ этого бота. Не расстраивайся, ты же клиент!")
         await state.finish()
         return
     users = collection_name["users"].find({"is_active": True}, {'_id': 1, "telegram_id": 1, "is_admin": 1})
@@ -595,6 +600,51 @@ async def process_callback_button1(message: types.Message, state:FSMContext):
         await bot.send_message(i["telegram_id"], message.text)
     await state.finish()
     collection_name['users'].find().close()
+
+async def is_any_messages_sent_today(chat_id: int):
+    collection_name = get_database()
+    user = collection_name["users"].find_one({"telegram_id": str(chat_id)}, {'_id': 1})
+    user_message = collection_name['user_messages'].aggregate([
+    {
+        '$match': {
+            'id_user': user['_id']
+        }
+    }, {
+        '$addFields': {
+            'current_date': {
+                '$dateToString': {
+                    'format': '%Y-%m-%d', 
+                    'date': datetime.datetime.now(pytz.utc)
+                }
+            }
+        }
+    }, {
+        '$project': {
+            'current_date': 1, 
+            'time_to_send_substr': {
+                '$substr': [
+                    '$time_to_send', 0, 10
+                ]
+            }
+        }
+    }, {
+        '$addFields': {
+            'result': {
+                '$eq': [
+                    '$current_date', '$time_to_send_substr'
+                ]
+            }
+        }
+    }, {
+        '$match': {
+            'result': True
+        }
+    }
+])
+    result = (list(user_message) == [])
+    collection_name['users'].find().close()
+    collection_name['user_messages'].find().close()
+    return result
 
 if __name__ == "__main__":
     executor.start_polling(dp, on_startup=on_startup)
