@@ -1,7 +1,7 @@
 name: rate-cron
 on:
   schedule:
-    - cron: '0 0,12 * * *'
+    - cron: '30 0,12 * * *'
 jobs:
   cron:
     runs-on: ubuntu-latest
