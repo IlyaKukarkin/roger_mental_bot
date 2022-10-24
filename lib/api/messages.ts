@@ -104,6 +104,40 @@ export const submitForm = async ({
     form_id: new ObjectId(form_id),
   });
 
+  let textToSend = 'Спасибо, что заполнил форму! Продолжай замерять свое настроение 🙃'
+  let textToSend2 = 'Скоро я пришлю тебе первый опрос. До встречи!'
+
+  const messages = await usersCollection.aggregate([
+    {
+      '$match': {
+        '_id': new ObjectId(user._id)
+      }
+    }, {
+      '$lookup': {
+        'from': 'messages',
+        'localField': '_id',
+        'foreignField': 'id_user',
+        'as': 'messages'
+      }
+    }, {
+      '$addFields': {
+        'messages': {
+          '$size': '$messages'
+        }
+      }
+    }
+  ])
+
+  let messageCount = 0
+
+  for await (const message of messages) {
+    messageCount = message.messages
+  }
+
+  if (messageCount === 0) {
+    textToSend = 'Спасибо, что заполнил форму! Я начну показывать сообщение другим пользователям, когда оно пройдет модерацию%0A%0AЧерез 7 дней сможешь увидеть, сколько раз я его показал и какие оценки оно получило. Не забывай каждый день замерять свое настроение, иначе магии не случится 😌';
+  }
+
   if (user && !user.is_admin) {
     await usersCollection.updateOne(
       { _id: new ObjectId(user._id) },
@@ -116,9 +150,15 @@ export const submitForm = async ({
   }
 
   const messageCollection = client.db("roger-bot-db").collection("messages");
-  return messageCollection.insertOne({
+  await messageCollection.insertOne({
     ...form,
     created_date: new Date(),
     id_user: new ObjectId(user._id),
   });
+
+  await fetch(`https://api.telegram.org/bot${process.env.TOKEN_ROGER_PROD_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend}`, { method: 'POST' })
+
+  if (messageCount === 0) {
+    await fetch(`https://api.telegram.org/bot${process.env.TOKEN_ROGER_PROD_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend2}`, { method: 'POST' })
+  }
 };

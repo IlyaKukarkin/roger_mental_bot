@@ -51,18 +51,38 @@ pip freeze > requirements.txt
 
  ## Load bots to server
 
- Use sFTP connection to upload bots to server
+!! You should have docker installed and running on your machine. [Link](https://docs.docker.com/desktop/install/mac-install/)
 
- Directory `/opt/`
+1. Open terminal and navigate to folder with bot
+```bash
+cd python/roger
+```
 
- Don't forget to install all packages from `requirements.txt`
+2. Create docker image with command 
+```bash
+docker build -t roger:2410 .
+```
+Numbers after symbol ":" mean "tag name" and can be used to put current date
 
- To send job to background:
+3. Save created image to archive with command 
+```bash
+docker save roger > roger.tar
+```
 
- 1. Run commant as usual - example `python3 main.py`
- 2. Press `cntr + z` to exit process
- 3. Send it to background with command `bg`
+4. Use sFTP connection to upload bots to server to the directory `/opt/roger`
 
- To see all running jobs use `jobs` command
+5. After transfer open server with `ssh` and login as root `user`
 
- And to stop job use `kill $1` with number from `jobs` command
+6. Go to the directory with archive file `/opt/roger`
+
+7. Load archive to docker on server
+```bash
+sudo docker load < roger.tar
+```
+
+8. Run image with this docker command with token from Doppler (without "$" symbol)
+```bash
+sudo docker run -d -e DOPPLER_TOKEN="$DOPPLER_TOKEN" roger
+```
+
+All same for other bot -> Jimmy. Just different name
