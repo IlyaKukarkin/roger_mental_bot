@@ -435,7 +435,7 @@ const MessageForm = ({ name, form_id }: Props) => {
                 onChange={(e) =>
                   dispatch({
                     type: ActionType.CHANGE_LINK,
-                    payload: e.target.value,
+                    payload: e.target.value.trim(),
                   })
                 }
                 placeholder="https://youtu.be/o-YBDTqX_ZU"
