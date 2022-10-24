@@ -109,6 +109,10 @@ export const submitForm = async ({
 
   const numberOfMessages = await usersCollection.aggregate([
     {
+      '$match': {
+        '_id': new ObjectId(user._id)
+      }
+    }, {
       '$lookup': {
         'from': 'messages', 
         'localField': '_id', 
