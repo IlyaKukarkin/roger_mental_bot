@@ -107,16 +107,16 @@ export const submitForm = async ({
   let textToSend = 'Спасибо, что заполнил форму! Продолжай замерять свое настроение 🙃'
   let textToSend2 = 'Скоро я пришлю тебе первый опрос. До встречи!'
 
-  const numberOfMessages = await usersCollection.aggregate([
+  const { messages } = await usersCollection.aggregate([
     {
       '$match': {
         '_id': new ObjectId(user._id)
       }
     }, {
       '$lookup': {
-        'from': 'messages', 
-        'localField': '_id', 
-        'foreignField': 'id_user', 
+        'from': 'messages',
+        'localField': '_id',
+        'foreignField': 'id_user',
         'as': 'messages'
       }
     }, {
@@ -128,7 +128,7 @@ export const submitForm = async ({
     }
   ])
 
-  if (numberOfMessages === 0) {
+  if (messages === 0) {
     textToSend = 'Спасибо, что заполнил форму! Я начну показывать сообщение другим пользователям, когда оно пройдет модерацию\n\nЧерез 7 дней сможешь увидеть, сколько раз я его показал и какие оценки оно получило. Не забывай каждый день замерять свое настроение, иначе магии не случится 😌';
   }
 
@@ -150,9 +150,9 @@ export const submitForm = async ({
     id_user: new ObjectId(user._id),
   });
 
-  await fetch(`https://api.telegram.org/bot${process.env.TOKEN_ROGER_PROD_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend}`, {method: 'POST'})
+  await fetch(`https://api.telegram.org/bot${process.env.TOKEN_ROGER_PROD_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend}`, { method: 'POST' })
 
-  if (numberOfMessages === 0) {
-    await fetch(`https://api.telegram.org/bot${process.env.TOKEN_ROGER_PROD_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend2}`, {method: 'POST'})
+  if (messages === 0) {
+    await fetch(`https://api.telegram.org/bot${process.env.TOKEN_ROGER_PROD_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend2}`, { method: 'POST' })
   }
 };
