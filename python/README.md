@@ -71,7 +71,7 @@ docker save roger:2410 > roger:2410.tar
 
 4. Use sFTP connection as admin to upload bots to server to the directory `/opt/roger`
 
-5. After transfer open server with `ssh` and login as root `user`
+5. After transfer open server with `ssh` and login as admin `user`
 
 6. Go to the directory with archive file `/opt/roger`
 

@@ -17,7 +17,7 @@ from handlers.rate_bad import rate_bad_handler
 from handlers.send_message import send_message_to_rate
 
 # Get .env variables
-token_volunteer_bot = os.getenv("TOKEN_VOLUNTEER_TEST_BOT")
+token_volunteer_bot = os.getenv("TOKEN_VOLUNTEER_BOT")
 db_uri = os.getenv("MONGODB_URI")
 contenful_access_token = os.getenv("CONTENTFUL_ACCESS_TOKEN")
 contenful_space_id = os.getenv("CONTENTFUL_SPACE_ID")
