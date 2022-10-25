@@ -11,12 +11,13 @@ import contentful
 
 from singleton import SingletonClass
 from handlers.start import start_handler
+from handlers.rate import rate_handler
 from handlers.rate_good import rate_good_handler
 from handlers.rate_bad import rate_bad_handler
 from handlers.send_message import send_message_to_rate
 
 # Get .env variables
-token_volunteer_bot = os.getenv("TOKEN_VOLUNTEER_BOT")
+token_volunteer_bot = os.getenv("TOKEN_VOLUNTEER_TEST_BOT")
 db_uri = os.getenv("MONGODB_URI")
 contenful_access_token = os.getenv("CONTENTFUL_ACCESS_TOKEN")
 contenful_space_id = os.getenv("CONTENTFUL_SPACE_ID")
@@ -50,6 +51,11 @@ async def start_command(message: types.Message):
     await start_handler(message)
 
 
+@dispatcher.message_handler(commands=['rate'])
+async def rate_command(message: types.Message):
+    await rate_handler(message)
+
+
 @dispatcher.callback_query_handler(lambda c: c.data == 'rate_good')
 async def rate_good_callback(callback_query: types.CallbackQuery, state: FSMContext):
     await rate_good_handler(callback_query, state)
@@ -70,7 +76,8 @@ async def send_messages():
 
 
 async def on_startup(x):
+    print('REMOVE')
     asyncio.create_task(send_messages())
 
 if __name__ == "__main__":
-    executor.start_polling(dispatcher, skip_updates=True, on_startup=on_startup)
+    executor.start_polling(dispatcher, on_startup=on_startup)
