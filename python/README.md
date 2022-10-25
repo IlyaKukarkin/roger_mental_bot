@@ -82,7 +82,7 @@ sudo docker load < roger.tar
 
 8. Run image with this docker command with token from Doppler (without "$" symbol)
 ```bash
-sudo docker run -d -e DOPPLER_TOKEN="$DOPPLER_TOKEN" roger
+sudo docker run --name roger -d -e DOPPLER_TOKEN="$DOPPLER_TOKEN" roger
 ```
 
 All same for other bot -> Jimmy. Just different name
