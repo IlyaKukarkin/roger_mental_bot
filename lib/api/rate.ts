@@ -25,6 +25,8 @@ type Settings = {
   admin_rate_number: number;
   volunteer_rate_number: number;
   volunteer_messages_in_day: number;
+  user_ban_dislikes_in_a_row: number;
+  volunteer_ban_dislikes_in_a_row: number;
 }
 
 type RateResponse = {
