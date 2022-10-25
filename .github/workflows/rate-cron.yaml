@@ -9,5 +9,5 @@ jobs:
       - name: Call our API route to calculate rate
         run: |
           curl --request POST \
-          --url 'https://roger-bot.space/api/cron' \
+          --url 'https://roger-bot.space/api/rate-cron' \
           --header 'Authorization: Bearer ${{ secrets.CRON_API_KEY }}'
