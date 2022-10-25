@@ -28,7 +28,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: ./
-          file: ./python/jimmy/Dockerfile
+          file: ./python/roger/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/roger:latest
@@ -55,7 +55,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: ./
-          file: ./python/jimmyDockerfile
+          file: ./python/jimmy/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/roger:jimmy
