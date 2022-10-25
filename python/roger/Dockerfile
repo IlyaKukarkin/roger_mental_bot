@@ -2,7 +2,7 @@ FROM python:3.10.8-slim
 
 WORKDIR /usr/src/app
 
-COPY requirements.txt ./
+COPY ./python/roger/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install Doppler CLI
