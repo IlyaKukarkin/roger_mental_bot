@@ -66,10 +66,10 @@ Numbers after symbol ":" mean "tag name" and can be used to put current date
 
 3. Save created image to archive with command 
 ```bash
-docker save roger > roger.tar
+docker save roger:2410 > roger:2410.tar
 ```
 
-4. Use sFTP connection to upload bots to server to the directory `/opt/roger`
+4. Use sFTP connection as admin to upload bots to server to the directory `/opt/roger`
 
 5. After transfer open server with `ssh` and login as root `user`
 
@@ -77,12 +77,34 @@ docker save roger > roger.tar
 
 7. Load archive to docker on server
 ```bash
-sudo docker load < roger.tar
+sudo docker load < roger:2410.tar
 ```
 
-8. Run image with this docker command with token from Doppler (without "$" symbol)
+8. You can delete .tar archive from server to save space
+
+9. Stop previus running container. Check what name it has with command
 ```bash
-sudo docker run --name roger -d -e DOPPLER_TOKEN="$DOPPLER_TOKEN" roger
+sudo docker container ls
+```
+
+10. Remember container name from previeus step and stop this container. For example, if the name was roger
+```bash
+sudo docker stop roger
+```
+
+11. Run new image with this docker command with token from Doppler (without "$" symbol)
+```bash
+sudo docker run --name roger -d -e DOPPLER_TOKEN="$DOPPLER_TOKEN" roger:2410
+```
+
+12. If everything working good, we can delete old images and containsers. Remove all stopped containers
+```bash
+sudo docker rm $(sudo docker ps --filter status=exited -q)
+```
+
+13. And remove all unused images
+```bash
+sudo docker images prune -a
 ```
 
 All same for other bot -> Jimmy. Just different name
