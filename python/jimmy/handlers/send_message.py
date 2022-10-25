@@ -19,24 +19,26 @@ async def send_message_to_rate():
     for user in users_to_send:
         user_id = ObjectId(str(user['_id']))
 
-        print('Отправляю пользователю: ' + str(user['_id']))
+        sent_today = user_messages.get_already_sended_messages(user_id)
+        if (len(list(sent_today)) == 0):
+            print('Отправляю пользователю: ' + str(user['_id']))
 
-        message_to_rate = messages.get_unapproved_by_user(user_id)
+            message_to_rate = messages.get_unapproved_by_user(user_id)
 
-        message_list = list(message_to_rate)
+            message_list = list(message_to_rate)
 
-        if (len(message_list) != 0):
-            old_messages = user_messages.get_not_rated_massages(user_id)
-            
-            for old_message in old_messages:
-                await delete_keyboard(user['telegram_id'], old_message['id_tg_message'])
+            if (len(message_list) != 0):
+                old_messages = user_messages.get_not_rated_massages(user_id)
+                
+                for old_message in old_messages:
+                    await delete_keyboard(user['telegram_id'], old_message['id_tg_message'])
 
-            message_to_send = message_list[0]
+                message_to_send = message_list[0]
 
-            print('Отправляю сообщение: ' + str(message_to_send))
+                print('Отправляю сообщение: ' + str(message_to_send))
 
-            await bot.send_message(str(user['telegram_id']), "Привет 👋\nОцени пожалуйста это сообщение от пользователя:")
+                await bot.send_message(str(user['telegram_id']), "Привет 👋\nОцени пожалуйста это сообщение от пользователя:")
 
-            tg_message_id = await send_message(str(user['telegram_id']), message_to_send)
-            
-            user_messages.insert_user_message(user_id, ObjectId(str(message_to_send['_id'])), tg_message_id)
+                tg_message_id = await send_message(str(user['telegram_id']), message_to_send)
+                
+                user_messages.insert_user_message(user_id, ObjectId(str(message_to_send['_id'])), tg_message_id)
