@@ -31,7 +31,7 @@ jobs:
           file: ./python/roger/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/roger:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/roger:roger
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/roger:cache-roger
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/roger:cache-roger,mode=max
   build-jimmy:
