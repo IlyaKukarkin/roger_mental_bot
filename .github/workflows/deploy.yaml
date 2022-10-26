@@ -8,6 +8,7 @@ on:
       - 'main'
 jobs:
   build-roger:
+    name: Build Roger
     runs-on: ubuntu-latest
 
     steps:
@@ -38,6 +39,7 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/roger:cache-roger
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/roger:cache-roger,mode=max
   build-jimmy:
+    name: Build Jimmy
     runs-on: ubuntu-latest
 
     steps:
@@ -75,5 +77,5 @@ jobs:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_ADMIN_USER }}
         password: ${{ secrets.SERVER_ADMIN_PASSWORD }}
-        port: ${{ secrets.PORT }}
+        port: ${{ secrets.SERVER_PORT }}
         script: whoami
