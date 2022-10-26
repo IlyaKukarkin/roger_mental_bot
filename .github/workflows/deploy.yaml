@@ -61,3 +61,13 @@ jobs:
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/roger:jimmy
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/roger:cache-jimmy
           cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/roger:cache-jimmy,mode=max
+  redeploy:
+    name: Redeploy webhook call
+    runs-on: ubuntu-18.04
+    needs: [build-roger, build-jimmy]
+    steps:
+      - name: Deploy docker container webhook
+        uses: joelwmale/webhook-action@master
+        with:
+          url: ${{ secrets.DEPLOY_WEBHOOK_URL  }}
+          headers: '{"authorization": "Bearer {{secrets.CRON_API_KEY}}"}'
