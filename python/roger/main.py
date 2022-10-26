@@ -199,7 +199,7 @@ async def process_callback_button1(callback_query: types.CallbackQuery, state:FS
 
 @dp.message_handler(commands=['version'])
 async def process_version_command(message: types.Message):
-    await bot.send_message(message.chat.id, "Версия бота Роджер: 0.2.1")
+    await bot.send_message(message.chat.id, "Версия бота Роджер: 0.2.2")
 
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):

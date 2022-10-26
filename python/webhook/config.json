@@ -1,9 +1,0 @@
-{
-    "WEBHOOKS": {
-      "redeploy": {
-        "token": "fd2af17f-3131-4169-9262-293aec982549",
-        "behaviour": "shell",
-        "cmd": "sh redeploy.sh"
-      }
-    }
-  }

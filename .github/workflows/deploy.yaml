@@ -79,5 +79,5 @@ jobs:
         password: ${{ secrets.SERVER_ADMIN_PASSWORD }}
         port: ${{ secrets.SERVER_PORT }}
         script: |
-          cd ../../opt/webhook
-          echo ${{ secrets.SERVER_ADMIN_PASSWORD }} | sudo -S sh redeploy.sh
+          cd ../../opt
+          echo ${{ secrets.SERVER_ADMIN_PASSWORD }} | sudo -S sh redeploy.sh ${{DOPPLER_TOKEN}}
