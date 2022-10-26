@@ -29,6 +29,7 @@ jobs:
       -
         name: Build and push
         uses: docker/build-push-action@v3
+        working-directory: ./python/roger
         with:
           context: ./
           file: ./Dockerfile
@@ -54,11 +55,9 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       -
-        name: Change directory to jimmy
-        run: cd python/jimmy
-      -
         name: Build and push
         uses: docker/build-push-action@v3
+        working-directory: ./python/jimmy
         with:
           context: ./
           file: ./Dockerfile
