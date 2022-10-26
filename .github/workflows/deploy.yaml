@@ -80,4 +80,4 @@ jobs:
         port: ${{ secrets.SERVER_PORT }}
         script: |
           cd ../../opt
-          echo ${{ secrets.SERVER_ADMIN_PASSWORD }} | sudo -S sh redeploy.sh ${{DOPPLER_TOKEN}}
+          echo ${{ secrets.SERVER_ADMIN_PASSWORD }} | sudo -S sh redeploy.sh ${{ secrets.DOPPLER_TOKEN }}
