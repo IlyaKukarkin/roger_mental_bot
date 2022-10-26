@@ -24,11 +24,14 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       -
+        name: Change directory to roger
+        run: cd python/roger
+      -
         name: Build and push
         uses: docker/build-push-action@v3
         with:
           context: ./
-          file: ./python/roger/Dockerfile
+          file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/roger:roger
@@ -51,11 +54,14 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       -
+        name: Change directory to jimmy
+        run: cd python/jimmy
+      -
         name: Build and push
         uses: docker/build-push-action@v3
         with:
           context: ./
-          file: ./python/jimmy/Dockerfile
+          file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/roger:jimmy

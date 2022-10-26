@@ -1,0 +1,18 @@
+[
+    {
+        "id": "redeploy",
+        "execute-command": "./redeploy.sh",
+        "command-working-directory": "/opt/",
+        "response-message": "Redeploying API server.",
+        "trigger-rule": {
+            "match": {
+                "type": "value",
+                "value": "Bearer fd2af17f-3131-4169-9262-293aec982549",
+                "parameter": {
+                    "source": "header",
+                    "name": "authorization"
+                }
+            }
+        }
+    }
+]
