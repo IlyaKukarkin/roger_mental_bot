@@ -29,7 +29,7 @@ import pytz
 
 #tokens
 token_bot = os.getenv("TOKEN_ROGER_PROD_BOT")
-#token_bot = os.getenv("TOKEN_BOT")
+# token_bot = os.getenv("TOKEN_BOT")
 db_token = os.getenv("MONGODB_URI")
 link_to_form = os.getenv("LINK_TO_FORM")
 contenful_access_token = os.getenv("CONTENTFUL_ACCESS_TOKEN")
@@ -196,6 +196,10 @@ async def process_callback_button1(callback_query: types.CallbackQuery, state:FS
     except(Exception):
         await bot.send_message(callback_query.from_user.id, "Ой, кажется, что-то пошло не так 😞 \nПовтори отправку настроения через несколько минут или напиши разработчикам через команду /feedback")
     await (mental_rate_strike (callback_query.from_user.id))   
+
+@dp.message_handler(commands=['version'])
+async def process_version_command(message: types.Message):
+    await bot.send_message(message.chat.id, "Версия бота Роджер: 0.2.2")
 
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
