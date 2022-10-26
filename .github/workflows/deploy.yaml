@@ -80,4 +80,4 @@ jobs:
         port: ${{ secrets.SERVER_PORT }}
         script: |
           cd ../../opt/webhook
-          sh redeploy.sh
+          echo ${{ secrets.SERVER_ADMIN_PASSWORD }} | sudo -S sh redeploy.sh
