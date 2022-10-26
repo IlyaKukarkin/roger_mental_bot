@@ -49,7 +49,17 @@ After adding new packages, you should update requirements.txt file
 pip freeze > requirements.txt
 ```
 
- ## Load bots to server
+ ## Git flow
+
+1. Locally pull changes from the `main` branch
+2. Create a new branch from the `main` branch to add fix/feature
+3. Make changes, push new bransh and create a pull request
+4. Test everything on a test bots by running the bot locally. There are test tokens for both bots in doppler (TOKEN_BOT, TOKEN_VOLUNTEER_TEST_BOT)
+5. If everything is ok, then raise the version in `roger/main.py` and `jimmy/handles/version` and merge in `main` branch
+6. After 5 minutes check the version in the bot
+ 
+ 
+ ## Load bots to server (OLD INFO, JUST FOR REFERENCE)
 
 !! You should have docker installed and running on your machine. [Link](https://docs.docker.com/desktop/install/mac-install/)
 
