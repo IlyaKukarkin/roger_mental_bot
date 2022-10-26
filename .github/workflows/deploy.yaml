@@ -29,10 +29,9 @@ jobs:
       -
         name: Build and push
         uses: docker/build-push-action@v3
-        working-directory: ./python/roger
         with:
-          context: ./
-          file: ./Dockerfile
+          context: ./python/roger
+          file: ./python/roger/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/roger:roger
@@ -57,10 +56,9 @@ jobs:
       -
         name: Build and push
         uses: docker/build-push-action@v3
-        working-directory: ./python/jimmy
         with:
-          context: ./
-          file: ./Dockerfile
+          context: ./python/jimmy
+          file: ./python/jimmy/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/roger:jimmy
