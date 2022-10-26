@@ -15,6 +15,7 @@ from handlers.rate import rate_handler
 from handlers.rate_good import rate_good_handler
 from handlers.rate_bad import rate_bad_handler
 from handlers.send_message import send_message_to_rate
+from handlers.version import version_handler
 
 # Get .env variables
 token_volunteer_bot = os.getenv("TOKEN_VOLUNTEER_BOT")
@@ -49,6 +50,11 @@ singleton.contentful = client
 @dispatcher.message_handler(commands=['start'])
 async def start_command(message: types.Message):
     await start_handler(message)
+
+
+@dispatcher.message_handler(commands=['version'])
+async def start_command(message: types.Message):
+    await version_handler(message)
 
 
 @dispatcher.message_handler(commands=['rate'])

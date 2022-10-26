@@ -2,7 +2,7 @@
     {
         "id": "redeploy",
         "execute-command": "./redeploy.sh",
-        "command-working-directory": "/opt/",
+        "command-working-directory": "./",
         "response-message": "Redeploying API server.",
         "trigger-rule": {
             "match": {
