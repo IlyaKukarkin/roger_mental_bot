@@ -78,11 +78,6 @@ jobs:
         username: ${{ secrets.SERVER_ADMIN_USER }}
         password: ${{ secrets.SERVER_ADMIN_PASSWORD }}
         port: ${{ secrets.SERVER_PORT }}
-        script: echo ${{ secrets.SERVER_ADMIN_PASSWORD }} |
-          sudo -S docker pull ikukarkin/roger:roger
-          sudo -S docker pull ikukarkin/roger:jimmy
-          sudo -S docker stop roger
-          sudo -S docker stop jimmy
-          sudo -S docker system prune -f
-          sudo -S docker run -d -e DOPPLER_TOKEN="dp.st.prd.jcF0VKUrH257mirbf7jxSzfcgClp84ccGCbCPTgeJNE" --name=roger ikukarkin/roger:roger
-          sudo -S docker run -d -e DOPPLER_TOKEN="dp.st.prd.jcF0VKUrH257mirbf7jxSzfcgClp84ccGCbCPTgeJNE" --name=jimmy ikukarkin/roger:jimmy
+        script: |
+          cd ../../opt/webhook
+          sh redeploy.sh
