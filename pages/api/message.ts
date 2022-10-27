@@ -80,9 +80,14 @@ export default async function handler(
           body += data;
         });
         req.on("end", async () => {
-          await submitForm(JSON.parse(body) as FormDataType);
+          try {
+            await submitForm(JSON.parse(body) as FormDataType);
 
-          return res.status(200).json({});
+            return res.status(200).json({});
+          } catch (e) {
+            console.log(e);
+            return res.status(403).json({ error: 'User not found' });
+          }
         });
       } catch (e) {
         console.log(e);

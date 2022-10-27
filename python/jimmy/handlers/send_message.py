@@ -29,7 +29,7 @@ async def send_message_to_rate():
 
             if (len(message_list) != 0):
                 old_messages = user_messages.get_not_rated_massages(user_id)
-                
+
                 for old_message in old_messages:
                     await delete_keyboard(user['telegram_id'], old_message['id_tg_message'])
 
@@ -40,5 +40,6 @@ async def send_message_to_rate():
                 await bot.send_message(str(user['telegram_id']), "Привет 👋\nОцени пожалуйста это сообщение от пользователя:")
 
                 tg_message_id = await send_message(str(user['telegram_id']), message_to_send)
-                
-                user_messages.insert_user_message(user_id, ObjectId(str(message_to_send['_id'])), tg_message_id)
+
+                user_messages.insert_user_message(user_id, ObjectId(
+                    str(message_to_send['_id'])), tg_message_id)

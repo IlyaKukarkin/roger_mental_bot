@@ -104,6 +104,10 @@ export const submitForm = async ({
     form_id: new ObjectId(form_id),
   });
 
+  if (!user) {
+    throw new Error('User not found');
+  }
+
   let textToSend = 'Спасибо, что заполнил форму! Продолжай замерять свое настроение 🙃'
   let textToSend2 = 'Скоро я пришлю тебе первый опрос. До встречи!'
 

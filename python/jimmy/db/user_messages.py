@@ -42,40 +42,11 @@ class User_Messages(object):
             [
                 {
                     '$match': {
-                        'id_user': user_id
-                    }
-                }, {
-                    '$addFields': {
-                        'current_date': {
-                            '$dateToString': {
-                                'format': '%Y-%m-%d',
-                                'date': datetime.now(pytz.utc)
-                            }
+                        'id_user': user_id,
+                        'time_to_send': {
+                            '$gte': datetime.now(pytz.utc)
                         }
                     }
-                }, {
-                    '$project': {
-                        'current_date': 1,
-                        'time_to_send_substr': {
-                            '$substr': [
-                                '$time_to_send', 0, 10
-                            ]
-                        }
-                    }
-                }, {
-                    '$addFields': {
-                        'result': {
-                            '$eq': [
-                                '$current_date', '$time_to_send_substr'
-                            ]
-                        }
-                    }
-                }, {
-                    '$match': {
-                        'result': True
-                    }
-                }, {
-                    '$count': 'sent_messages'
                 }
             ]
         )

@@ -22,7 +22,7 @@ async def send_message(telegram_id, message):
     if len(message['image_ids']) > 0:
         message_string = message_string + '\n' + text(bold('Вложения:'))
         await bot.send_message(telegram_id, message_string, parse_mode=ParseMode.MARKDOWN)
-        
+
         message_string = ""
         media = types.MediaGroup()
         for i in message['image_ids']:
@@ -31,11 +31,13 @@ async def send_message(telegram_id, message):
     else:
         message_string = message_string + '\n'
 
-    message_string = message_string + text(bold("Сообщение: ") + '\n' + message['text'] + '\n')
+    message_string = message_string + \
+        text(bold("Сообщение: ") + '\n' + message['text'] + '\n')
     message_string = message_string + '\n'
 
-    if message['media_link']!= "":
-        message_string = message_string + text(bold("Что стоит глянуть: ") + '\n' + message['media_link'])
+    if message['media_link'] != "":
+        message_string = message_string + \
+            text(bold("Что стоит глянуть: ") + '\n' + message['media_link'])
 
     message = await bot.send_message(telegram_id, message_string, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True, reply_markup=ask_for_rate_messages)
 

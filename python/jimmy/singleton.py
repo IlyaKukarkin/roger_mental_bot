@@ -1,10 +1,11 @@
 # From https://python-patterns.guide/gang-of-four/singleton/
 
 class SingletonClass(object):
-  def __new__(cls):
-    if not hasattr(cls, 'instance'):
-      cls.instance = super(SingletonClass, cls).__new__(cls)
-    return cls.instance
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(SingletonClass, cls).__new__(cls)
+        return cls.instance
+
 
 class Bot(object):
     def __init__(self):
