@@ -1,5 +1,7 @@
 import type { NextPage } from "next";
 
+import { BOT_LINK } from "../utils/constants";
+
 const Page403: NextPage = () => {
   return (
     <section className="flex items-center h-full min-h-screen p-16 dark:bg-gray-900 dark:text-gray-100">
@@ -16,7 +18,7 @@ const Page403: NextPage = () => {
           </p>
           <a
             rel="noopener noreferrer"
-            href="https://t.me/roger_mental_bot"
+            href={BOT_LINK}
             className="px-8 py-3 font-semibold rounded bg-gray-300 dark:bg-violet-400 dark:text-gray-900"
           >
             Перейти в Бота

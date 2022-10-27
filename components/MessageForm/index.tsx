@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useReducer, useRef } from "react";
 import Image from "next/future/image";
+import { useRouter } from "next/router";
 
 import Alert from "../Alert";
 import { initialState, reducer } from "./reducer";
@@ -23,6 +24,7 @@ const MessageForm = ({ name, form_id }: Props) => {
     }
     return state;
   });
+  const router = useRouter();
 
   const fileInput = useRef<null | HTMLInputElement>(null);
   const {
@@ -133,10 +135,15 @@ const MessageForm = ({ name, form_id }: Props) => {
           body: formData,
         });
 
+        if (res.status === 403) {
+          router.push(`/${res.status}`);
+          return;
+        }
+
         if (res.ok) {
           const imagesIdArray = await res.json();
 
-          await fetch(`/api/message`, {
+          const formRes = await fetch(`/api/message`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -144,11 +151,20 @@ const MessageForm = ({ name, form_id }: Props) => {
             body: JSON.stringify({ ...form, image_ids: imagesIdArray }),
           });
 
-          dispatch({
-            type: ActionType.SUBMIT_END,
-            payload: SubmitResult.SUCCESS,
-          });
-          return;
+          if (formRes.status === 403) {
+            router.push(`/${res.status}`);
+            return;
+          }
+
+          if (formRes.ok) {
+            dispatch({
+              type: ActionType.SUBMIT_END,
+              payload: SubmitResult.SUCCESS,
+            });
+            return;
+          }
+
+          dispatch({ type: ActionType.SUBMIT_END, payload: SubmitResult.ERROR });
         }
 
         dispatch({ type: ActionType.SUBMIT_END, payload: SubmitResult.ERROR });
@@ -157,16 +173,29 @@ const MessageForm = ({ name, form_id }: Props) => {
         dispatch({ type: ActionType.SUBMIT_END, payload: SubmitResult.ERROR });
       }
     } else {
-      await fetch(`/api/message`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...form }),
-      });
+      try {
+        const formRes = await fetch(`/api/message`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ...form }),
+        });
 
-      dispatch({ type: ActionType.SUBMIT_END, payload: SubmitResult.SUCCESS });
-      return;
+        if (formRes.status === 403) {
+          router.push(`/${formRes.status}`);
+          return;
+        }
+
+        if (formRes.ok) {
+          dispatch({ type: ActionType.SUBMIT_END, payload: SubmitResult.SUCCESS });
+          return;
+        }
+
+        dispatch({ type: ActionType.SUBMIT_END, payload: SubmitResult.ERROR });
+      } catch (e) {
+        dispatch({ type: ActionType.SUBMIT_END, payload: SubmitResult.ERROR });
+      }
     }
   };
 
@@ -398,9 +427,8 @@ const MessageForm = ({ name, form_id }: Props) => {
             }
             maxLength={5000}
             placeholder="Привет! Когда у меня плохое настроение, я открываю плейлист по ссылке и представляю, что я маленький корабль в океане..."
-            className={`block w-full max-h-96 min-h-12 h-32 md:h-24 p-2 rounded autoexpand focus:outline-none focus:ring-violet-400 focus:dark:bg-gray-900 focus:border-violet-400 dark:bg-gray-800 ${
-              formSubmitted && !message ? ERROR_INPUT_STYLES : ""
-            }`}
+            className={`block w-full max-h-96 min-h-12 h-32 md:h-24 p-2 rounded autoexpand focus:outline-none focus:ring-violet-400 focus:dark:bg-gray-900 focus:border-violet-400 dark:bg-gray-800 ${formSubmitted && !message ? ERROR_INPUT_STYLES : ""
+              }`}
           ></textarea>
         </div>
         <div>
@@ -439,9 +467,8 @@ const MessageForm = ({ name, form_id }: Props) => {
                   })
                 }
                 placeholder="https://youtu.be/o-YBDTqX_ZU"
-                className={`w-full py-2 pl-10 text-sm rounded-md focus:outline-none focus:ring-violet-400 dark:bg-gray-800 dark:text-gray-100 focus:dark:bg-gray-900 focus:border-violet-400 ${
-                  formSubmitted && linkError ? ERROR_INPUT_STYLES : ""
-                }`}
+                className={`w-full py-2 pl-10 text-sm rounded-md focus:outline-none focus:ring-violet-400 dark:bg-gray-800 dark:text-gray-100 focus:dark:bg-gray-900 focus:border-violet-400 ${formSubmitted && linkError ? ERROR_INPUT_STYLES : ""
+                  }`}
               />
             </div>
           </fieldset>
@@ -466,11 +493,10 @@ const MessageForm = ({ name, form_id }: Props) => {
                     payload: Object.values(fileInput.current?.files || {}),
                   })
                 }
-                className={`w-full px-2 md:px-8 py-2 bg-white border-dark-500 border border-dashed rounded-md dark:border-gray-700 focus:ring-violet-400 focus:outline-none dark:border-2 dark:text-gray-400 dark:bg-gray-800 focus:dark:bg-gray-900 focus:border-violet-400 ${
-                  formSubmitted && imagesError !== ImagesError.VALID
+                className={`w-full px-2 md:px-8 py-2 bg-white border-dark-500 border border-dashed rounded-md dark:border-gray-700 focus:ring-violet-400 focus:outline-none dark:border-2 dark:text-gray-400 dark:bg-gray-800 focus:dark:bg-gray-900 focus:border-violet-400 ${formSubmitted && imagesError !== ImagesError.VALID
                     ? ERROR_INPUT_STYLES
                     : ""
-                }`}
+                  }`}
               />
             </div>
           </fieldset>
