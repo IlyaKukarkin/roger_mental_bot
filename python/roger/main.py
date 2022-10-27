@@ -1,5 +1,3 @@
-from curses.ascii import isdigit
-from re import L
 from sqlite3 import Cursor
 import json
 import random
@@ -9,16 +7,14 @@ import os
 import asyncio
 import requests
 import datetime
-import certifi
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
 from aiogram.dispatcher import FSMContext
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram import Bot, types
-from aiogram.utils.markdown import hbold, bold, text, link
-from aiogram.types import ChatType, ParseMode, ContentTypes, callback_query, CallbackQuery
-from aiogram.types import ReplyKeyboardRemove, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
-from pymongo import MongoClient
+from aiogram.utils.markdown import bold, text
+from aiogram.types import ParseMode, CallbackQuery
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from bson import ObjectId
 from states import Recording
 from keyboards import kb_for_mental_poll, ask_for_name_kb, ask_for_rate_messages, ask_for_time_to_send_kb
@@ -233,7 +229,7 @@ async def process_callback_button1(callback_query: types.CallbackQuery, state: F
 
 @dp.message_handler(commands=['version'])
 async def process_version_command(message: types.Message):
-    await bot.send_message(message.chat.id, "Версия бота Роджер: 0.3.0")
+    await bot.send_message(message.chat.id, "Версия бота Роджер: 0.3.1")
 
 
 @dp.message_handler(commands=['start'])
@@ -617,7 +613,8 @@ async def is_enabled():
             }
         ])
         for user in users:
-            if (await is_any_messages_sent_today(int(user['telegram_id'])) == True):
+            already_sent = await is_any_messages_sent_today(user['_id'])
+            if (not already_sent):
                 await sendmes(int(user['telegram_id']))
         collection_name['users'].find().close()
         collection_name['user_messages'].find().close()
@@ -690,15 +687,13 @@ async def process_callback_button1(message: types.Message, state: FSMContext):
     collection_name['users'].find().close()
 
 
-async def is_any_messages_sent_today(chat_id: int):
+async def is_any_messages_sent_today(user_id: ObjectId):
     collection_name = get_database()
-    user = collection_name["users"].find_one(
-        {"telegram_id": str(chat_id)}, {'_id': 1})
     mental_rates = collection_name['mental_rate'].aggregate(
         [
             {
                 '$match': {
-                    'id_user': user['_id'],
+                    'id_user': user_id,
                     'date': {
                         '$gte': datetime.datetime.now(pytz.utc)
                     }
@@ -706,8 +701,7 @@ async def is_any_messages_sent_today(chat_id: int):
             }
         ])
 
-    result = (list(mental_rates) == [])
-    collection_name['users'].find().close()
+    result = (list(mental_rates) != [])
     collection_name['mental_rate'].find().close()
     return result
 
