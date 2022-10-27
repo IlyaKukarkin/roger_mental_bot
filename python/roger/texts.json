@@ -1,6 +1,5 @@
 {
-	"greetings": 
-	[
+	"greetings": [
 		{
 			"id": 1,
 			"text": "Привет! Прошел еще один день — время оценить свое настроение 👐",
@@ -15,7 +14,7 @@
 			"id": 3,
 			"text": "Привет 👋 Делись, каким тебе запомнился сегодняшний день",
 			"frequency": 2
-		},		
+		},
 		{
 			"id": 4,
 			"text": "Это снова я! Еще один день закончился — давай оценим, как он прошел",
@@ -32,8 +31,7 @@
 			"frequency": 4
 		}
 	],
-	"polls_questions":
-	[ 
+	"polls_questions": [
 		{
 			"id": 1,
 			"text": "Как твое настроение сегодня?",
@@ -60,8 +58,7 @@
 			"frequency": 4
 		}
 	],
-	"invite_to_form":
-	[
+	"invite_to_form": [
 		{
 			"id": 1,
 			"text": "Может, ты захочешь поделиться своим настроением с людьми, у которых день совсем не задался?",
@@ -78,8 +75,7 @@
 			"frequency": 3
 		}
 	],
-		"fill_form":
-	[
+	"fill_form": [
 		{
 			"id": 1,
 			"text": "Спасибо, что помогаешь! Ниже ссылка на форму. Пройди ее — и я буду делиться твоей поддержкой с другими пользователями",
@@ -96,8 +92,7 @@
 			"frequency": 3
 		}
 	],
-		"sending_support":
-	[
+	"sending_support": [
 		{
 			"id": 1,
 			"text": "Скорая ментальная помощь уже выехала — лови поддержку от другого пользователя",
@@ -119,8 +114,7 @@
 			"frequency": 4
 		}
 	],
-	"gif_support":
-	[
+	"gif_support": [
 		{
 			"id": 1,
 			"text": "Лечебная гифка с котиком уже в пути",
@@ -147,8 +141,7 @@
 			"frequency": 4
 		}
 	],
-	"green_mood_reactions":
-	[
+	"green_mood_reactions": [
 		{
 			"id": 1,
 			"text": "Лучше даже и представить нельзя 🥳",
@@ -170,8 +163,7 @@
 			"frequency": 4
 		}
 	],
-    "yellow_mood_reactions":
-	[
+	"yellow_mood_reactions": [
 		{
 			"id": 1,
 			"text": "Ого! У тебя был почти идеальный день 😍",
@@ -193,8 +185,7 @@
 			"frequency": 4
 		}
 	],
-	"orange_mood_reactions":
-	[
+	"orange_mood_reactions": [
 		{
 			"id": 1,
 			"text": "Надеюсь, завтрашний день будет лучше!",
@@ -216,8 +207,7 @@
 			"frequency": 4
 		}
 	],
-	"red_mood_reactions":
-	[
+	"red_mood_reactions": [
 		{
 			"id": 1,
 			"text": "Ой-ой!",
@@ -239,8 +229,7 @@
 			"frequency": 4
 		}
 	],
-	"what_was_good_today":
-	[
+	"what_was_good_today": [
 		{
 			"id": 1,
 			"text": "А что порадовало тебя сегодня? Отправь мне любой текст и до трех фотографий, описывающих твой день \n \n Когда закончишь, нажми Stop или введи команду /stop",
@@ -262,39 +251,55 @@
 			"frequency": 4
 		}
 	],
-	"polls_answers":
-	[
+	"polls_answers": [
 		{
 			"id": 1,
 			"is_labelled": 1,
-			"answers_arrays": ["red_mood_reactions", "gif_support", "*gif*", "sending_support", "*support*"],
+			"answers_arrays": [
+				"red_mood_reactions",
+				"gif_support",
+				"*gif*",
+				"sending_support",
+				"*support*"
+			],
 			"color": "red",
 			"frequency": 4
 		},
 		{
 			"id": 3,
 			"is_labelled": 1,
-			"answers_arrays": ["yellow_mood_reactions", "invite_to_form", "*wait_for_answer_to_form*"],			
+			"answers_arrays": [
+				"yellow_mood_reactions",
+				"invite_to_form",
+				"*wait_for_answer_to_form*"
+			],
 			"color": "yellow",
 			"frequency": 4
 		},
 		{
 			"id": 2,
 			"is_labelled": 1,
-			"answers_arrays": ["orange_mood_reactions", "sending_support", "*support*"],
+			"answers_arrays": [
+				"orange_mood_reactions",
+				"sending_support",
+				"*support*"
+			],
 			"color": "orange",
 			"frequency": 4
 		},
-		{	
+		{
 			"id": 4,
 			"is_labelled": 1,
-			"answers_arrays": ["green_mood_reactions", "invite_to_form", "*wait_for_answer_to_form*"],
+			"answers_arrays": [
+				"green_mood_reactions",
+				"invite_to_form",
+				"*wait_for_answer_to_form*"
+			],
 			"color": "green",
 			"frequency": 4
 		}
 	],
-		"good_final_message":
-	[
+	"good_final_message": [
 		{
 			"id": 1,
 			"text": "Как тебе это сообщение? Сохраняй свое прекрасное настроение — и увидимся завтра!",
@@ -315,9 +320,8 @@
 			"text": "Топ! Спишемся завтра",
 			"frequency": 4
 		}
-	], 
-	"bad_final_message":
-	[
+	],
+	"bad_final_message": [
 		{
 			"id": 1,
 			"text": "Супер! Увидимся завтра!",
