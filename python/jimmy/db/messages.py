@@ -7,6 +7,12 @@ class Messages(object):
 
         self.messages = messages
 
+    def get_all(self):
+        return self.messages.find()
+
+    def update_message(self, id, media_link, original_media_link):
+        return  self.messages.update_one({'_id': id}, { "$set": { 'media_link': media_link, 'original_media_link': original_media_link } })
+    
     def get_unapproved_by_user(self, user_id):
         return self.messages.aggregate([
             {

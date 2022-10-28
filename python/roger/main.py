@@ -229,7 +229,7 @@ async def process_callback_button1(callback_query: types.CallbackQuery, state: F
 
 @dp.message_handler(commands=['version'])
 async def process_version_command(message: types.Message):
-    await bot.send_message(message.chat.id, "Версия бота Роджер: 0.3.2")
+    await bot.send_message(message.chat.id, "Версия бота Роджер: 0.3.3")
 
 
 @dp.message_handler(commands=['start'])
@@ -490,9 +490,7 @@ async def get_pictures(picture_id: str):
     answer = json.loads(response.content)
     answer = answer.get("fields").get("file").get("url")
 
-    buildUrl = str(answer[2:]) + '?fm=jpg'
-
-    return buildUrl
+    return str(answer[2:])
 
 
 async def create_message_with_support(chat_id: int, cursor: list, username: str, user_to_send: ObjectId):
@@ -506,7 +504,12 @@ async def create_message_with_support(chat_id: int, cursor: list, username: str,
         message = ""
         media = types.MediaGroup()
         for i in cursor['image_ids']:
-            media.attach_photo(await get_pictures(i))
+            picture_url = await get_pictures(i)
+            if ('.gif' in picture_url):
+                # Пробовал attach_video тут, но почему-то крашится
+                media.attach_photo(picture_url)
+            else:
+                media.attach_photo(picture_url + '?fm=jpg')
         await bot.send_media_group(chat_id, media=media)
     else:
         message = message + '\n'
