@@ -6,4 +6,6 @@ async def get_pictures(picture_id: str):
 
     url = contentful.asset(picture_id).url()
 
-    return str(url[2:])
+    buildUrl = str(url[2:]) + '?fm=jpg'
+
+    return buildUrl

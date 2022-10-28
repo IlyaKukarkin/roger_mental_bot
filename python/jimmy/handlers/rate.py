@@ -28,7 +28,7 @@ async def rate_handler(message: types.Message):
         await bot.send_message(message.chat.id, "Тебя забанили, :D")
         return
 
-    count_messages = list(user_messages.get_today_messages_by_user(user_id))
+    count_messages = list(user_messages.get_already_sended_messages(user_id))
 
     if (len(count_messages) != 0):
         settings = app_settings.get_app_settings()

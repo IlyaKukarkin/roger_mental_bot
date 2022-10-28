@@ -229,7 +229,7 @@ async def process_callback_button1(callback_query: types.CallbackQuery, state: F
 
 @dp.message_handler(commands=['version'])
 async def process_version_command(message: types.Message):
-    await bot.send_message(message.chat.id, "Версия бота Роджер: 0.3.1")
+    await bot.send_message(message.chat.id, "Версия бота Роджер: 0.3.2")
 
 
 @dp.message_handler(commands=['start'])
@@ -489,7 +489,10 @@ async def get_pictures(picture_id: str):
                             '/environments/master/assets/' + picture_id + '?access_token=' + contenful_access_token)
     answer = json.loads(response.content)
     answer = answer.get("fields").get("file").get("url")
-    return str(answer[2:])
+
+    buildUrl = str(answer[2:]) + '?fm=jpg'
+
+    return buildUrl
 
 
 async def create_message_with_support(chat_id: int, cursor: list, username: str, user_to_send: ObjectId):
@@ -693,13 +696,41 @@ async def is_any_messages_sent_today(user_id: ObjectId):
         [
             {
                 '$match': {
-                    'id_user': user_id,
-                    'date': {
-                        '$gte': datetime.datetime.now(pytz.utc)
+                    'id_user': user_id
+                }
+            }, {
+                '$addFields': {
+                    'current_date': {
+                        '$dateToParts': {
+                            'date': datetime.datetime.now(pytz.utc)
+                        }
                     }
                 }
+            }, {
+                '$addFields': {
+                    'current_date': {
+                        '$dateFromParts': {
+                            'year': '$current_date.year',
+                            'month': '$current_date.month',
+                            'day': '$current_date.day'
+                        }
+                    }
+                }
+            }, {
+                '$addFields': {
+                    'dateComp': {
+                        '$cmp': [
+                            '$current_date', '$date'
+                        ]
+                    }
+                }
+            }, {
+                '$match': {
+                    'dateComp': -1
+                }
             }
-        ])
+        ]
+    )
 
     result = (list(mental_rates) != [])
     collection_name['mental_rate'].find().close()
