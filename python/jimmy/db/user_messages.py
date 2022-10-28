@@ -19,34 +19,45 @@ class User_Messages(object):
     def get_user_message_by_tg_id(self, id_tg_message):
         return self.user_messages.find_one({"id_tg_message": id_tg_message})
 
-    def get_today_messages_by_user(self, user_id):
-        curr_date = datetime.now(pytz.utc)
-
-        return self.user_messages.aggregate(
-            [
-                {
-                    '$match': {
-                        'id_user': user_id,
-                        'time_to_send': {
-                            '$gte': datetime(curr_date.year, curr_date.month, curr_date.day, 0, 0, 0, tzinfo=pytz.utc)
-                        }
-                    }
-                }, {
-                    '$count': 'count_messages'
-                }
-            ]
-        )
-
     def get_already_sended_messages(self, user_id):
         return self.user_messages.aggregate(
             [
                 {
                     '$match': {
-                        'id_user': user_id,
-                        'time_to_send': {
-                            '$gte': datetime.now(pytz.utc)
+                        'id_user': user_id
+                    }
+                }, {
+                    '$addFields': {
+                        'current_date': {
+                            '$dateToParts': {
+                                'date': datetime.now(pytz.utc)
+                            }
                         }
                     }
+                }, {
+                    '$addFields': {
+                        'current_date': {
+                            '$dateFromParts': {
+                                'year': '$current_date.year',
+                                'month': '$current_date.month',
+                                'day': '$current_date.day'
+                            }
+                        }
+                    }
+                }, {
+                    '$addFields': {
+                        'dateComp': {
+                            '$cmp': [
+                                '$current_date', '$time_to_send'
+                            ]
+                        }
+                    }
+                }, {
+                    '$match': {
+                        'dateComp': -1
+                    }
+                }, {
+                    '$count': 'count_messages'
                 }
             ]
         )
