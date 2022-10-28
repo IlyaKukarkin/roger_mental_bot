@@ -26,7 +26,12 @@ async def send_message(telegram_id, message):
         message_string = ""
         media = types.MediaGroup()
         for i in message['image_ids']:
-            media.attach_photo(await get_pictures(i))
+            picture_url = await get_pictures(i)
+            if ('.gif' in picture_url):
+                # Пробовал attach_video тут, но почему-то крашится
+                media.attach_photo(picture_url)
+            else:
+                media.attach_photo(picture_url + '?fm=jpg')
         await bot.send_media_group(telegram_id, media=media)
     else:
         message_string = message_string + '\n'

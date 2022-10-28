@@ -142,6 +142,30 @@ export const submitForm = async ({
     textToSend = 'Спасибо, что заполнил форму! Я начну показывать сообщение другим пользователям, когда оно пройдет модерацию%0A%0AЧерез 7 дней сможешь увидеть, сколько раз я его показал и какие оценки оно получило. Не забывай каждый день замерять свое настроение, иначе магии не случится 😌';
   }
 
+  const { media_link } = form;
+  let short_link = media_link;
+  let original_link = media_link;
+
+  if (media_link) {
+    const params = new URLSearchParams();
+    params.append('key', process.env.CUTTLY_API_KEY || '');
+    params.append('short', media_link);
+    params.append('userDomain', '0'); // Change to 1 when custom domain is ready
+
+    try {
+      const url = new URL(`http://cutt.ly/api/api.php?${params.toString()}`)
+
+      const resp = await fetch(url)
+      const linkResp = await resp.json();
+
+      if (linkResp.url.status === 7) {
+        short_link = linkResp.url.shortLink;
+      }
+    } catch (e) {
+      throw new Error('Error with URL shortifier');
+    }
+  }
+
   if (user && !user.is_admin) {
     await usersCollection.updateOne(
       { _id: new ObjectId(user._id) },
@@ -156,6 +180,8 @@ export const submitForm = async ({
   const messageCollection = client.db("roger-bot-db").collection("messages");
   await messageCollection.insertOne({
     ...form,
+    media_link: short_link,
+    original_media_link: original_link,
     created_date: new Date(),
     id_user: new ObjectId(user._id),
   });
