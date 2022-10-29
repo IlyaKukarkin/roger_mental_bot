@@ -34,4 +34,4 @@ async def version_handler(message: types.Message):
     #         time.sleep(15)
 
 
-    await bot.send_message(message.chat.id, "Версия бота Джимми: 0.3.3")
+    await bot.send_message(message.chat.id, "Версия бота Джимми: 0.4.0")

@@ -3,6 +3,7 @@ import json
 import random
 import time
 import os
+import urllib.parse
 
 import asyncio
 import requests
@@ -22,6 +23,7 @@ from common import delete_keyboard
 from database import get_database
 from aiogram.utils.callback_data import CallbackData
 import pytz
+from linkpreview import link_preview
 
 # tokens
 token_bot = os.getenv("TOKEN_ROGER_PROD_BOT")
@@ -31,6 +33,7 @@ link_to_form = os.getenv("LINK_TO_FORM")
 contenful_access_token = os.getenv("CONTENTFUL_ACCESS_TOKEN")
 contenful_space_id = os.getenv("CONTENTFUL_SPACE_ID")
 contentful_api_readonly_url = os.getenv("CONTENTFUL_API_READONLY_URL")
+cuttly_api_key = os.getenv("CUTTLY_API_KEY")
 
 # read texts from json file
 with open('texts.json') as t:
@@ -79,21 +82,67 @@ async def delete_from_cart_handler(call: CallbackQuery, callback_data: dict):
 
 async def send_stata(id_message: str):
     collection_name = get_database()
-    message = collection_name["messages"].find_one({"_id": ObjectId(id_message)}, {
-                                                   "_id": 1, "text": 1, "is_anonymous": 1, "created_at": 1, "is_approved": 1, "id_user": 1})
+    message = collection_name["messages"].find_one(
+        {"_id": ObjectId(id_message)})
     count_times = collection_name["user_messages"].find(
         {"id_message": message["_id"]}, {"_id": 1})
-    is_approved = ""
-    if (message["is_approved"] == True):
-        is_approved = "да"
-    else:
-        is_approved = "нет"
-    count_good_rated = collection_name["rate"].find(
-        {"id_message": message["_id"], "rate": True}, {"rate": 1})
+
+    is_approved = message["is_approved"] == True and 'true' or 'false'
+
+    count_rates = collection_name["rate"].aggregate(
+        [
+            {
+                '$match': {
+                    'id_message': message["_id"]
+                }
+            }, {
+                '$group': {
+                    '_id': '$rate',
+                    'count': {
+                        '$sum': 1
+                    }
+                }
+            }
+        ]
+    )
+
+    good_rates = 0
+    bad_rates = 0
+
+    for rate in count_rates:
+        if (rate['_id'] == True):
+            good_rates = rate['count']
+        else:
+            bad_rates = rate['count']
+
+    curr_date = str(datetime.datetime.now(pytz.utc).isoformat())[:-6]
 
     user = collection_name["users"].find_one(
         {"_id": message["id_user"]}, {'telegram_id': 1})
-    await bot.send_message(int(user["telegram_id"]), text(bold("Твое сообщение: \n\"") + str(message['text']) + bold("\"\n\nОдобрено волонтерами: ") + is_approved + ".\n" + bold("Сколько раз было показано: ") + str(len(list(count_times))) + ".\n" + bold("Положительных оценок: ") + str(len(list(count_good_rated)))), parse_mode=ParseMode.MARKDOWN,)
+
+    image_url = f"?show={str(len(list(count_times)))}&likes={good_rates}&dislikes={bad_rates}&approved={is_approved}&current_date={curr_date}&text={urllib.parse.quote(message['text'])}&created_date={message['created_date'].isoformat()}"
+
+    if (message['media_link'] != ''):
+        preview = link_preview(message['original_media_link'])
+
+        response = requests.get('http://cutt.ly/api/api.php?key=' +
+                                cuttly_api_key + '&stats=' + message['media_link'])
+        answer = json.loads(response.content)
+        link_cliks = answer['stats']['clicks']
+
+        image_url = image_url + f"&link_clicks={link_cliks}&link={urllib.parse.quote(message['original_media_link'])}&link_image={urllib.parse.quote(preview.image)}&link_title={urllib.parse.quote(preview.title)}"
+
+    if (len(message['image_ids']) != 0):
+        image = await get_pictures(message['image_ids'][0])
+
+        image_url = image_url + f"&image={urllib.parse.quote('https://' + image)}"
+
+    result_image_url = 'https://roger-bot.space/api/message-stats' + image_url
+
+    print(result_image_url)
+
+    await bot.send_photo(int(user["telegram_id"]), result_image_url)
+
     collection_name['messages'].find().close()
     collection_name['user_messages'].find().close()
     collection_name['rate'].find().close()
@@ -229,7 +278,7 @@ async def process_callback_button1(callback_query: types.CallbackQuery, state: F
 
 @dp.message_handler(commands=['version'])
 async def process_version_command(message: types.Message):
-    await bot.send_message(message.chat.id, "Версия бота Роджер: 0.3.3")
+    await bot.send_message(message.chat.id, "Версия бота Роджер: 0.4.0")
 
 
 @dp.message_handler(commands=['start'])
