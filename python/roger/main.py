@@ -26,8 +26,8 @@ import pytz
 from linkpreview import link_preview
 
 # tokens
-# token_bot = os.getenv("TOKEN_ROGER_PROD_BOT")
-token_bot = os.getenv("TOKEN_BOT")
+token_bot = os.getenv("TOKEN_ROGER_PROD_BOT")
+# token_bot = os.getenv("TOKEN_BOT")
 db_token = os.getenv("MONGODB_URI")
 link_to_form = os.getenv("LINK_TO_FORM")
 contenful_access_token = os.getenv("CONTENTFUL_ACCESS_TOKEN")
@@ -120,7 +120,6 @@ async def send_stata(id_message: str):
     user = collection_name["users"].find_one(
         {"_id": message["id_user"]}, {'telegram_id': 1})
 
-    # show=5&likes=3&dislikes=2&approved=true&link_clicks=3&current_date=2022-10-28T13:55:46.918+00:00&text=SUUUUUUUIIIII&link=https://youtube.com/shorts/IX51UAJUhhQ?feature=share&image=https://images.ctfassets.net/n1wrmpzswxf2/48uznlXxRp2f2kOF8sBzm/6ea1cb1acacf7077fe14e5d9aa95f536/image-0&created_date=2022-10-23T13:55:46.918+00:00
     image_url = f"?show={str(len(list(count_times)))}&likes={good_rates}&dislikes={bad_rates}&approved={is_approved}&current_date={curr_date}&text={urllib.parse.quote(message['text'])}&created_date={message['created_date'].isoformat()}"
 
     if (message['media_link'] != ''):
@@ -138,7 +137,7 @@ async def send_stata(id_message: str):
 
         image_url = image_url + f"&image={urllib.parse.quote('https://' + image)}"
 
-    result_image_url = 'https://roger-mental-4efbi94om-ilyakukarkin.vercel.app/api/message-stats' + image_url
+    result_image_url = 'https://roger-bot.space/api/message-stats' + image_url
 
     print(result_image_url)
 
@@ -279,7 +278,7 @@ async def process_callback_button1(callback_query: types.CallbackQuery, state: F
 
 @dp.message_handler(commands=['version'])
 async def process_version_command(message: types.Message):
-    await bot.send_message(message.chat.id, "Версия бота Роджер: 0.3.3")
+    await bot.send_message(message.chat.id, "Версия бота Роджер: 0.4.0")
 
 
 @dp.message_handler(commands=['start'])

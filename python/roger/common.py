@@ -1,8 +1,8 @@
 import os
 from aiogram import Bot, types
 
-# token_bot = os.getenv("TOKEN_ROGER_PROD_BOT")
-token_bot = os.getenv("TOKEN_BOT")
+token_bot = os.getenv("TOKEN_ROGER_PROD_BOT")
+# token_bot = os.getenv("TOKEN_BOT")
 bot = Bot(token=token_bot)
 
 
