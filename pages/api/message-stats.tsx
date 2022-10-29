@@ -106,7 +106,7 @@ export default async function handler(req: NextRequest) {
         const approved = searchParams.get('approved') === 'true';
         const likes = searchParams.get('likes');
         const dislikes = searchParams.get('dislikes');
-        const link_clicks = searchParams.get('link_clicks');
+        const link_clicks = searchParams.get('link_clicks') || '';
         const text = searchParams.get('text');
         const image = searchParams.get('image');
         const link = searchParams.get('link');
