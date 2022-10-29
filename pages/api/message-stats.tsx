@@ -21,6 +21,12 @@ type Props = {
     link_title?: string;
 }
 
+enum TYPE {
+    TEXT = 'TEXT',
+    IMAGE_OR_LINK = 'IMAGE_OR_LINK',
+    ALL = 'ALL'
+}
+
 export default async function handler(req: NextRequest) {
     const Wrapper = ({ children }: PropsWithChildren) => {
         return (
@@ -74,13 +80,19 @@ export default async function handler(req: NextRequest) {
         )
     }
 
-    const renderText = (label: string, content: string) => {
-        const trimText = content.length < 120 ? content : `${content.slice(0, 120)}...`
+    const renderText = (label: string, content: string, type: TYPE) => {
+        const textLength = {
+            [TYPE.ALL]: 120,
+            [TYPE.IMAGE_OR_LINK]: 250,
+            [TYPE.TEXT]: 500
+        }[type]
+
+        const trimText = content.length < textLength ? content : `${content.slice(0, textLength)}...`
 
         return (
             <div tw="flex flex-col text-left">
                 <div>{label}</div>
-                <div tw="text-gray-400 w-100%">{trimText}</div>
+                <div tw="text-gray-400 w-full">{trimText}</div>
             </div>
         )
     }
@@ -176,13 +188,13 @@ export default async function handler(req: NextRequest) {
                 (
                     <Wrapper>
                         <div tw="bg-gray-800 text-gray-100 h-full w-full py-8 flex justify-around">
-                            <div tw="bg-gray-900 text-gray-100 w-[40%] h-full rounded-xl p-8 flex flex-col justify-between">
+                            <div tw="bg-gray-900 text-gray-100 w-[40%] h-full rounded-xl p-8 flex flex-col justify-start">
                                 <div tw="flex justify-between items-center w-full">
                                     <span tw="text-center text-2xl">Сообщение</span>
                                     <span tw="text-violet-400">создано {new Date(created_date).toLocaleDateString("ru-RU")}</span>
                                 </div>
                                 <div tw="flex mt-8">
-                                    {renderText('Слова поддержки:', text)}
+                                    {renderText('Слова поддержки:', text, link && link_image && link_title ? TYPE.IMAGE_OR_LINK : TYPE.TEXT)}
                                 </div>
                                 <div tw="flex mt-8">
                                     {(link && link_image && link_title) && renderLink(link, link_image, link_title)}
@@ -209,7 +221,7 @@ export default async function handler(req: NextRequest) {
                                 <span tw="text-center text-2xl">Сообщение</span>
                                 <span tw="text-violet-400">создано {new Date(created_date).toLocaleDateString("ru-RU")}</span>
                             </div>
-                            {renderText('Слова поддержки:', text)}
+                            {renderText('Слова поддержки:', text, link && link_image && link_title ? TYPE.ALL : TYPE.IMAGE_OR_LINK)}
                             {(link && link_image && link_title) && renderLink(link, link_image, link_title)}
                             {renderImage(image)}
                         </div>

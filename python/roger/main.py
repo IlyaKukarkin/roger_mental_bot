@@ -138,7 +138,7 @@ async def send_stata(id_message: str):
 
         image_url = image_url + f"&image={urllib.parse.quote('https://' + image)}"
 
-    result_image_url = 'https://roger-mental-k3j6irb73-ilyakukarkin.vercel.app/api/message-stats' + image_url
+    result_image_url = 'https://roger-mental-4efbi94om-ilyakukarkin.vercel.app/api/message-stats' + image_url
 
     print(result_image_url)
 
