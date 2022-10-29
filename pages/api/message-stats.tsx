@@ -7,6 +7,7 @@ export const config = {
 };
 
 type Props = {
+    approved?: boolean;
     show?: string;
     likes?: string;
     dislikes?: string;
@@ -40,25 +41,29 @@ export default async function handler(req: NextRequest) {
         )
     }
 
-    const renderStats = ({ show, likes, dislikes, link_clicks, current_date }: Props) => {
+    const renderStats = ({ approved, show, likes, dislikes, link_clicks, current_date }: Props) => {
         return (
             <div tw="bg-gray-900 text-gray-100 w-[40%] h-full rounded-xl p-8 flex flex-col">
                 <div tw="flex justify-between items-center w-full">
                     <span tw="text-center text-2xl">Статистика</span>
                     <span tw="text-violet-400">на {new Date(current_date).toLocaleDateString("ru-RU")}</span>
                 </div>
-                <div tw="flex flex-col h-full w-full justify-center items-center">
-                    <div tw="flex flex-col h-[25%] justify-start items-center m-2 lg:m-6">
+                <div tw="flex flex-col h-[90%] w-full justify-center items-center">
+                    <div tw="flex flex-col h-20 justify-start items-center m-4">
+                        <p tw="text-4xl font-bold leading-none lg:text-6xl">{approved ? 'Да' : 'Нет'}</p>
+                        <p tw="text-sm pt-8 sm:text-base">Аппрувното модераторами</p>
+                    </div>
+                    <div tw="flex flex-col h-20 justify-start items-center m-4">
                         <p tw="text-4xl font-bold leading-none lg:text-6xl">{show}</p>
-                        <p tw="text-sm sm:text-base">Количество показов</p>
+                        <p tw="text-sm pt-8 sm:text-base">Количество показов</p>
                     </div>
-                    <div tw="flex flex-col h-[25%] justify-start items-center m-2 lg:m-6">
+                    <div tw="flex flex-col h-20 justify-start items-center m-4">
                         <p tw="text-4xl font-bold leading-none lg:text-6xl">{likes} / {dislikes}</p>
-                        <p tw="text-sm sm:text-base">Лайки / Дизлайки</p>
+                        <p tw="text-sm pt-8 sm:text-base">Лайки / Дизлайки</p>
                     </div>
-                    <div tw="flex flex-col h-[25%] justify-start items-center m-2 lg:m-6">
+                    <div tw="flex flex-col h-20 justify-start items-center m-4">
                         <p tw="text-4xl font-bold leading-none lg:text-6xl">{link_clicks}</p>
-                        <p tw="text-sm sm:text-base">Количество переходов по ссылке</p>
+                        <p tw="text-sm pt-8 sm:text-base">Количество переходов по ссылке</p>
                     </div>
                 </div>
             </div>
@@ -96,6 +101,7 @@ export default async function handler(req: NextRequest) {
         // ?title=<title>
         const current_date = searchParams.get('current_date');
         const show = searchParams.get('show');
+        const approved = searchParams.get('approved');
         const likes = searchParams.get('likes');
         const dislikes = searchParams.get('dislikes');
         const link_clicks = searchParams.get('link_clicks');
@@ -104,7 +110,7 @@ export default async function handler(req: NextRequest) {
         const link = searchParams.get('link');
         const created_date = searchParams.get('created_date');
 
-        if (!show || !likes || !dislikes || !link_clicks || !text || !created_date || !current_date) {
+        if (!approved || !show || !likes || !dislikes || !link_clicks || !text || !created_date || !current_date) {
             return new ImageResponse(
                 (
                     <Wrapper>
