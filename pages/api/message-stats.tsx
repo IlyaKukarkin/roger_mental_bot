@@ -11,7 +11,7 @@ type Props = {
     show?: string;
     likes?: string;
     dislikes?: string;
-    link_clicks?: string;
+    link_clicks: string;
     current_date: string;
     created_date?: string;
     text?: string;
@@ -61,10 +61,12 @@ export default async function handler(req: NextRequest) {
                         <p tw="text-4xl font-bold leading-none lg:text-6xl">{likes} / {dislikes}</p>
                         <p tw="text-sm pt-8 text-gray-400 sm:text-base">Лайки / Дизлайки</p>
                     </div>
-                    <div tw="flex flex-col h-20 justify-start items-center m-4">
-                        <p tw="text-4xl font-bold leading-none lg:text-6xl">{link_clicks}</p>
-                        <p tw="text-sm pt-8 text-gray-400 sm:text-base">Количество переходов по ссылке</p>
-                    </div>
+                    {link_clicks && (
+                        <div tw="flex flex-col h-20 justify-start items-center m-4">
+                            <p tw="text-4xl font-bold leading-none lg:text-6xl">{link_clicks}</p>
+                            <p tw="text-sm pt-8 text-gray-400 sm:text-base">Количество переходов по ссылке</p>
+                        </div>
+                    )}
                 </div>
             </div>
         )
@@ -110,9 +112,7 @@ export default async function handler(req: NextRequest) {
         const link = searchParams.get('link');
         const created_date = searchParams.get('created_date');
 
-        console.log(approved)
-
-        if (!show || !likes || !dislikes || !link_clicks || !text || !created_date || !current_date) {
+        if (!show || !likes || !dislikes || !text || !created_date || !current_date) {
             return new ImageResponse(
                 (
                     <Wrapper>
