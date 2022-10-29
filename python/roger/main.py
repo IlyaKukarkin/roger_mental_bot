@@ -115,13 +115,13 @@ async def send_stata(id_message: str):
         else:
             bad_rates = rate['count']
 
-    print(message)
+    curr_date = str(datetime.datetime.now(pytz.utc).isoformat())[:-6]
 
     user = collection_name["users"].find_one(
         {"_id": message["id_user"]}, {'telegram_id': 1})
 
     # show=5&likes=3&dislikes=2&approved=true&link_clicks=3&current_date=2022-10-28T13:55:46.918+00:00&text=SUUUUUUUIIIII&link=https://youtube.com/shorts/IX51UAJUhhQ?feature=share&image=https://images.ctfassets.net/n1wrmpzswxf2/48uznlXxRp2f2kOF8sBzm/6ea1cb1acacf7077fe14e5d9aa95f536/image-0&created_date=2022-10-23T13:55:46.918+00:00
-    image_url = f"?show={str(len(list(count_times)))}&likes={good_rates}&dislikes={bad_rates}&approved={is_approved}&current_date={datetime.datetime.now(pytz.utc).isoformat()}&text={urllib.parse.quote(message['text'])}&created_date={message['created_date'].isoformat()}"
+    image_url = f"?show={str(len(list(count_times)))}&likes={good_rates}&dislikes={bad_rates}&approved={is_approved}&current_date={curr_date}&text={urllib.parse.quote(message['text'])}&created_date={message['created_date'].isoformat()}"
 
     if (message['media_link'] != ''):
         preview = link_preview(message['original_media_link'])
@@ -138,7 +138,7 @@ async def send_stata(id_message: str):
 
         image_url = image_url + f"&image={urllib.parse.quote('https://' + image)}"
 
-    result_image_url = 'https://roger-mental-rn3173y3o-ilyakukarkin.vercel.app/api/message-stats' + image_url
+    result_image_url = 'https://roger-mental-k3j6irb73-ilyakukarkin.vercel.app/api/message-stats' + image_url
 
     print(result_image_url)
 

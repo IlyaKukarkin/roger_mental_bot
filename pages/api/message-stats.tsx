@@ -115,7 +115,7 @@ export default async function handler(req: NextRequest) {
         return (
             <div tw="flex flex-col shrink text-left">
                 <div tw="mb-2">Картинка:</div>
-                <div tw="flex relative w-full h-full shrink aspect-square">
+                <div tw="flex relative">
                     <img src={image} tw='absolute h-[256px] w-[256px] top-0 left-0 right-0 bottom-0' style={{ filter: 'blur(4px)', borderRadius: 28 }} />
                     <img
                         src={image}
@@ -176,7 +176,7 @@ export default async function handler(req: NextRequest) {
                 (
                     <Wrapper>
                         <div tw="bg-gray-800 text-gray-100 h-full w-full py-8 flex justify-around">
-                            <div tw="bg-gray-900 text-gray-100 w-[40%] h-full rounded-xl p-8 flex flex-col justify-start">
+                            <div tw="bg-gray-900 text-gray-100 w-[40%] h-full rounded-xl p-8 flex flex-col justify-between">
                                 <div tw="flex justify-between items-center w-full">
                                     <span tw="text-center text-2xl">Сообщение</span>
                                     <span tw="text-violet-400">создано {new Date(created_date).toLocaleDateString("ru-RU")}</span>
