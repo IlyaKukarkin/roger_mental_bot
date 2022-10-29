@@ -17,6 +17,8 @@ type Props = {
     text?: string;
     image?: string;
     link?: string;
+    link_image?: string;
+    link_title?: string;
 }
 
 export default async function handler(req: NextRequest) {
@@ -51,7 +53,7 @@ export default async function handler(req: NextRequest) {
                 <div tw="flex flex-col h-[90%] w-full justify-center items-center">
                     <div tw="flex flex-col h-20 justify-start items-center m-4">
                         <p tw="text-4xl font-bold leading-none lg:text-6xl">{approved ? 'Да' : 'Нет'}</p>
-                        <p tw="text-sm pt-8 text-gray-400 sm:text-base">Аппрувното модераторами</p>
+                        <p tw="text-sm pt-8 text-gray-400 sm:text-base">Аппрувнуто модераторами</p>
                     </div>
                     <div tw="flex flex-col h-20 justify-start items-center m-4">
                         <p tw="text-4xl font-bold leading-none lg:text-6xl">{show}</p>
@@ -76,7 +78,30 @@ export default async function handler(req: NextRequest) {
         return (
             <div tw="flex flex-col text-left">
                 <div>{label}</div>
-                <div tw="text-gray-400">{content}</div>
+                <div tw="text-gray-400 w-100%">{content}</div>
+            </div>
+        )
+    }
+
+    const renderLink = (link: string, link_image: string, link_title: string) => {
+        return (
+            <div tw="flex flex-col text-left">
+                <div tw="mb-2">Ссылка:</div>
+                <div tw="flex h-18 items-center">
+                    <img
+                        src={link_image}
+                        tw="h-18 w-18"
+                        style={{
+                            position: 'relative',
+                            borderRadius: 12,
+                            objectFit: 'cover'
+                        }}
+                    />
+                    <div tw="flex flex-col h-18 justify-start ml-8">
+                        <p tw="h-6">{link_title}</p>
+                        <p tw="h-6 text-gray-400">{link}</p>
+                    </div>
+                </div>
             </div>
         )
     }
@@ -85,14 +110,19 @@ export default async function handler(req: NextRequest) {
         return (
             <div tw="flex flex-col text-left">
                 <div tw="mb-2">Картинка:</div>
-                <img
-                    width="256"
-                    height="256"
-                    src={image}
-                    style={{
-                        borderRadius: 28,
-                    }}
-                />
+                <div tw="flex relative w-[256px] h-[256px]">
+                    <img src={image} tw='absolute w-[256px] h-[256px] top-0 left-0 right-0 bottom-0' style={{ filter: 'blur(4px)', borderRadius: 28 }} />
+                    <img
+                        width="256"
+                        height="256"
+                        src={image}
+                        style={{
+                            position: 'relative',
+                            borderRadius: 28,
+                            objectFit: 'contain'
+                        }}
+                    />
+                </div>
             </div>
         )
     }
@@ -109,7 +139,9 @@ export default async function handler(req: NextRequest) {
         const link_clicks = searchParams.get('link_clicks') || '';
         const text = searchParams.get('text');
         const image = searchParams.get('image');
+        const link_image = searchParams.get('link_image');
         const link = searchParams.get('link');
+        const link_title = searchParams.get('link_title');
         const created_date = searchParams.get('created_date');
 
         if (!show || !likes || !dislikes || !text || !created_date || !current_date) {
@@ -148,7 +180,7 @@ export default async function handler(req: NextRequest) {
                                     {renderElement('Слова поддержки:', text)}
                                 </div>
                                 <div tw="flex mt-8">
-                                    {link && renderElement('Ссылка:', link)}
+                                    {(link && link_image && link_title) && renderLink(link, link_image, link_title)}
                                 </div>
                             </div>
 
@@ -173,7 +205,7 @@ export default async function handler(req: NextRequest) {
                                 <span tw="text-violet-400">создано {new Date(created_date).toLocaleDateString("ru-RU")}</span>
                             </div>
                             {renderElement('Слова поддержки:', text)}
-                            {link && renderElement('Ссылка:', link)}
+                            {(link && link_image && link_title) && renderLink(link, link_image, link_title)}
                             {renderImage(image)}
                         </div>
 

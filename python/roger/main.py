@@ -23,6 +23,7 @@ from common import delete_keyboard
 from database import get_database
 from aiogram.utils.callback_data import CallbackData
 import pytz
+from linkpreview import link_preview
 
 # tokens
 # token_bot = os.getenv("TOKEN_ROGER_PROD_BOT")
@@ -123,19 +124,21 @@ async def send_stata(id_message: str):
     image_url = f"?show={str(len(list(count_times)))}&likes={good_rates}&dislikes={bad_rates}&approved={is_approved}&current_date={datetime.datetime.now(pytz.utc).isoformat()}&text={urllib.parse.quote(message['text'])}&created_date={message['created_date'].isoformat()}"
 
     if (message['media_link'] != ''):
+        preview = link_preview(message['original_media_link'])
+
         response = requests.get('http://cutt.ly/api/api.php?key=' +
                                 cuttly_api_key + '&stats=' + message['media_link'])
         answer = json.loads(response.content)
         link_cliks = answer['stats']['clicks']
 
-        image_url = image_url + f"&link_clicks={link_cliks}&link={urllib.parse.quote(message['original_media_link'])}"
+        image_url = image_url + f"&link_clicks={link_cliks}&link={urllib.parse.quote(message['original_media_link'])}&link_image={preview.image}&link_title={preview.title}"
 
     if (len(message['image_ids']) != 0):
         image = await get_pictures(message['image_ids'][0])
 
         image_url = image_url + f"&image={urllib.parse.quote('https://' + image)}"
 
-    result_image_url = 'roger-mental-ndzdgyipy-ilyakukarkin.vercel.app/api/message-stats' + image_url
+    result_image_url = 'https://roger-mental-mndo37gkw-ilyakukarkin.vercel.app/api/message-stats' + image_url
 
     print(result_image_url)
 
