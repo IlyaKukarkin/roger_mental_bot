@@ -51,19 +51,19 @@ export default async function handler(req: NextRequest) {
                 <div tw="flex flex-col h-[90%] w-full justify-center items-center">
                     <div tw="flex flex-col h-20 justify-start items-center m-4">
                         <p tw="text-4xl font-bold leading-none lg:text-6xl">{approved ? 'Да' : 'Нет'}</p>
-                        <p tw="text-sm pt-8 sm:text-base">Аппрувното модераторами</p>
+                        <p tw="text-sm pt-8 text-gray-400 sm:text-base">Аппрувното модераторами</p>
                     </div>
                     <div tw="flex flex-col h-20 justify-start items-center m-4">
                         <p tw="text-4xl font-bold leading-none lg:text-6xl">{show}</p>
-                        <p tw="text-sm pt-8 sm:text-base">Количество показов</p>
+                        <p tw="text-sm pt-8 text-gray-400 sm:text-base">Количество показов</p>
                     </div>
                     <div tw="flex flex-col h-20 justify-start items-center m-4">
                         <p tw="text-4xl font-bold leading-none lg:text-6xl">{likes} / {dislikes}</p>
-                        <p tw="text-sm pt-8 sm:text-base">Лайки / Дизлайки</p>
+                        <p tw="text-sm pt-8 text-gray-400 sm:text-base">Лайки / Дизлайки</p>
                     </div>
                     <div tw="flex flex-col h-20 justify-start items-center m-4">
                         <p tw="text-4xl font-bold leading-none lg:text-6xl">{link_clicks}</p>
-                        <p tw="text-sm pt-8 sm:text-base">Количество переходов по ссылке</p>
+                        <p tw="text-sm pt-8 text-gray-400 sm:text-base">Количество переходов по ссылке</p>
                     </div>
                 </div>
             </div>
@@ -101,7 +101,7 @@ export default async function handler(req: NextRequest) {
         // ?title=<title>
         const current_date = searchParams.get('current_date');
         const show = searchParams.get('show');
-        const approved = searchParams.get('approved');
+        const approved = searchParams.get('approved') === 'true';
         const likes = searchParams.get('likes');
         const dislikes = searchParams.get('dislikes');
         const link_clicks = searchParams.get('link_clicks');
@@ -110,7 +110,9 @@ export default async function handler(req: NextRequest) {
         const link = searchParams.get('link');
         const created_date = searchParams.get('created_date');
 
-        if (!approved || !show || !likes || !dislikes || !link_clicks || !text || !created_date || !current_date) {
+        console.log(approved)
+
+        if (!show || !likes || !dislikes || !link_clicks || !text || !created_date || !current_date) {
             return new ImageResponse(
                 (
                     <Wrapper>
@@ -150,7 +152,7 @@ export default async function handler(req: NextRequest) {
                                 </div>
                             </div>
 
-                            {renderStats({ show, likes, dislikes, link_clicks, current_date })}
+                            {renderStats({ approved, show, likes, dislikes, link_clicks, current_date })}
                         </div>
                     </Wrapper>
                 ),
@@ -175,7 +177,7 @@ export default async function handler(req: NextRequest) {
                             {renderImage(image)}
                         </div>
 
-                        {renderStats({ show, likes, dislikes, link_clicks, current_date })}
+                        {renderStats({ approved, show, likes, dislikes, link_clicks, current_date })}
                     </div>
                 </Wrapper>
             ),
