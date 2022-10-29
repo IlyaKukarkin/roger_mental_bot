@@ -131,14 +131,14 @@ async def send_stata(id_message: str):
         answer = json.loads(response.content)
         link_cliks = answer['stats']['clicks']
 
-        image_url = image_url + f"&link_clicks={link_cliks}&link={urllib.parse.quote(message['original_media_link'])}&link_image={preview.image}&link_title={preview.title}"
+        image_url = image_url + f"&link_clicks={link_cliks}&link={urllib.parse.quote(message['original_media_link'])}&link_image={urllib.parse.quote(preview.image)}&link_title={urllib.parse.quote(preview.title)}"
 
     if (len(message['image_ids']) != 0):
         image = await get_pictures(message['image_ids'][0])
 
         image_url = image_url + f"&image={urllib.parse.quote('https://' + image)}"
 
-    result_image_url = 'https://roger-mental-mndo37gkw-ilyakukarkin.vercel.app/api/message-stats' + image_url
+    result_image_url = 'https://roger-mental-rn3173y3o-ilyakukarkin.vercel.app/api/message-stats' + image_url
 
     print(result_image_url)
 

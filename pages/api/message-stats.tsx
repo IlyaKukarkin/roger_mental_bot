@@ -74,16 +74,21 @@ export default async function handler(req: NextRequest) {
         )
     }
 
-    const renderElement = (label: string, content: string) => {
+    const renderText = (label: string, content: string) => {
+        const trimText = content.length < 120 ? content : `${content.slice(0, 120)}...`
+
         return (
             <div tw="flex flex-col text-left">
                 <div>{label}</div>
-                <div tw="text-gray-400 w-100%">{content}</div>
+                <div tw="text-gray-400 w-100%">{trimText}</div>
             </div>
         )
     }
 
     const renderLink = (link: string, link_image: string, link_title: string) => {
+        const trimTitle = link_title.length < 35 ? link_title : `${link_title.slice(0, 35)}...`
+        const trimLink = link.length < 35 ? link : `${link.slice(0, 35)}...`
+
         return (
             <div tw="flex flex-col text-left">
                 <div tw="mb-2">Ссылка:</div>
@@ -97,9 +102,9 @@ export default async function handler(req: NextRequest) {
                             objectFit: 'cover'
                         }}
                     />
-                    <div tw="flex flex-col h-18 justify-start ml-8">
-                        <p tw="h-6">{link_title}</p>
-                        <p tw="h-6 text-gray-400">{link}</p>
+                    <div tw="flex flex-col h-18 justify-start ml-4">
+                        <p tw="h-6">{trimTitle}</p>
+                        <p tw="h-6 text-gray-400">{trimLink}</p>
                     </div>
                 </div>
             </div>
@@ -108,15 +113,15 @@ export default async function handler(req: NextRequest) {
 
     const renderImage = (image: string) => {
         return (
-            <div tw="flex flex-col text-left">
+            <div tw="flex flex-col shrink text-left">
                 <div tw="mb-2">Картинка:</div>
-                <div tw="flex relative w-[256px] h-[256px]">
-                    <img src={image} tw='absolute w-[256px] h-[256px] top-0 left-0 right-0 bottom-0' style={{ filter: 'blur(4px)', borderRadius: 28 }} />
+                <div tw="flex relative w-full h-full shrink aspect-square">
+                    <img src={image} tw='absolute h-[256px] w-[256px] top-0 left-0 right-0 bottom-0' style={{ filter: 'blur(4px)', borderRadius: 28 }} />
                     <img
-                        width="256"
-                        height="256"
                         src={image}
+                        tw="h-[256px] w-[256px]"
                         style={{
+                            padding: '4px',
                             position: 'relative',
                             borderRadius: 28,
                             objectFit: 'contain'
@@ -177,7 +182,7 @@ export default async function handler(req: NextRequest) {
                                     <span tw="text-violet-400">создано {new Date(created_date).toLocaleDateString("ru-RU")}</span>
                                 </div>
                                 <div tw="flex mt-8">
-                                    {renderElement('Слова поддержки:', text)}
+                                    {renderText('Слова поддержки:', text)}
                                 </div>
                                 <div tw="flex mt-8">
                                     {(link && link_image && link_title) && renderLink(link, link_image, link_title)}
@@ -204,7 +209,7 @@ export default async function handler(req: NextRequest) {
                                 <span tw="text-center text-2xl">Сообщение</span>
                                 <span tw="text-violet-400">создано {new Date(created_date).toLocaleDateString("ru-RU")}</span>
                             </div>
-                            {renderElement('Слова поддержки:', text)}
+                            {renderText('Слова поддержки:', text)}
                             {(link && link_image && link_title) && renderLink(link, link_image, link_title)}
                             {renderImage(image)}
                         </div>
