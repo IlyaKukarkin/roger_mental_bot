@@ -77,6 +77,8 @@ async def process_feedback_command(message: types.Message):
 async def delete_from_cart_handler(call: CallbackQuery, callback_data: dict):
     id_message = callback_data.get("id")
     await delete_keyboard(call.from_user.id, call.message.message_id)
+
+    await bot.send_message(call.from_user.id, "Собираю статистику...")
     await send_stata(id_message)
 
 
@@ -123,19 +125,26 @@ async def send_stata(id_message: str):
     image_url = f"?show={str(len(list(count_times)))}&likes={good_rates}&dislikes={bad_rates}&approved={is_approved}&current_date={curr_date}&text={urllib.parse.quote(message['text'])}&created_date={message['created_date'].isoformat()}"
 
     if (message['media_link'] != ''):
-        preview = link_preview(message['original_media_link'])
+        try:
+            preview = link_preview(message['original_media_link'])
+        except (Exception):
+            preview = json.dumps({"image": "https://images.ctfassets.net/n1wrmpzswxf2/5scp1TkHI7xSty5gSV2LfX/a2b733b18f51be6e2c1693fb7f85faa6/Mamba_UI__Error__Free_HTML_components_and_templates_built_with_Tailwind_CSS__2022-10-30_15-48-29.png",
+                                  "title": 'Ошибка получения заголовка ссылки',
+                                  })
 
         response = requests.get('http://cutt.ly/api/api.php?key=' +
                                 cuttly_api_key + '&stats=' + message['media_link'])
         answer = json.loads(response.content)
         link_cliks = answer['stats']['clicks']
 
-        image_url = image_url + f"&link_clicks={link_cliks}&link={urllib.parse.quote(message['original_media_link'])}&link_image={urllib.parse.quote(preview.image)}&link_title={urllib.parse.quote(preview.title)}"
+        image_url = image_url + \
+            f"&link_clicks={link_cliks}&link={urllib.parse.quote(message['original_media_link'])}&link_image={urllib.parse.quote(preview.image)}&link_title={urllib.parse.quote(preview.title)}"
 
     if (len(message['image_ids']) != 0):
         image = await get_pictures(message['image_ids'][0])
 
-        image_url = image_url + f"&image={urllib.parse.quote('https://' + image)}"
+        image_url = image_url + \
+            f"&image={urllib.parse.quote('https://' + image)}"
 
     result_image_url = 'https://roger-bot.space/api/message-stats' + image_url
 
