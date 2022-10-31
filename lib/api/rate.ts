@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 
 import clientPromise from "../mongodb";
+import { sendMessageToAdmins } from "./users";
 
 type MessageToRate = {
   _id: ObjectId;
@@ -202,16 +203,30 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
 
   if (updateToApproved.length !== 0) {
     const resultApprove = await messagesCol.updateMany(filterToApproved, docToApproved);
-    console.log(`Updated ${resultApprove.modifiedCount} documents to "Approve"`);
+
+    const resString = `Обновил ${resultApprove.modifiedCount} сообщение(ий) на статус "Аппрув"`
+
+    console.log(resString);
+    await sendMessageToAdmins(resString)
   } else {
-    console.log(`Nothing to update to "Approve"`);
+    const resString = `Нечего обновлять на статус "Аппрув"`
+    
+    console.log(resString);
+    await sendMessageToAdmins(resString)
   }
 
   if (updateToReview.length !== 0) {
     const resultReview = await messagesCol.updateMany(filterToReview, docToReview);
-    console.log(`Updated ${resultReview.modifiedCount} documents to "Review"`);
+    
+    const resString = `Обновил ${resultReview.modifiedCount} сообщение(ий) на статус "Модерация"`;
+    
+    console.log(resString);
+    await sendMessageToAdmins(resString)
   } else {
-    console.log(`Nothing to update to "Review"`);
+    const resString = `Нечего обновлять на статус "Модерация"`
+    
+    console.log(resString);
+    await sendMessageToAdmins(resString)
   }
 
   return { update_to_approve: updateToApproved.length, update_to_review: updateToReview.length }
