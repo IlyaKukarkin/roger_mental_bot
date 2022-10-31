@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 
 import clientPromise from "../mongodb";
+import { sendMessageToAdmins } from "./users";
 
 type User = {
   _id: ObjectId;
@@ -99,9 +100,16 @@ export const getBannedUsers = async (): Promise<RateResponse> => {
 
   if (updateToBlocked.length !== 0) {
     const resultBan = await usersCol.updateMany(filterToBan, docToBan);
-    console.log(`Banned ${resultBan.modifiedCount} users`);
+
+    const resString = `Забанил ${resultBan.modifiedCount} пользователя(ей)`
+    
+    console.log(resString);
+    await sendMessageToAdmins(resString);
   } else {
-    console.log(`Nobody was banned`);
+    const resString = `Никого не забанил ;)`
+
+    console.log(resString);
+    await sendMessageToAdmins(resString);
   }
 
   return { banned_users: updateToBlocked.length }
