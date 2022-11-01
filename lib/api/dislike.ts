@@ -109,7 +109,6 @@ export const getBannedUsers = async (): Promise<RateResponse> => {
     const resString = `Никого не забанил ;)`
 
     console.log(resString);
-    await sendMessageToAdmins(resString);
   }
 
   return { banned_users: updateToBlocked.length }
