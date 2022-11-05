@@ -14,18 +14,12 @@ type Props = {
     title: string;
     data: Data[];
     compare_to_others: number;
-    compare_to_others_order: ORDER;
 }
 
 export type Data = {
     date: number;
     mood: MOOD;
     disabled: boolean;
-}
-
-export enum ORDER {
-    ASC = 'ASC',
-    DESC = 'DESC'
 }
 
 export default async function handler(req: NextRequest) {
@@ -129,6 +123,15 @@ export default async function handler(req: NextRequest) {
         const max = Math.max(...countGoodDays);
         const countMaxElem = countGoodDays.filter(el => el === max).length
 
+        if (max === 0) {
+            return (
+                <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
+                    <p tw={`text-xl text-center font-bold ${getRateColor[MOOD.GREEN]}`}>Ни одного(</p>
+                    <p tw="text-gray-400 -mt-4">Самый лучший день недели</p>
+                </div>
+            )
+        }
+        
         if (countMaxElem === 7) {
             return (
                 <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
@@ -185,11 +188,22 @@ export default async function handler(req: NextRequest) {
         const max = Math.max(...countBadDays);
         const countMaxElem = countBadDays.filter(el => el === max).length
 
+        if (max === 0) {
+            return (
+                <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
+                    <p tw={`text-xl text-center font-bold ${getRateColor[MOOD.RED]}`}>Ни одного!</p>
+                    <p tw="text-gray-400 -mt-4">Самый худший день недели</p>
+                </div>
+            )
+        }
+
         if (countMaxElem === 7) {
-            <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
-                <p tw={`text-xl text-center font-bold ${getRateColor[MOOD.RED]}`}>Все!</p>
-                <p tw="text-gray-400 -mt-4">Самый худший день недели</p>
-            </div>
+            return (
+                <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
+                    <p tw={`text-xl text-center font-bold ${getRateColor[MOOD.RED]}`}>Все(</p>
+                    <p tw="text-gray-400 -mt-4">Самый худший день недели</p>
+                </div>
+            )
         }
 
         if (countMaxElem != 1) {
@@ -221,10 +235,10 @@ export default async function handler(req: NextRequest) {
         )
     }
 
-    const renderCompareStatistic = (percent: number, order: ORDER) => {
+    const renderCompareStatistic = (percent: number) => {
         return (
             <div tw='flex flex-col h-35 mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center justify-center'>
-                <p tw="text-gray-400">Ты замерял настроение {order === ORDER.ASC ? 'чаще' : 'реже'}, чем</p>
+                <p tw="text-gray-400">Ты замерял настроение чаще, чем</p>
                 <p tw="text-4xl text-center font-bold -mt-4">{percent} %</p>
                 <p tw="text-gray-400 -mt-4">пользователей</p>
             </div>
@@ -239,9 +253,8 @@ export default async function handler(req: NextRequest) {
         const title = searchParams.get('title');
         const data: Data[] = JSON.parse(decodeURI(searchParams.get('data') || ''));
         const compare_to_others = Number(searchParams.get('compare_to_others'));
-        const compare_to_others_order: ORDER = (searchParams.get('compare_to_others_order') as ORDER);
 
-        if (!username || !title || !compare_to_others_order || !data || !compare_to_others) {
+        if (!username || !title || !data || !compare_to_others) {
             return new ImageResponse(
                 (
                     <Wrapper>
@@ -284,7 +297,7 @@ export default async function handler(req: NextRequest) {
                             {renderGeneralStats(data)}
                             {renderGoodDay(data)}
                             {renderBadDay(data)}
-                            {renderCompareStatistic(compare_to_others, compare_to_others_order)}
+                            {renderCompareStatistic(compare_to_others)}
                         </div>
                     </div>
                 </Wrapper>

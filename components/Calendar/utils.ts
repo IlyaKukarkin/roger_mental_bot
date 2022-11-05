@@ -1,9 +1,9 @@
 export enum MOOD {
-    GREEN = 'GREEN',
-    YELLOW = 'YELLOW',
-    ORANGE = 'ORANGE',
-    RED = 'RED',
-    SKIP = 'SKIP',
+    GREEN = 4,
+    YELLOW = 3,
+    ORANGE = 2,
+    RED = 1,
+    SKIP = 0,
 }
 
 export const getRateBgColor = {

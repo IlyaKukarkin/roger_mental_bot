@@ -11,9 +11,7 @@ type Props = {
 const Day = ({ data, disabled, rate }: Props) => {
     if (disabled) {
         return (
-            <div tw="flex ml-2 mt-3 w-10 h-10 justify-center items-center rounded-full bg-gray-400">
-                <p tw="text-gray-900 font-bold text-xl">{data}</p>
-            </div>
+            <div tw="flex ml-2 mt-3 w-10 h-10" />
         )
     }
 
