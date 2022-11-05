@@ -65,7 +65,7 @@ async def delete_from_cart_handler(call: CallbackQuery, callback_data: dict):
 #колбек для обработки статистики по настроению пользователя
 cart_cb = CallbackData("q", "id", "button_parameter")
 
-@dp.message_handler(commands=['ratestata'])
+@dp.message_handler(commands=['mentalstata'])
 async def process_rate_stata_command(message: types.Message):
     await bot.send_message(message.chat.id, "За какой период хочешь получить статистику?", reply_markup=ask_for_rate_stata_kb)
     await Recording.AwaitForARateStata.set()

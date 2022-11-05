@@ -114,7 +114,7 @@ async def send_rate_stata(id_message: str, stata_type: str):
 
     print(image_url)
 
-    result_image_url = 'https://roger-mental-pe3x815il-ilyakukarkin.vercel.app/api/user-stats' + image_url
+    result_image_url = 'https://roger-mental-35f7gt08a-ilyakukarkin.vercel.app/api/user-stats' + image_url
     # result_image_url = 'https://roger-bot.space/api/user-stats' + image_url
 
     await bot.send_photo(id_message, result_image_url)

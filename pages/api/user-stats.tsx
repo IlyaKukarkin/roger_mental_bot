@@ -148,11 +148,11 @@ export default async function handler(req: NextRequest) {
                         {
                             countGoodDays.map((el, index) => {
                                 if (el === max) {
-                                    if (index === 6) {
+                                    if (index === 0) {
                                         return (<p key={index} tw={`text-xl text-center font-bold ${getRateColor[MOOD.GREEN]}`}>{getShortDayOfTheWeek[index]}</p>)
                                     }
 
-                                    return (<p key={index} tw={`text-xl text-center font-bold mr-2 ${getRateColor[MOOD.GREEN]}`}>{getShortDayOfTheWeek[index]},</p>)
+                                    return (<p key={index} tw={`text-xl text-center font-bold mr-2 ${getRateColor[MOOD.GREEN]}`}>, {getShortDayOfTheWeek[index]}</p>)
                                 }
                             })
                         }
@@ -213,11 +213,11 @@ export default async function handler(req: NextRequest) {
                         {
                             countBadDays.map((el, index) => {
                                 if (el === max) {
-                                    if (index === 6) {
+                                    if (index === 0) {
                                         return (<p key={index} tw={`text-xl text-center font-bold ${getRateColor[MOOD.RED]}`}>{getShortDayOfTheWeek[index]}</p>)
                                     }
 
-                                    return (<p key={index} tw={`text-xl text-center font-bold mr-2 ${getRateColor[MOOD.RED]}`}>{getShortDayOfTheWeek[index]},</p>)
+                                    return (<p key={index} tw={`text-xl text-center font-bold mr-2 ${getRateColor[MOOD.RED]}`}>, {getShortDayOfTheWeek[index]}</p>)
                                 }
                             })
                         }
