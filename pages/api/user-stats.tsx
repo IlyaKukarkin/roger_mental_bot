@@ -254,7 +254,7 @@ export default async function handler(req: NextRequest) {
         const data: Data[] = JSON.parse(decodeURI(searchParams.get('data') || ''));
         const compare_to_others = Number(searchParams.get('compare_to_others'));
 
-        if (!username || !title || !data || !compare_to_others) {
+        if (!username || !title || !data || (!compare_to_others && compare_to_others !== 0)) {
             return new ImageResponse(
                 (
                     <Wrapper>
@@ -283,7 +283,7 @@ export default async function handler(req: NextRequest) {
                         <div tw="bg-gray-900 text-gray-100 w-[40%] h-full rounded-xl p-8 flex flex-col justify-start">
                             <div tw="flex justify-between w-full">
                                 <span tw="text-violet-400">Пользователь: {username}</span>
-                                <span tw="text-violet-400">создано {new Date().toLocaleDateString("ru-RU")}</span>
+                                <span tw="text-violet-400">Создано: {new Date().toLocaleDateString("ru-RU")}</span>
                             </div>
                             <div tw='flex flex-col mt-2 items-center w-full'>
                                 <p tw="text-2xl mx-auto p-0 m-0">Календарь настроений</p>

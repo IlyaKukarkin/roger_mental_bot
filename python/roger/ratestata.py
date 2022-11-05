@@ -80,7 +80,7 @@ async def send_rate_stata(id_message: str, stata_type: str):
 
             if (index == len(user['rates']) - 1):
                 data.append(
-                    {"date": dt.day, "mood": 0, "disabled": True}
+                    {"date": dt.day, "mood": 0, "disabled": False}
                 )
 
     print(data)
@@ -115,7 +115,7 @@ async def send_rate_stata(id_message: str, stata_type: str):
 
     print(image_url)
 
-    result_image_url = 'https://roger-mental-ok0vrbqv8-ilyakukarkin.vercel.app/api/user-stats' + image_url
+    result_image_url = 'https://roger-mental-dzx3uquvj-ilyakukarkin.vercel.app/api/user-stats' + image_url
     # result_image_url = 'https://roger-bot.space/api/user-stats' + image_url
 
     await bot.send_photo(id_message, result_image_url)

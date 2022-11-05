@@ -73,14 +73,17 @@ async def process_rate_stata_command(message: types.Message):
 @dp.callback_query_handler(lambda c: c.data == 'month', state=Recording.AwaitForARateStata)
 async def rate_stata_handler_month(callback_query: types.CallbackQuery, state: FSMContext):
     await send_rate_stata(callback_query.from_user.id, 'month')
+    await state.finish()
 
 @dp.callback_query_handler(lambda c: c.data == 'week2', state=Recording.AwaitForARateStata)
 async def rate_stata_handler_week2(callback_query: types.CallbackQuery, state: FSMContext):
     await send_rate_stata(callback_query.from_user.id, 'week2')
+    await state.finish()
 
 @dp.callback_query_handler(lambda c: c.data == 'week', state=Recording.AwaitForARateStata)
 async def rate_stata_handler_week(callback_query: types.CallbackQuery, state: FSMContext):
     await send_rate_stata(callback_query.from_user.id, 'week')
+    await state.finish()
 
 
 #отправляем сообщение всем пользователям от имени бота, доступно только админам
