@@ -146,9 +146,9 @@ export default async function handler(req: NextRequest) {
                 <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
                     <div tw="flex">
                         {
-                            countGoodDays.map((el, index) => {
+                            countGoodDays.map((el, index, arr) => {
                                 if (el === max) {
-                                    if (index === 0) {
+                                    if (index === arr.indexOf(max)) {
                                         return (<p key={index} tw={`text-xl text-center font-bold ${getRateColor[MOOD.GREEN]}`}>{getShortDayOfTheWeek[index]}</p>)
                                     }
 
@@ -211,9 +211,9 @@ export default async function handler(req: NextRequest) {
                 <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
                     <div tw="flex">
                         {
-                            countBadDays.map((el, index) => {
+                            countBadDays.map((el, index, arr) => {
                                 if (el === max) {
-                                    if (index === 0) {
+                                    if (index === arr.indexOf(max)) {
                                         return (<p key={index} tw={`text-xl text-center font-bold ${getRateColor[MOOD.RED]}`}>{getShortDayOfTheWeek[index]}</p>)
                                     }
 
