@@ -1,7 +1,9 @@
 import { ImageResponse } from '@vercel/og';
 import { NextRequest } from 'next/server';
 import { PropsWithChildren } from 'react';
+
 import Calendar from '../../components/Calendar';
+import { getRateBgColor, getRateColor, MOOD, getFullDayOfTheWeek, getShortDayOfTheWeek } from '../../components/Calendar/utils';
 
 export const config = {
     runtime: 'experimental-edge',
@@ -9,33 +11,21 @@ export const config = {
 
 type Props = {
     username: string;
-    type: TYPE;
+    title: string;
     data: Data[];
-    compare_to_others: Compare;
+    compare_to_others: number;
+    compare_to_others_order: ORDER;
 }
 
 export type Data = {
-    date: string;
-    mood: MOOD
+    date: number;
+    mood: MOOD;
+    disabled: boolean;
 }
 
-export type Compare = {
-    percent: number;
-    type: 'BASE' | 'ROW'
-}
-
-export enum TYPE {
-    WEEK = 'WEEK',
-    WEEK2 = 'WEEK2',
-    MONTH = 'MONTH'
-}
-
-export enum MOOD {
-    GREEN = 'GREEN',
-    YELLOW = 'YELLOW',
-    ORANGE = 'ORANGE',
-    RED = 'RED',
-    SKIP = 'SKIP',
+export enum ORDER {
+    ASC = 'ASC',
+    DESC = 'DESC'
 }
 
 export default async function handler(req: NextRequest) {
@@ -56,6 +46,187 @@ export default async function handler(req: NextRequest) {
                 }}
             >
                 {children}
+
+                <p tw="absolute -bottom-3 text-gray-400">🔴 - плохой день, 🟠 - чуть плохой день, 🟡 - хороший день, 🟢 - отличный день, ⚫ - нет оценки</p>
+            </div>
+        )
+    }
+
+    const renderGeneralStats = (data: Data[]) => {
+        const filterData = data.filter(day => !day.disabled);
+
+        const total = filterData.length;
+        const { red, orange, yellow, green, skip } = filterData.reduce((acc, curr) => {
+            if (curr.mood === MOOD.RED) {
+                return {
+                    ...acc,
+                    red: acc.red + 1
+                }
+            }
+
+            if (curr.mood === MOOD.ORANGE) {
+                return {
+                    ...acc,
+                    orange: acc.orange + 1
+                }
+            }
+
+            if (curr.mood === MOOD.YELLOW) {
+                return {
+                    ...acc,
+                    yellow: acc.yellow + 1
+                }
+            }
+
+            if (curr.mood === MOOD.GREEN) {
+                return {
+                    ...acc,
+                    green: acc.green + 1
+                }
+            }
+
+            return {
+                ...acc,
+                skip: acc.skip + 1
+            }
+        }, { red: 0, orange: 0, yellow: 0, green: 0, skip: 0 });
+
+        const calcRed = Math.round(Number(red) / Number(total) * 100);
+        const calcOrange = Math.round(Number(orange) / Number(total) * 100);
+        const calcYellow = Math.round(Number(yellow) / Number(total) * 100);
+        const calcGreen = Math.round(Number(green) / Number(total) * 100);
+        const calcSkip = Math.round(Number(skip) / Number(total) * 100);
+
+        return (
+            <div tw='flex flex-col bg-gray-800 rounded-xl px-8 pt-0 pb-2 w-full bg-opacity-50'>
+                <p tw="text-xl ml-8">Распределение настроения:</p>
+                <div tw='flex justify-around w-full'>
+                    <p tw={`text-xl px-2 py-1 rounded-md text-gray-900 font-bold ${getRateBgColor[MOOD.RED]}`}>{Number.isNaN(calcRed) ? 0 : calcRed} %</p>
+                    <p tw={`text-xl px-2 py-1 rounded-md text-gray-900 font-bold ${getRateBgColor[MOOD.ORANGE]}`}>{Number.isNaN(calcOrange) ? 0 : calcOrange} %</p>
+                    <p tw={`text-xl px-2 py-1 rounded-md text-gray-900 font-bold ${getRateBgColor[MOOD.YELLOW]}`}>{Number.isNaN(calcYellow) ? 0 : calcYellow} %</p>
+                    <p tw={`text-xl px-2 py-1 rounded-md text-gray-900 font-bold ${getRateBgColor[MOOD.GREEN]}`}>{Number.isNaN(calcGreen) ? 0 : calcGreen} %</p>
+                    <p tw={`text-xl px-2 py-1 rounded-md text-gray-200 font-bold ${getRateBgColor[MOOD.SKIP]}`}>{Number.isNaN(calcSkip) ? 0 : calcSkip} %</p>
+                </div>
+            </div>
+        )
+    }
+
+    const renderGoodDay = (data: Data[]) => {
+        const countGoodDays = data.reduce((agr, curr, index) => {
+            if (!curr.disabled && curr.mood === MOOD.GREEN) {
+                const tempArray = [...agr];
+                const getIndex = index % 7
+                const currValue = agr[getIndex]
+
+                tempArray.splice(getIndex, 1, currValue + 1)
+
+                return [...tempArray]
+            }
+
+            return agr;
+        }, [0, 0, 0, 0, 0, 0, 0])
+
+        const max = Math.max(...countGoodDays);
+        const countMaxElem = countGoodDays.filter(el => el === max).length
+
+        if (countMaxElem === 7) {
+            return (
+                <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
+                    <p tw={`text-xl text-center font-bold ${getRateColor[MOOD.GREEN]}`}>Все!</p>
+                    <p tw="text-gray-400 -mt-4">Самый лучший день недели</p>
+                </div>
+            )
+        }
+
+        if (countMaxElem != 1) {
+            return (
+                <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
+                    <div tw="flex">
+                        {
+                            countGoodDays.map((el, index) => {
+                                if (el === max) {
+                                    if (index === 6) {
+                                        return (<p key={index} tw={`text-xl text-center font-bold ${getRateColor[MOOD.GREEN]}`}>{getShortDayOfTheWeek[index]}</p>)
+                                    }
+
+                                    return (<p key={index} tw={`text-xl text-center font-bold mr-2 ${getRateColor[MOOD.GREEN]}`}>{getShortDayOfTheWeek[index]},</p>)
+                                }
+                            })
+                        }
+                    </div>
+                    <p tw="text-gray-400 -mt-4">Самые лучшие дни недели</p>
+                </div>
+            )
+        }
+
+        return (
+            <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
+                <p tw={`text-xl text-center font-bold ${getRateColor[MOOD.GREEN]}`}>{getFullDayOfTheWeek[countGoodDays.indexOf(max)]}</p>
+                <p tw="text-gray-400 -mt-4">Самый лучший день недели</p>
+            </div>
+        )
+    }
+
+    const renderBadDay = (data: Data[]) => {
+        const countBadDays = data.reduce((agr, curr, index) => {
+            if (!curr.disabled && curr.mood === MOOD.RED) {
+                const tempArray = [...agr];
+                const getIndex = index % 7
+                const currValue = agr[getIndex]
+
+                tempArray.splice(getIndex, 1, currValue + 1)
+
+                return [...tempArray]
+            }
+
+            return agr;
+        }, [0, 0, 0, 0, 0, 0, 0])
+
+        const max = Math.max(...countBadDays);
+        const countMaxElem = countBadDays.filter(el => el === max).length
+
+        if (countMaxElem === 7) {
+            <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
+                <p tw={`text-xl text-center font-bold ${getRateColor[MOOD.RED]}`}>Все!</p>
+                <p tw="text-gray-400 -mt-4">Самый худший день недели</p>
+            </div>
+        }
+
+        if (countMaxElem != 1) {
+            return (
+                <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
+                    <div tw="flex">
+                        {
+                            countBadDays.map((el, index) => {
+                                if (el === max) {
+                                    if (index === 6) {
+                                        return (<p key={index} tw={`text-xl text-center font-bold ${getRateColor[MOOD.RED]}`}>{getShortDayOfTheWeek[index]}</p>)
+                                    }
+
+                                    return (<p key={index} tw={`text-xl text-center font-bold mr-2 ${getRateColor[MOOD.RED]}`}>{getShortDayOfTheWeek[index]},</p>)
+                                }
+                            })
+                        }
+                    </div>
+                    <p tw="text-gray-400 -mt-4">Самые худшие дни недели</p>
+                </div>
+            )
+        }
+
+        return (
+            <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
+                <p tw={`text-xl text-center font-bold ${getRateColor[MOOD.RED]}`}>{getFullDayOfTheWeek[countBadDays.indexOf(max)]}</p>
+                <p tw="text-gray-400 -mt-4">Самый худший день недели</p>
+            </div>
+        )
+    }
+
+    const renderCompareStatistic = (percent: number, order: ORDER) => {
+        return (
+            <div tw='flex flex-col h-35 mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center justify-center'>
+                <p tw="text-gray-400">Ты замерял настроение {order === ORDER.ASC ? 'чаще' : 'реже'}, чем</p>
+                <p tw="text-4xl text-center font-bold -mt-4">{percent} %</p>
+                <p tw="text-gray-400 -mt-4">пользователей</p>
             </div>
         )
     }
@@ -65,11 +236,12 @@ export default async function handler(req: NextRequest) {
 
         // ?title=<title>
         const username = searchParams.get('username');
-        const type: TYPE = (searchParams.get('type') as TYPE);
-        const data: Data = JSON.parse(searchParams.get('data') || '');
-        const compare_to_others = searchParams.get('compare_to_others');
+        const title = searchParams.get('title');
+        const data: Data[] = JSON.parse(decodeURI(searchParams.get('data') || ''));
+        const compare_to_others = Number(searchParams.get('compare_to_others'));
+        const compare_to_others_order: ORDER = (searchParams.get('compare_to_others_order') as ORDER);
 
-        if (!username || !type || !data || !compare_to_others) {
+        if (!username || !title || !compare_to_others_order || !data || !compare_to_others) {
             return new ImageResponse(
                 (
                     <Wrapper>
@@ -94,7 +266,27 @@ export default async function handler(req: NextRequest) {
         return new ImageResponse(
             (
                 <Wrapper>
-                    <Calendar type={type} data={data} />
+                    <div tw="bg-gray-800 text-gray-100 h-full w-full py-8 flex justify-around">
+                        <div tw="bg-gray-900 text-gray-100 w-[40%] h-full rounded-xl p-8 flex flex-col justify-start">
+                            <div tw="flex justify-between w-full">
+                                <span tw="text-violet-400">Статистика {username}</span>
+                                <span tw="text-violet-400">создано {new Date().toLocaleDateString("ru-RU")}</span>
+                            </div>
+                            <div tw='flex flex-col mt-2 items-center w-full'>
+                                <p tw="text-2xl mx-auto p-0 m-0">Календарь настроений</p>
+                                <p tw="text-2xl mx-auto p-0 m-0">{title}</p>
+                            </div>
+                            <div tw="flex justify-center items-center w-full h-[70%]">
+                                <Calendar data={data} />
+                            </div>
+                        </div>
+                        <div tw="bg-gray-900 text-gray-100 w-[40%] h-full rounded-xl p-8 flex flex-col justify-start">
+                            {renderGeneralStats(data)}
+                            {renderGoodDay(data)}
+                            {renderBadDay(data)}
+                            {renderCompareStatistic(compare_to_others, compare_to_others_order)}
+                        </div>
+                    </div>
                 </Wrapper>
             ),
             {

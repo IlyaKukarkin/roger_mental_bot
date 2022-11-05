@@ -1,32 +1,46 @@
 import React from "react";
 
-import { Data, TYPE } from "../../pages/api/user-stats";
+import { Data } from "../../pages/api/user-stats";
+import Day from "./day";
+import Title from "./title";
 
 type Props = {
-    type: TYPE;
-    data: Data;
+    data: Data[];
 }
 
-const Calendar = ({ type, data }: Props) => {
-    const renderRow    
+const Calendar = ({ data }: Props) => {
+    const splitToWeeks = (data: Data[]): Array<Data[]> => {
+        const res = [];
 
-    if (type === TYPE.WEEK) {
+        for (let i = 0; i < 4; i++) {
+            res.push(data.splice(0, 7))
+        }
+
+        return res;
+    }
+
+    const renderRow = (week: Data[], index: number) => {
         return (
-            <p style={{ backgroundColor: 'red', color: 'aqua' }}>Week</p>
+            <div key={index} tw="flex w-full">
+                {week.map(day => (<Day key={day.date} data={day.date} disabled={day.disabled} rate={day.mood} />))}
+            </div>
         )
     }
 
-    if (type === TYPE.WEEK2) {
+    const renderTitle = () => {
+        const titles = ['Пн', "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+
         return (
-            <p style={{ backgroundColor: 'red', color: 'aqua' }}>Week2</p>
+            <div tw="flex w-full">
+                {titles.map((title, index) => (<Title key={index} text={title} />))}
+            </div>
         )
     }
 
     return (
-        <div tw="flex">
-            <p style={{ backgroundColor: 'red', color: 'aqua' }}>Month</p>
-            <p style={{ backgroundColor: 'red', color: 'aqua' }}>Month</p>
-            <p style={{ backgroundColor: 'red', color: 'aqua' }}>Month</p>
+        <div tw="flex flex-col">
+            {renderTitle()}
+            {splitToWeeks(data).map((week: Data[], index) => renderRow(week, index))}
         </div>
     )
 }
