@@ -3,11 +3,12 @@ import pytz
 import datetime
 from config import bot
 from dateutil.relativedelta import relativedelta
+import json
 
 from database import get_database
 
 
-async def send_rate_stata(id_message: str, type: str):
+async def send_rate_stata(id_message: str, stata_type: str):
     await bot.send_message(id_message, "Подгружаю статистику, немного терпения")
 
     collection_name = get_database()
@@ -16,9 +17,9 @@ async def send_rate_stata(id_message: str, type: str):
     date_now_clear = datetime.datetime(
         date_now.year, date_now.month, date_now.day, 0, 0, 0, 0, tzinfo=pytz.utc)
 
-    if (type == 'month'):
+    if (stata_type == 'month'):
         from_date_str = date_now_clear - relativedelta(months=1)
-    elif (type == 'week2'):
+    elif (stata_type == 'week2'):
         from_date_str = date_now_clear - relativedelta(days=14)
     else:
         from_date_str = date_now_clear - relativedelta(days=7)
@@ -90,12 +91,12 @@ async def send_rate_stata(id_message: str, type: str):
     compare = 0
     compare_total_users = 0
 
-    if (type == 'month'):
+    if (stata_type == 'month'):
         compare_total_users = len(statistic["users_rate_month"])
         for other_user_rates in statistic["users_rate_month"]:
             if (count_rates > other_user_rates):
                 compare += 1
-    elif (type == 'week2'):
+    elif (stata_type == 'week2'):
         compare_total_users = len(statistic["users_rate_2week"])
         for other_user_rates in statistic["users_rate_2week"]:
             if (count_rates > other_user_rates):
@@ -108,9 +109,14 @@ async def send_rate_stata(id_message: str, type: str):
 
     title = f"с {from_date.strftime('%d.%m.%Y')} по {date_now_clear.strftime('%d.%m.%Y')}"
 
-    image_url = f"?username={urllib.parse.quote(user['name'])}&compare_to_others={round(compare / compare_total_users * 100)}&title={urllib.parse.quote(title)}&data={data}"
+    print(type(data))
 
-    result_image_url = 'https://roger-bot.space/api/message-stats' + image_url
+    image_url = f"?username={urllib.parse.quote(user['name'])}&compare_to_others={round(compare / compare_total_users * 100)}&title={urllib.parse.quote(title)}&data={urllib.parse.quote(json.dumps(data))}"
+
+    print(image_url)
+
+    result_image_url = 'https://roger-mental-ok0vrbqv8-ilyakukarkin.vercel.app/api/user-stats' + image_url
+    # result_image_url = 'https://roger-bot.space/api/user-stats' + image_url
 
     await bot.send_photo(id_message, result_image_url)
 

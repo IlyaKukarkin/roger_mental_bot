@@ -9,10 +9,10 @@ type Props = {
 }
 
 const Calendar = ({ data }: Props) => {
-    const splitToWeeks = (data: Data[]): Array<Data[]> => {
+    const splitToWeeks = (data: Data[], length: number): Array<Data[]> => {
         const res = [];
 
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < Math.ceil(length / 7); i++) {
             res.push(data.splice(0, 7))
         }
 
@@ -40,7 +40,7 @@ const Calendar = ({ data }: Props) => {
     return (
         <div tw="flex flex-col">
             {renderTitle()}
-            {splitToWeeks(data).map((week: Data[], index) => renderRow(week, index))}
+            {splitToWeeks(data, data.length).map((week: Data[], index) => renderRow(week, index))}
         </div>
     )
 }

@@ -282,7 +282,7 @@ export default async function handler(req: NextRequest) {
                     <div tw="bg-gray-800 text-gray-100 h-full w-full py-8 flex justify-around">
                         <div tw="bg-gray-900 text-gray-100 w-[40%] h-full rounded-xl p-8 flex flex-col justify-start">
                             <div tw="flex justify-between w-full">
-                                <span tw="text-violet-400">Статистика {username}</span>
+                                <span tw="text-violet-400">Пользователь: {username}</span>
                                 <span tw="text-violet-400">создано {new Date().toLocaleDateString("ru-RU")}</span>
                             </div>
                             <div tw='flex flex-col mt-2 items-center w-full'>
