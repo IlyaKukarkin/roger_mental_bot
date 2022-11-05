@@ -13,7 +13,10 @@ const Calendar = ({ data }: Props) => {
         const res = [];
 
         for (let i = 0; i < Math.ceil(length / 7); i++) {
-            res.push(data.splice(0, 7))
+            const temp = data.splice(0, 7)
+            if (temp.some(day => !day.disabled)) {
+                res.push(temp)
+            }
         }
 
         return res;

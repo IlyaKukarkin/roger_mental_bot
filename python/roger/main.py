@@ -8,7 +8,7 @@ from aiogram.types import CallbackQuery
 from aiogram.utils.callback_data import CallbackData
 
 from states import Recording
-from common import check_id_username_is_valid_before_save
+from common import check_id_username_is_valid_before_save, delete_keyboard
 from database import create_new_user
 from feedback import feedback_command, feedback_get_text_from_user, feedback_get_photo_from_user
 from version import version_command
@@ -72,16 +72,19 @@ async def process_rate_stata_command(message: types.Message):
 
 @dp.callback_query_handler(lambda c: c.data == 'month', state=Recording.AwaitForARateStata)
 async def rate_stata_handler_month(callback_query: types.CallbackQuery, state: FSMContext):
+    await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await send_rate_stata(callback_query.from_user.id, 'month')
     await state.finish()
 
 @dp.callback_query_handler(lambda c: c.data == 'week2', state=Recording.AwaitForARateStata)
 async def rate_stata_handler_week2(callback_query: types.CallbackQuery, state: FSMContext):
+    await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await send_rate_stata(callback_query.from_user.id, 'week2')
     await state.finish()
 
 @dp.callback_query_handler(lambda c: c.data == 'week', state=Recording.AwaitForARateStata)
 async def rate_stata_handler_week(callback_query: types.CallbackQuery, state: FSMContext):
+    await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await send_rate_stata(callback_query.from_user.id, 'week')
     await state.finish()
 

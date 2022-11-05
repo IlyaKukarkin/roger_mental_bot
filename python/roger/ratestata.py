@@ -59,6 +59,7 @@ async def send_rate_stata(id_message: str, stata_type: str):
 
     print(user)
 
+    user_created = user['created_at']
     data = []
     count_rates = 0
 
@@ -80,7 +81,7 @@ async def send_rate_stata(id_message: str, stata_type: str):
 
             if (index == len(user['rates']) - 1):
                 data.append(
-                    {"date": dt.day, "mood": 0, "disabled": False}
+                    {"date": dt.day, "mood": 0, "disabled": dt < user_created.date()}
                 )
 
     print(data)
@@ -109,13 +110,11 @@ async def send_rate_stata(id_message: str, stata_type: str):
 
     title = f"с {from_date.strftime('%d.%m.%Y')} по {date_now_clear.strftime('%d.%m.%Y')}"
 
-    print(type(data))
-
     image_url = f"?username={urllib.parse.quote(user['name'])}&compare_to_others={round(compare / compare_total_users * 100)}&title={urllib.parse.quote(title)}&data={urllib.parse.quote(json.dumps(data))}"
 
     print(image_url)
 
-    result_image_url = 'https://roger-mental-dzx3uquvj-ilyakukarkin.vercel.app/api/user-stats' + image_url
+    result_image_url = 'https://roger-mental-pe3x815il-ilyakukarkin.vercel.app/api/user-stats' + image_url
     # result_image_url = 'https://roger-bot.space/api/user-stats' + image_url
 
     await bot.send_photo(id_message, result_image_url)
