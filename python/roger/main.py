@@ -23,9 +23,10 @@ from sendmessage import sendmes, callback_after_click_on_color_button
 from on_startup import enable_task_to_send_mes
 from config import dp, bot
 from handlers import rate_message
+from fillform import fillform_command
 
 #текущая версия бота
-version = "0.4.4"
+version = "0.4.5"
 
 
 # read texts from json file
@@ -90,6 +91,10 @@ async def rate_stata_handler_week(callback_query: types.CallbackQuery, state: FS
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await send_rate_stata(callback_query.from_user.id, 'week')
 
+#заполняем форму по команде
+@dp.message_handler(commands=['fillform'])
+async def process_fillform_command(message: types.Message):
+    await fillform_command (message)
 
 #отправляем сообщение всем пользователям от имени бота, доступно только админам
 @dp.message_handler(commands=['sendmestoall'])
