@@ -24,7 +24,7 @@ from config import dp, bot
 from handlers import rate_message
 
 #текущая версия бота
-version = "0.4.1"
+version = "0.4.2"
 
 
 # read texts from json file
