@@ -18,15 +18,14 @@ from reg.reg_user_name import get_user_name, get_printed_user_name, get_customer
 from reg.reg_user_time import get_user_time_to_send_messages, user_time_20, user_time_21, user_time_22, user_time_23
 from reg.reg_user_timezone import get_user_timezone, customer_timezone
 from stata import stata_show_mes, delete_from_cart_handler1
-from ratestata import send_rate_stata
+from ratestata import send_rate_stata, get_rate_stata
 from sendmessage import sendmes, callback_after_click_on_color_button
 from on_startup import enable_task_to_send_mes
 from config import dp, bot
 from handlers import rate_message
-from keyboards import ask_for_rate_stata_kb
 
 #текущая версия бота
-version = "0.4.3"
+version = "0.4.4"
 
 
 # read texts from json file
@@ -71,8 +70,7 @@ cart_cb = CallbackData("q", "id", "button_parameter")
 
 @dp.message_handler(commands=['mentalstata'])
 async def process_rate_stata_command(message: types.Message):
-    await bot.send_message(message.chat.id, "За какой период хочешь получить статистику?", reply_markup=ask_for_rate_stata_kb)
-    await Recording.AwaitForARateStata.set()
+    await get_rate_stata(message)
 
 @dp.callback_query_handler(lambda c: c.data == 'month', state=Recording.AwaitForARateStata)
 async def rate_stata_handler_month(callback_query: types.CallbackQuery, state: FSMContext):

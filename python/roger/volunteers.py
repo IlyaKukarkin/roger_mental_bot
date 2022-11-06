@@ -18,6 +18,10 @@ async def mental_rate_strike(chat_id: int, action: str):
         if (amount >= 7):
             return True
         return False
+    if (action == 'mantalstata'):
+        if (amount >= 14):
+            return True
+        return False
 
 
 async def ask_to_be_a_volunteer(chat_id: int):

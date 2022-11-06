@@ -3,9 +3,22 @@ import pytz
 import datetime
 from config import bot
 from dateutil.relativedelta import relativedelta
+from aiogram import types
+from states import Recording
 import json
 
 from database import get_database
+from keyboards import ask_for_rate_stata_kb
+from volunteers import mental_rate_strike
+
+
+async def get_rate_stata(message: types.Message):
+    if (await mental_rate_strike(message.chat.id, 'mantalstata')) == False:
+        await bot.send_message(message.chat.id, "Эта команда тебе пока недоступна. Замеряй свое настроение 14 дней — и она откроется!")
+        return
+
+    await bot.send_message(message.chat.id, "За какой период хочешь получить статистику?", reply_markup=ask_for_rate_stata_kb)
+    await Recording.AwaitForARateStata.set()
 
 
 async def send_rate_stata(id_message: str, stata_type: str):
