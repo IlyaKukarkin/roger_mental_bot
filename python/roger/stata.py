@@ -1,6 +1,4 @@
-import os
-
-from aiogram import Bot, types
+from aiogram import types
 from sqlite3 import Cursor
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.types import CallbackQuery
@@ -15,6 +13,7 @@ import datetime
 from linkpreview import link_preview
 from common import get_pictures
 from config import bot, link_to_form, cuttly_api_key
+from volunteers import mental_rate_strike
 
 from database import get_database
 
@@ -32,6 +31,10 @@ async def stata_show_mes(message: types.Message):
     collection_name = get_database()
     user = collection_name["users"].find_one(
         {"telegram_id": str(message.chat.id)}, {'_id': 1, "form_id": 1})
+    if (await mental_rate_strike(message.chat.id, 'stata')) == False:
+        await bot.send_message(message.chat.id, "Эта команда тебе пока недоступна. Замеряй свое настроение 7 дней — и она откроется!")
+        return
+    await bot.send_message(message.chat.id, "Подгружаю твои сообщения")
     messages = collection_name["messages"].find({"id_user": user["_id"]}, {
                                                 "_id": 1, "text": 1, "media_link": 1, "is_approved": 1, "image_ids": 1, "is_anonymous": 1, "created_at": 1})
     length = len(list(messages.clone()))

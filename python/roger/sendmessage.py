@@ -52,7 +52,7 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
         collection_name['mental_rate'].find_one_and_update({"$and": [{"id_user": user["_id"]}, {
                                                            "id_tg_message": callback_query.message.message_id}]}, {"$set": {"rate": rate}})
         await get_options_color(color, callback_query.from_user.id)
-        await (mental_rate_strike(callback_query.from_user.id))
+        await (mental_rate_strike(callback_query.from_user.id, 'volunteer'))
         collection_name['users'].find().close()
         collection_name['mental_rate'].find().close()
     except (Exception):
