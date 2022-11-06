@@ -1,6 +1,4 @@
-import os
-
-from aiogram import Bot, types
+from aiogram import types
 from sqlite3 import Cursor
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.types import CallbackQuery
@@ -15,6 +13,7 @@ import datetime
 from linkpreview import link_preview
 from common import get_pictures
 from config import bot, link_to_form, cuttly_api_key
+from volunteers import mental_rate_strike
 
 from database import get_database
 
@@ -32,6 +31,10 @@ async def stata_show_mes(message: types.Message):
     collection_name = get_database()
     user = collection_name["users"].find_one(
         {"telegram_id": str(message.chat.id)}, {'_id': 1, "form_id": 1})
+    if (await mental_rate_strike(message.chat.id, 'stata')) == False:
+        await bot.send_message(message.chat.id, "Эта команда тебе пока недоступна. Замеряй свое настроение 7 дней — и она откроется!")
+        return
+    await bot.send_message(message.chat.id, "Подгружаю твои сообщения")
     messages = collection_name["messages"].find({"id_user": user["_id"]}, {
                                                 "_id": 1, "text": 1, "media_link": 1, "is_approved": 1, "image_ids": 1, "is_anonymous": 1, "created_at": 1})
     length = len(list(messages.clone()))
@@ -94,19 +97,26 @@ async def send_stata(id_message: str):
     image_url = f"?show={str(len(list(count_times)))}&likes={good_rates}&dislikes={bad_rates}&approved={is_approved}&current_date={curr_date}&text={urllib.parse.quote(message['text'])}&created_date={message['created_date'].isoformat()}"
 
     if (message['media_link'] != ''):
-        preview = link_preview(message['original_media_link'])
+        try:
+            preview = link_preview(message['original_media_link'])
+        except (Exception):
+            preview = json.dumps({"image": "https://images.ctfassets.net/n1wrmpzswxf2/5scp1TkHI7xSty5gSV2LfX/a2b733b18f51be6e2c1693fb7f85faa6/Mamba_UI__Error__Free_HTML_components_and_templates_built_with_Tailwind_CSS__2022-10-30_15-48-29.png",
+                                  "title": 'Ошибка получения заголовка ссылки',
+                                  })
 
         response = requests.get('http://cutt.ly/api/api.php?key=' +
                                 cuttly_api_key + '&stats=' + message['media_link'])
         answer = json.loads(response.content)
         link_cliks = answer['stats']['clicks']
 
-        image_url = image_url + f"&link_clicks={link_cliks}&link={urllib.parse.quote(message['original_media_link'])}&link_image={urllib.parse.quote(preview.image)}&link_title={urllib.parse.quote(preview.title)}"
+        image_url = image_url + \
+            f"&link_clicks={link_cliks}&link={urllib.parse.quote(message['original_media_link'])}&link_image={urllib.parse.quote(preview.image)}&link_title={urllib.parse.quote(preview.title)}"
 
     if (len(message['image_ids']) != 0):
         image = await get_pictures(message['image_ids'][0])
 
-        image_url = image_url + f"&image={urllib.parse.quote('https://' + image)}"
+        image_url = image_url + \
+            f"&image={urllib.parse.quote('https://' + image)}"
 
     result_image_url = 'https://roger-bot.space/api/message-stats' + image_url
 

@@ -26,7 +26,7 @@ from handlers import rate_message
 from keyboards import ask_for_rate_stata_kb
 
 #текущая версия бота
-version = "0.4.1"
+version = "0.4.3"
 
 
 # read texts from json file
@@ -50,9 +50,13 @@ async def process_version_command(message: types.Message):
 #колбек для обработки статистики по сообщению пользователя
 cart_cb = CallbackData("q", "id", "button_parameter")
 
+#вывод статистики по созданному пользователем сообщению
+#колбек для обработки статистики по сообщению пользователя
+cart_cb = CallbackData("q", "id", "button_parameter")
+
 @dp.message_handler(commands=['stata'])
-async def process_feedback_command(message: types.Message):
-    await bot.send_message(message.chat.id, "Подгружаю твои сообщения")
+async def process_stata_command(message: types.Message):
+    await bot.send_message(message.chat.id, "Произвожу вычисления, немного терпения 😌")
     await stata_show_mes(message)
 
 @dp.callback_query_handler(cart_cb.filter(button_parameter=["kb_mes"]))
@@ -91,11 +95,11 @@ async def rate_stata_handler_week(callback_query: types.CallbackQuery, state: FS
 
 #отправляем сообщение всем пользователям от имени бота, доступно только админам
 @dp.message_handler(commands=['sendmestoall'])
-async def process_feedback_command(message: types.Message):
+async def process_sendmestoall_command(message: types.Message):
     await get_message_to_all(message)
 
 @dp.message_handler(state=Recording.AwaitForAMessageForAll)
-async def process_callback_button1(message: types.Message, state: FSMContext):
+async def process_callback_awaitforamessage_button(message: types.Message, state: FSMContext):
     await send_message_to_all(message, state)
 
 
@@ -115,20 +119,20 @@ async def send_to_admin_photo(message: types.Message, state: FSMContext):
 
 #принудительная отправка сообщения для оценки настроения за день
 @dp.message_handler(commands=['sendmes'])
-async def process_start_command(message: types.Message):
+async def process_sendmes_command(message: types.Message):
     await sendmes(message.from_user.id)
 
 
 #регистрация пользователя
 #получаем имя пользователя
 @dp.callback_query_handler(lambda c: c.data == 'name_button_yes', state=Recording.Name)
-async def process_callback_button1(callback_query: types.CallbackQuery, state: FSMContext):
+async def process_callback_yesname_button1(callback_query: types.CallbackQuery, state: FSMContext):
     global user_name 
     user_name = await get_user_name(callback_query, state)
     await get_user_time_to_send(callback_query.from_user.id)
 
 @dp.callback_query_handler(lambda c: c.data == 'name_button_no', state=Recording.Name)
-async def process_callback_button1(callback_query: types.CallbackQuery, state: FSMContext):
+async def process_callback_noname_button1(callback_query: types.CallbackQuery, state: FSMContext):
     await get_printed_user_name(callback_query, state)
 
 @dp.message_handler(state=Recording.AwaitForAName)
@@ -143,25 +147,25 @@ async def get_user_time_to_send(chat_id: int):
     await get_user_time_to_send_messages(chat_id)
 
 @dp.callback_query_handler(lambda c: c.data == 'ask_for_time_20', state=Recording.AwaitForATimeToSend)
-async def process_callback_button1(callback_query: types.CallbackQuery, state: FSMContext):
+async def process_callback_askfortime20_button(callback_query: types.CallbackQuery, state: FSMContext):
     global user_time
     user_time = await user_time_20(callback_query, state)
     await get_user_time_zone(callback_query.from_user.id)
 
 @dp.callback_query_handler(lambda c: c.data == 'ask_for_time_21', state=Recording.AwaitForATimeToSend)
-async def process_callback_button1(callback_query: types.CallbackQuery, state: FSMContext):
+async def process_callback_askfortime21_button(callback_query: types.CallbackQuery, state: FSMContext):
     global user_time
     user_time = await user_time_21(callback_query, state)
     await get_user_time_zone(callback_query.from_user.id)
 
 @dp.callback_query_handler(lambda c: c.data == 'ask_for_time_22', state=Recording.AwaitForATimeToSend)
-async def process_callback_button1(callback_query: types.CallbackQuery, state: FSMContext):
+async def process_callback_askfortime22_button(callback_query: types.CallbackQuery, state: FSMContext):
     global user_time
     user_time = await user_time_22(callback_query, state)
     await get_user_time_zone(callback_query.from_user.id)
 
 @dp.callback_query_handler(lambda c: c.data == 'ask_for_time_23', state=Recording.AwaitForATimeToSend)
-async def process_callback_button1(callback_query: types.CallbackQuery, state: FSMContext):
+async def process_callback_askfortime23_button1(callback_query: types.CallbackQuery, state: FSMContext):
     global user_time
     user_time = await user_time_23(callback_query, state)
     await get_user_time_zone(callback_query.from_user.id)
@@ -184,28 +188,28 @@ async def create_user (message: types.Message):
 #оценки
 #получаем оценку сообщения от пользователя
 @dp.callback_query_handler(lambda c: c.data == 'rate_good')
-async def process_callback_button1(callback_query: types.CallbackQuery, state: FSMContext):
+async def process_callback_rategood_button(callback_query: types.CallbackQuery, state: FSMContext):
     await rate_message(callback_query, state, True)
 
 @dp.callback_query_handler(lambda c: c.data == 'rate_bad')
-async def process_callback_button1(callback_query: types.CallbackQuery, state: FSMContext):
+async def process_callback_ratebad_button(callback_query: types.CallbackQuery, state: FSMContext):
     await rate_message(callback_query, state, False)
 
 #оценка настроения за день
 @dp.callback_query_handler(lambda c: c.data == 'green_button_answer')
-async def process_callback_button4(callback_query: types.CallbackQuery, state: FSMContext):
+async def process_callback_greenbutton_button4(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_after_click_on_color_button(callback_query, state, 4, 'green')
 
 @dp.callback_query_handler(lambda c: c.data == 'yellow_button_answer')
-async def process_callback_button3(callback_query: types.CallbackQuery, state: FSMContext):
+async def process_callback_yellowbutton_button3(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_after_click_on_color_button(callback_query, state, 3, 'yellow')
 
 @dp.callback_query_handler(lambda c: c.data == 'orange_button_answer')
-async def process_callback_button2(callback_query: types.CallbackQuery, state: FSMContext):
+async def process_callback_orangebutton_button2(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_after_click_on_color_button(callback_query, state, 2, 'orange')
 
 @dp.callback_query_handler(lambda c: c.data == 'red_button_answer')
-async def process_callback_button1(callback_query: types.CallbackQuery, state: FSMContext):
+async def process_callback_redbutton_button1(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_after_click_on_color_button(callback_query, state, 1, 'red')
 
 #дефолтный запуск
