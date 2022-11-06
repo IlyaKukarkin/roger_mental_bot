@@ -8,7 +8,7 @@ from aiogram.types import CallbackQuery
 from aiogram.utils.callback_data import CallbackData
 
 from states import Recording
-from common import check_id_username_is_valid_before_save
+from common import check_id_username_is_valid_before_save, delete_keyboard
 from database import create_new_user
 from feedback import feedback_command, feedback_get_text_from_user, feedback_get_photo_from_user
 from version import version_command
@@ -18,13 +18,14 @@ from reg.reg_user_name import get_user_name, get_printed_user_name, get_customer
 from reg.reg_user_time import get_user_time_to_send_messages, user_time_20, user_time_21, user_time_22, user_time_23
 from reg.reg_user_timezone import get_user_timezone, customer_timezone
 from stata import stata_show_mes, delete_from_cart_handler1
+from ratestata import send_rate_stata, get_rate_stata
 from sendmessage import sendmes, callback_after_click_on_color_button
 from on_startup import enable_task_to_send_mes
 from config import dp, bot
 from handlers import rate_message
 
 #текущая версия бота
-version = "0.4.2"
+version = "0.4.4"
 
 
 # read texts from json file
@@ -48,6 +49,10 @@ async def process_version_command(message: types.Message):
 #колбек для обработки статистики по сообщению пользователя
 cart_cb = CallbackData("q", "id", "button_parameter")
 
+#вывод статистики по созданному пользователем сообщению
+#колбек для обработки статистики по сообщению пользователя
+cart_cb = CallbackData("q", "id", "button_parameter")
+
 @dp.message_handler(commands=['stata'])
 async def process_stata_command(message: types.Message):
     await bot.send_message(message.chat.id, "Произвожу вычисления, немного терпения 😌")
@@ -57,6 +62,33 @@ async def process_stata_command(message: types.Message):
 async def delete_from_cart_handler(call: CallbackQuery, callback_data: dict):
     await bot.send_message(call.from_user.id, "Подгружаю статистику, немного терпения")
     await delete_from_cart_handler1(call, callback_data)
+
+
+#вывод статистики по настроению пользователя
+#колбек для обработки статистики по настроению пользователя
+cart_cb = CallbackData("q", "id", "button_parameter")
+
+@dp.message_handler(commands=['mentalstata'])
+async def process_rate_stata_command(message: types.Message):
+    await get_rate_stata(message)
+
+@dp.callback_query_handler(lambda c: c.data == 'month', state=Recording.AwaitForARateStata)
+async def rate_stata_handler_month(callback_query: types.CallbackQuery, state: FSMContext):
+    await state.finish()
+    await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
+    await send_rate_stata(callback_query.from_user.id, 'month')
+
+@dp.callback_query_handler(lambda c: c.data == 'week2', state=Recording.AwaitForARateStata)
+async def rate_stata_handler_week2(callback_query: types.CallbackQuery, state: FSMContext):
+    await state.finish()
+    await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
+    await send_rate_stata(callback_query.from_user.id, 'week2')
+
+@dp.callback_query_handler(lambda c: c.data == 'week', state=Recording.AwaitForARateStata)
+async def rate_stata_handler_week(callback_query: types.CallbackQuery, state: FSMContext):
+    await state.finish()
+    await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
+    await send_rate_stata(callback_query.from_user.id, 'week')
 
 
 #отправляем сообщение всем пользователям от имени бота, доступно только админам

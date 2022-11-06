@@ -33,3 +33,13 @@ ask_for_time_to_send_23 = InlineKeyboardButton(
     '23:00-00:00', callback_data='ask_for_time_23')
 ask_for_time_to_send_kb = InlineKeyboardMarkup(row_width=2).add(
     ask_for_time_to_send_20, ask_for_time_to_send_21, ask_for_time_to_send_22, ask_for_time_to_send_23)
+
+
+rate_stata_month = InlineKeyboardButton(
+    'За месяц', callback_data='month')
+rate_stata_week_2 = InlineKeyboardButton(
+    'За 2 недели', callback_data='week2')
+rate_stata_week = InlineKeyboardButton(
+    'За неделю', callback_data='week')
+ask_for_rate_stata_kb = InlineKeyboardMarkup().add(
+    rate_stata_month, rate_stata_week_2, rate_stata_week)

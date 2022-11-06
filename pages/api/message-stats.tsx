@@ -47,7 +47,7 @@ export default async function handler(req: NextRequest) {
             >
                 {children}
 
-                <p tw="absolute -bottom-3 text-gray-400">* Бот показывает сообщение пользователям, если оно собирает не более 25% дизлайков, но не менее 3 лайков</p>
+                <p tw="absolute -bottom-3 text-gray-400">* Бот показывает сообщение пользователям, если оно набирает не менее 3 лайков и не более 25% дизлайков от общего числа оценок</p>
             </div>
         )
     }
@@ -64,7 +64,7 @@ export default async function handler(req: NextRequest) {
                 </div>
                 <div tw="flex flex-col h-[90%] w-full justify-center items-center">
                     <div tw="flex flex-col h-20 justify-start items-center m-4">
-                        <p tw="text-4xl font-bold leading-none lg:text-6xl">{approved ? 'Да' : 'Нет'}</p>
+                        <p tw="text-4xl font-bold leading-none lg:text-6xl">{approved ? '✅' : '❌'}</p>
                         <p tw="text-sm pt-8 text-gray-400 sm:text-base">Отображается пользователям *</p>
                     </div>
                     <div tw="flex flex-col h-20 justify-start items-center m-4">

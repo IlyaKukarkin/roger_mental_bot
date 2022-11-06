@@ -7,6 +7,7 @@ class Recording(StatesGroup):
     AwaitForATimeZone = State()
     TimeToSend = State()
     AwaitForATimeToSend = State()
+    AwaitForARateStata = State()
     AwaitForATimeZoneToSend = State()
     AwaitForAFeedback = State()
     AwaitForAMessageForAll = State()

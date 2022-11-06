@@ -19,7 +19,6 @@ from database import get_database
 
 cart_cb = CallbackData("q", "id", "button_parameter")
 
-
 async def kb_for_stata(messages: Cursor):
     kb_stata_messages = InlineKeyboardMarkup(row_width=1)
     for item in messages:
@@ -27,7 +26,6 @@ async def kb_for_stata(messages: Cursor):
             (str(item["_id"])), button_parameter="kb_mes"))
         kb_stata_messages.add(i)
     return kb_stata_messages
-
 
 async def stata_show_mes(message: types.Message):
     collection_name = get_database()
@@ -51,12 +49,10 @@ async def stata_show_mes(message: types.Message):
     collection_name['users'].find().close()
     collection_name['messages'].find().close()
 
-
 async def delete_from_cart_handler1(call: CallbackQuery, callback_data: dict):
     id_message = callback_data.get("id")
     await delete_keyboard(call.from_user.id, call.message.message_id)
     await send_stata(id_message)
-
 
 async def send_stata(id_message: str):
     collection_name = get_database()
