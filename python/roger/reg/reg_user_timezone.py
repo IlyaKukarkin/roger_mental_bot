@@ -14,11 +14,11 @@ async def customer_timezone(message: types.Message, state: FSMContext):
     await state.update_data(name=message.text)
     user_current_time = message.text
     s = user_current_time.split(":")
-    if (s[0].isdigit() == False):
+    if (s[0].isdigit() == False or s[1].isdigit() == False):
         await bot.send_message(message.chat.id, "Кажется, ты ввел что-то не то 🙃 \nНапиши, сколько у тебя сейчас времени в формате ЧАСЫ:МИНУТЫ")
         await Recording.AwaitForATimeZoneToSend.set()
         return
-    if (int(s[0]) < 0 or int(s[0]) > 23):
+    if (int(s[0]) < 0 or int(s[0]) > 23 or int(s[1]) < 0 or int(s[1]) > 59):
         await bot.send_message(message.chat.id, "Кажется, ты ввел что-то не то 🙃 \nНапиши, сколько у тебя сейчас времени в формате ЧАСЫ:МИНУТЫ")
         await Recording.AwaitForATimeZoneToSend.set()
         return

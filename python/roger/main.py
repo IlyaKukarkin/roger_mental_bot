@@ -22,6 +22,7 @@ from sendmessage import sendmes, callback_after_click_on_color_button
 from on_startup import enable_task_to_send_mes
 from config import dp, bot
 from handlers import rate_message
+from fillform import fillform_command
 
 #текущая версия бота
 version = "0.4.1"
@@ -55,7 +56,7 @@ async def process_stata_command(message: types.Message):
 
 @dp.callback_query_handler(cart_cb.filter(button_parameter=["kb_mes"]))
 async def delete_from_cart_handler(call: CallbackQuery, callback_data: dict):
-    await bot.send_message(call.from_user.id, "Подгружаю статистику, немного терпения")
+    await bot.send_message(call.from_user.id, "Подгружаю статистику, подожди еще чуть-чуть")
     await delete_from_cart_handler1(call, callback_data)
 
 
@@ -88,6 +89,11 @@ async def send_to_admin_photo(message: types.Message, state: FSMContext):
 async def process_sendmes_command(message: types.Message):
     await sendmes(message.from_user.id)
 
+
+#заполнить форму по команде
+@dp.message_handler(commands=['fillform'])
+async def process_fillform_command(message: types.Message):
+    await fillform_command(message)
 
 #регистрация пользователя
 #получаем имя пользователя

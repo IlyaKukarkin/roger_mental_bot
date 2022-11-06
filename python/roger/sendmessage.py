@@ -15,7 +15,7 @@ from volunteers import mental_rate_strike
 import json
 import random
 import time
-from config import contentful_api_readonly_url, contenful_space_id, contenful_access_token, token_bot, link_to_form, bot
+from config import contentful_api_readonly_url, contenful_space_id, contenful_access_token, link_to_form, bot
 from common import rand_select_obj_texts
 
 cart_cb = CallbackData("q", "id", "button_parameter")
