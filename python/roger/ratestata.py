@@ -57,8 +57,6 @@ async def send_rate_stata(id_message: str, stata_type: str):
 
     user = list(user_cursor)[0]
 
-    print(user)
-
     user_created = user['created_at']
     data = []
     count_rates = 0
@@ -84,9 +82,6 @@ async def send_rate_stata(id_message: str, stata_type: str):
                     {"date": dt.day, "mood": 0, "disabled": dt < user_created.date()}
                 )
 
-    print(data)
-    print(count_rates)
-
     statistic = collection_name["statistic"].find_one()
 
     compare = 0
@@ -111,8 +106,6 @@ async def send_rate_stata(id_message: str, stata_type: str):
     title = f"с {from_date.strftime('%d.%m.%Y')} по {date_now_clear.strftime('%d.%m.%Y')}"
 
     image_url = f"?username={urllib.parse.quote(user['name'])}&compare_to_others={round(compare / compare_total_users * 100)}&title={urllib.parse.quote(title)}&data={urllib.parse.quote(json.dumps(data))}"
-
-    print(image_url)
 
     result_image_url = 'https://roger-bot.space/api/user-stats' + image_url
 

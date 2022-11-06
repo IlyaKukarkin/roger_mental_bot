@@ -41,7 +41,7 @@ export default async function handler(req: NextRequest) {
             >
                 {children}
 
-                <p tw="absolute -bottom-3 text-gray-400">🔴 - плохой день, 🟠 - чуть плохой день, 🟡 - хороший день, 🟢 - отличный день, ⚫ - нет оценки</p>
+                <p tw="absolute -bottom-3 text-gray-400">🔴 - ужасный день, 🟠 - чуть плохой день, 🟡 - хороший день, 🟢 - отличный день, ⚫ - нет оценки</p>
             </div>
         )
     }
@@ -127,7 +127,7 @@ export default async function handler(req: NextRequest) {
             return (
                 <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
                     <p tw={`text-xl text-center font-bold ${getRateColor[MOOD.GREEN]}`}>Ни одного(</p>
-                    <p tw="text-gray-400 -mt-4">Самый лучший день недели</p>
+                    <p tw="text-gray-400 -mt-4">Самый зелёный день недели</p>
                 </div>
             )
         }
@@ -136,7 +136,7 @@ export default async function handler(req: NextRequest) {
             return (
                 <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
                     <p tw={`text-xl text-center font-bold ${getRateColor[MOOD.GREEN]}`}>Все!</p>
-                    <p tw="text-gray-400 -mt-4">Самый лучший день недели</p>
+                    <p tw="text-gray-400 -mt-4">Самый зелёный день недели</p>
                 </div>
             )
         }
@@ -157,7 +157,7 @@ export default async function handler(req: NextRequest) {
                             })
                         }
                     </div>
-                    <p tw="text-gray-400 -mt-4">Самые лучшие дни недели</p>
+                    <p tw="text-gray-400 -mt-4">Самые зелёные дни недели</p>
                 </div>
             )
         }
@@ -165,7 +165,7 @@ export default async function handler(req: NextRequest) {
         return (
             <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
                 <p tw={`text-xl text-center font-bold ${getRateColor[MOOD.GREEN]}`}>{getFullDayOfTheWeek[countGoodDays.indexOf(max)]}</p>
-                <p tw="text-gray-400 -mt-4">Самый лучший день недели</p>
+                <p tw="text-gray-400 -mt-4">Самый зелёный день недели</p>
             </div>
         )
     }
@@ -192,7 +192,7 @@ export default async function handler(req: NextRequest) {
             return (
                 <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
                     <p tw={`text-xl text-center font-bold ${getRateColor[MOOD.RED]}`}>Ни одного!</p>
-                    <p tw="text-gray-400 -mt-4">Самый худший день недели</p>
+                    <p tw="text-gray-400 -mt-4">Самый красный день недели</p>
                 </div>
             )
         }
@@ -201,7 +201,7 @@ export default async function handler(req: NextRequest) {
             return (
                 <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
                     <p tw={`text-xl text-center font-bold ${getRateColor[MOOD.RED]}`}>Все(</p>
-                    <p tw="text-gray-400 -mt-4">Самый худший день недели</p>
+                    <p tw="text-gray-400 -mt-4">Самый красный день недели</p>
                 </div>
             )
         }
@@ -222,7 +222,7 @@ export default async function handler(req: NextRequest) {
                             })
                         }
                     </div>
-                    <p tw="text-gray-400 -mt-4">Самые худшие дни недели</p>
+                    <p tw="text-gray-400 -mt-4">Самые красные дни недели</p>
                 </div>
             )
         }
@@ -230,7 +230,7 @@ export default async function handler(req: NextRequest) {
         return (
             <div tw='flex flex-col mt-4 bg-gray-800 rounded-xl px-8 px-0 w-full bg-opacity-50 items-center'>
                 <p tw={`text-xl text-center font-bold ${getRateColor[MOOD.RED]}`}>{getFullDayOfTheWeek[countBadDays.indexOf(max)]}</p>
-                <p tw="text-gray-400 -mt-4">Самый худший день недели</p>
+                <p tw="text-gray-400 -mt-4">Самый красный день недели</p>
             </div>
         )
     }

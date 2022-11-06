@@ -64,7 +64,7 @@ export default async function handler(req: NextRequest) {
                 </div>
                 <div tw="flex flex-col h-[90%] w-full justify-center items-center">
                     <div tw="flex flex-col h-20 justify-start items-center m-4">
-                        <p tw="text-4xl font-bold leading-none lg:text-6xl">{approved ? 'Да' : 'Нет'}</p>
+                        <p tw="text-4xl font-bold leading-none lg:text-6xl">{approved ? '✅' : '❌'}</p>
                         <p tw="text-sm pt-8 text-gray-400 sm:text-base">Отображается пользователям *</p>
                     </div>
                     <div tw="flex flex-col h-20 justify-start items-center m-4">
