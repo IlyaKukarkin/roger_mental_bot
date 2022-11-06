@@ -4,8 +4,7 @@ from aiogram.dispatcher import Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 # tokens
-token_bot = os.getenv("TOKEN_ROGER_PROD_BOT")
-#token_bot = os.getenv("TOKEN_BOT")
+token_bot = os.getenv("ROGER_TOKEN_BOT")
 db_token = os.getenv("MONGODB_URI")
 link_to_form = os.getenv("LINK_TO_FORM")
 contenful_access_token = os.getenv("CONTENTFUL_ACCESS_TOKEN")
