@@ -47,7 +47,7 @@ export default async function handler(req: NextRequest) {
             >
                 {children}
 
-                <p tw="absolute -bottom-3 text-gray-400">* Бот показывает сообщение пользователям, если оно собирает не более 25% дизлайков, но не менее 3 лайков</p>
+                <p tw="absolute -bottom-3 text-gray-400">* Бот показывает сообщение пользователям, если оно набирает не менее 3 лайков и не более 25% дизлайков от общего числа оценок</p>
             </div>
         )
     }
