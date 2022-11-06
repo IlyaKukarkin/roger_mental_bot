@@ -99,6 +99,11 @@ async def send_stata(id_message: str):
     if (message['media_link'] != ''):
         try:
             preview = link_preview(message['original_media_link'])
+
+            if (not preview.title):
+                preview.title = 'Ошибка получения заголовка ссылки'
+            if (not preview.image):
+                preview.image = 'https://images.ctfassets.net/n1wrmpzswxf2/5scp1TkHI7xSty5gSV2LfX/a2b733b18f51be6e2c1693fb7f85faa6/Mamba_UI__Error__Free_HTML_components_and_templates_built_with_Tailwind_CSS__2022-10-30_15-48-29.png'
         except (Exception):
             preview = json.dumps({"image": "https://images.ctfassets.net/n1wrmpzswxf2/5scp1TkHI7xSty5gSV2LfX/a2b733b18f51be6e2c1693fb7f85faa6/Mamba_UI__Error__Free_HTML_components_and_templates_built_with_Tailwind_CSS__2022-10-30_15-48-29.png",
                                   "title": 'Ошибка получения заголовка ссылки',
