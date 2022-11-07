@@ -139,12 +139,14 @@ async def check_if_delete_mental_keyboard(user_id: ObjectId):
         await bot.send_message(int(user['telegram_id']), await get_options('hurry_up_message'))
         collection_name['users'].find().close()
 
-    if (mental_hours_clone[0]['date_diff']>=4 and list(mental_hours_clone)[0]['date_diff']<=8):
+    if (mental_hours_clone[0]['date_diff']==4):
         user = collection_name["users"].find_one(
             {"_id": user_id}, {'telegram_id': 1})
         await delete_keyboard(int(user['telegram_id']), int(list(mental_hours_clone)[0]['id_tg_message']))
         await bot.send_message(int(user['telegram_id']), await get_options('thats_it_message'))
         collection_name['users'].find().close()
     collection_name['mental_rate'].find().close()
+
+
 
 

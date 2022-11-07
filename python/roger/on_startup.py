@@ -59,4 +59,4 @@ async def enable_task_to_send_mes():
                 await sendmes(int(user['telegram_id']))
         collection_name['users'].find().close()
         collection_name['user_messages'].find().close()
-        await asyncio.sleep(45*60)
+        await asyncio.sleep(60*60)

@@ -11,12 +11,13 @@ from aiogram.utils.markdown import bold, text
 from common import get_pictures
 from keyboards import ask_for_rate_messages
 import requests
-from volunteers import mental_rate_strike
+from volunteers import mental_rate_strike, how_many_days_user_with_us
 import json
 import random
 import time
 from config import contentful_api_readonly_url, contenful_space_id, contenful_access_token, link_to_form, bot
 from common import rand_select_obj_texts
+from mentalstrikes import mental_rates_strike_in_a_row
 
 
 cart_cb = CallbackData("q", "id", "button_parameter")
@@ -53,6 +54,7 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
         collection_name['mental_rate'].find_one_and_update({"$and": [{"id_user": user["_id"]}, {
                                                            "id_tg_message": callback_query.message.message_id}]}, {"$set": {"rate": rate}})
         await get_options_color(color, callback_query.from_user.id)
+        await row_message(callback_query.from_user.id)
         await (mental_rate_strike(callback_query.from_user.id, 'volunteer'))
         collection_name['users'].find().close()
         collection_name['mental_rate'].find().close()
@@ -170,3 +172,5 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
     collection_name['user_messages'].find().close()
     collection_name['messages'].find().close()
 
+async def row_message(chat_id: int):
+    await bot.send_message(chat_id, "Ты уже замерил свое настроение " + str(await how_many_days_user_with_us(chat_id)) + " раз! Продолжай в том же духе 😎")
