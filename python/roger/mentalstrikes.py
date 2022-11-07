@@ -33,4 +33,3 @@ async def mental_rates_strike_in_a_row(chat_id: int):
         else:
             return strike
     
-        
