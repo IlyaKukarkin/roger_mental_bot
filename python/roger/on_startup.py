@@ -3,11 +3,10 @@ from database import get_database
 import asyncio
 import pytz
 from sendmessage import sendmes
-from common import is_any_messages_sent_today
+from common import is_any_messages_sent_today, check_if_delete_mental_keyboard, delete_keyboard
 
 async def enable_task_to_send_mes():
     while True:
-        s = datetime.datetime.now().strftime("%H")
         collection_name = get_database()
         users = collection_name["users"].aggregate([
             {
@@ -54,6 +53,7 @@ async def enable_task_to_send_mes():
             }
         ])
         for user in users:
+            await check_if_delete_mental_keyboard(user['_id'])
             already_sent = await is_any_messages_sent_today(user['_id'])
             if (not already_sent):
                 await sendmes(int(user['telegram_id']))

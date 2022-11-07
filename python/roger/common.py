@@ -96,3 +96,55 @@ async def is_any_messages_sent_today(user_id: ObjectId):
     result = (list(mental_rates) != [])
     collection_name['mental_rate'].find().close()
     return result
+
+async def check_if_delete_mental_keyboard(user_id: ObjectId): 
+    collection_name = get_database()
+    mental_hours = collection_name['mental_rate'].aggregate(
+[
+    {
+        '$match': {
+            'id_user': user_id
+        }
+    }, {
+        '$match': {
+            'rate': 0
+        }
+    }, {
+        '$addFields': {
+            'datetime_now': datetime.datetime.now(pytz.utc)
+        }
+    }, {
+        '$addFields': {
+            'date_diff': {
+                '$dateDiff': {
+                    'startDate': '$date', 
+                    'endDate': '$datetime_now', 
+                    'unit': 'hour'
+                }
+            }
+        }
+    }, {
+        '$sort': {
+            'date_diff': 1
+        }
+    }, {
+        '$limit': 1
+    }
+]
+    )
+    mental_hours_clone = list(mental_hours)
+    if (mental_hours_clone[0]['date_diff']==3):
+        user = collection_name["users"].find_one(
+            {"_id": user_id}, {'telegram_id': 1})
+        await bot.send_message(int(user['telegram_id']), await get_options('hurry_up_message'))
+        collection_name['users'].find().close()
+
+    if (mental_hours_clone[0]['date_diff']>=4 and list(mental_hours_clone)[0]['date_diff']<=8):
+        user = collection_name["users"].find_one(
+            {"_id": user_id}, {'telegram_id': 1})
+        await delete_keyboard(int(user['telegram_id']), int(list(mental_hours_clone)[0]['id_tg_message']))
+        await bot.send_message(int(user['telegram_id']), await get_options('thats_it_message'))
+        collection_name['users'].find().close()
+    collection_name['mental_rate'].find().close()
+
+
