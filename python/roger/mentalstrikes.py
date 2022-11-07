@@ -1,5 +1,6 @@
 from config import dp, bot
 
+
 from datetime import datetime, timedelta
 from database import get_database
 
@@ -33,4 +34,4 @@ async def mental_rates_strike_in_a_row(chat_id: int):
         else:
             return strike
     
-        
+       
