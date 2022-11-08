@@ -1,4 +1,4 @@
-name: rate-cron
+name: stata-cron
 on:
   schedule:
     - cron: '0 23 * * *'
