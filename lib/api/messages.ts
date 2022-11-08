@@ -19,7 +19,6 @@ export type FormDataType = {
   text: string;
   media_link?: string;
   image_ids?: string[];
-  is_approved: boolean;
   is_anonymous: boolean;
 };
 
@@ -180,6 +179,7 @@ export const submitForm = async ({
   const messageCollection = client.db("roger-bot-db").collection("messages");
   await messageCollection.insertOne({
     ...form,
+    is_approved: false,
     media_link: short_link,
     original_media_link: original_link,
     created_date: new Date(),

@@ -114,7 +114,6 @@ const MessageForm = ({ name, form_id }: Props) => {
       form_id,
       text: message,
       is_anonymous: anonymous,
-      is_approved: false,
       media_link: link || "",
       image_ids: [],
     };
