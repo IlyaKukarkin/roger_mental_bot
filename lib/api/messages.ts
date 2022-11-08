@@ -186,9 +186,9 @@ export const submitForm = async ({
     id_user: new ObjectId(user._id),
   });
 
-  await fetch(`https://api.telegram.org/bot${process.env.TOKEN_ROGER_PROD_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend}`, { method: 'POST' })
+  await fetch(`https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend}`, { method: 'POST' })
 
   if (messageCount === 0) {
-    await fetch(`https://api.telegram.org/bot${process.env.TOKEN_ROGER_PROD_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend2}`, { method: 'POST' })
+    await fetch(`https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend2}`, { method: 'POST' })
   }
 };
