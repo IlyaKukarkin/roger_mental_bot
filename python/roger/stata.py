@@ -19,6 +19,7 @@ from database import get_database
 
 cart_cb = CallbackData("q", "id", "button_parameter")
 
+
 async def kb_for_stata(messages: Cursor):
     kb_stata_messages = InlineKeyboardMarkup(row_width=1)
     for item in messages:
@@ -26,6 +27,7 @@ async def kb_for_stata(messages: Cursor):
             (str(item["_id"])), button_parameter="kb_mes"))
         kb_stata_messages.add(i)
     return kb_stata_messages
+
 
 async def stata_show_mes(message: types.Message):
     collection_name = get_database()
@@ -49,10 +51,12 @@ async def stata_show_mes(message: types.Message):
     collection_name['users'].find().close()
     collection_name['messages'].find().close()
 
+
 async def delete_from_cart_handler1(call: CallbackQuery, callback_data: dict):
     id_message = callback_data.get("id")
     await delete_keyboard(call.from_user.id, call.message.message_id)
     await send_stata(id_message)
+
 
 async def send_stata(id_message: str):
     collection_name = get_database()
@@ -105,9 +109,7 @@ async def send_stata(id_message: str):
             if (not preview.image):
                 preview.image = 'https://images.ctfassets.net/n1wrmpzswxf2/5scp1TkHI7xSty5gSV2LfX/a2b733b18f51be6e2c1693fb7f85faa6/Mamba_UI__Error__Free_HTML_components_and_templates_built_with_Tailwind_CSS__2022-10-30_15-48-29.png'
         except (Exception):
-            preview = json.dumps({"image": "https://images.ctfassets.net/n1wrmpzswxf2/5scp1TkHI7xSty5gSV2LfX/a2b733b18f51be6e2c1693fb7f85faa6/Mamba_UI__Error__Free_HTML_components_and_templates_built_with_Tailwind_CSS__2022-10-30_15-48-29.png",
-                                  "title": 'Ошибка получения заголовка ссылки',
-                                  })
+            preview = PreviewError("https://images.ctfassets.net/n1wrmpzswxf2/5scp1TkHI7xSty5gSV2LfX/a2b733b18f51be6e2c1693fb7f85faa6/Mamba_UI__Error__Free_HTML_components_and_templates_built_with_Tailwind_CSS__2022-10-30_15-48-29.png", "Ошибка получения заголовка ссылки")
 
         response = requests.get('http://cutt.ly/api/api.php?key=' +
                                 cuttly_api_key + '&stats=' + message['media_link'])
@@ -131,3 +133,9 @@ async def send_stata(id_message: str):
     collection_name['user_messages'].find().close()
     collection_name['rate'].find().close()
     collection_name['users'].find().close()
+
+
+class PreviewError:
+  def __init__(self, image, title):
+    self.image = image
+    self.title = title
