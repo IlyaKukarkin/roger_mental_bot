@@ -26,7 +26,7 @@ from handlers import rate_message
 from fillform import fillform_command
 
 #текущая версия бота
-version = "1.0.2"
+version = "1.0.3"
 
 
 # read texts from json file
