@@ -1,6 +1,7 @@
 from aiogram.types import ParseMode
 from aiogram import types
 from aiogram.utils.callback_data import CallbackData
+from aiogram.utils.exceptions import BotBlocked
 from common import delete_keyboard, get_options
 import datetime
 from keyboards import kb_for_mental_poll
@@ -40,6 +41,8 @@ async def sendmes(chat_id: int):
             {"rate": 0, "id_user": user['_id'], "date": datetime.datetime.now(), "id_tg_message": id.message_id})
         collection_name['users'].find().close()
         collection_name['mental_rate'].find().close()
+    except (BotBlocked):
+        print(f"Юзер {chat_id} пидор, заблочил бота")
     except (Exception):
         await bot.send_message(chat_id, "Ой, кажется, что-то пошло не так 😞 \nПовтори отправку настроения через несколько минут или напиши разработчикам через команду /feedback")
 
