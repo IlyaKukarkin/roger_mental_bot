@@ -17,8 +17,11 @@ async def restart_command(message: types.Message):
     await bot.send_message(message.chat.id, "Рестартую ботов, не писяй!")
 
     try:
-        requests.post("https://api.github.com/repos/IlyaKukarkin/roger_mental_bot/actions/workflows/restart.yaml/dispatches",
-                      data={'ref': 'main'}, headers={'Authorization': f"Bearer {github_restart_token}"})
+        res = requests.post("https://api.github.com/repos/IlyaKukarkin/roger_mental_bot/actions/workflows/restart.yaml/dispatches",
+                      json={'ref': 'main'}, headers={'Authorization': f"Bearer {github_restart_token}"})
+        
+        if (res.status_code != 204):
+            await bot.send_message(message.chat.id, "Писяй!! Что-то пошло не так")
     except (Exception):
         await bot.send_message(message.chat.id, "Писяй!! Что-то пошло не так")
 
