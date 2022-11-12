@@ -17,7 +17,7 @@ async def restart_command(message: types.Message):
     await bot.send_message(message.chat.id, "Рестартую ботов, не писяй!")
 
     try:
-        requests.post("https://api.github.com/repos/IlyaKukarkin/roger_mental_bot/actions/workflows/restart/dispatches",
+        requests.post("https://api.github.com/repos/IlyaKukarkin/roger_mental_bot/actions/workflows/restart.yaml/dispatches",
                       data={'ref': 'main'}, headers={'Authorization': f"Bearer {github_restart_token}"})
     except (Exception):
         await bot.send_message(message.chat.id, "Писяй!! Что-то пошло не так")
