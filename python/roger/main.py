@@ -12,6 +12,7 @@ from common import check_id_username_is_valid_before_save, delete_keyboard
 from database import create_new_user
 from feedback import feedback_command, feedback_get_text_from_user, feedback_get_photo_from_user
 from version import version_command
+from restart import restart_command
 from sendmestoall import send_message_to_all, get_message_to_all
 from start import start_command
 from reg.reg_user_name import get_user_name, get_printed_user_name, get_customer_name
@@ -26,7 +27,7 @@ from handlers import rate_message
 from fillform import fillform_command
 
 #текущая версия бота
-version = "1.0.3"
+version = "1.0.4"
 
 
 # read texts from json file
@@ -44,6 +45,11 @@ async def process_start_command(message: types.Message):
 @dp.message_handler(commands=['version'])
 async def process_version_command(message: types.Message):
     await version_command(message, version)
+
+#Перезагрузка ботов
+@dp.message_handler(commands=['restart'])
+async def process_restart_command(message: types.Message):
+    await restart_command(message)
 
 
 #вывод статистики по созданному пользователем сообщению

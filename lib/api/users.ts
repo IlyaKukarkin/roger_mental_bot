@@ -8,6 +8,6 @@ export const sendMessageToAdmins = async (message: string): Promise<void> => {
   });
 
   for await (const user of results) {
-    await fetch(`https://api.telegram.org/bot${process.env.TOKEN_ROGER_PROD_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${message}`, { method: 'POST' })
+    await fetch(`https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${message}`, { method: 'POST' })
   }
 };
