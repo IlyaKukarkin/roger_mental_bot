@@ -14,7 +14,7 @@ jobs:
         port: ${{ secrets.SERVER_PORT }}
         script: |
           cd ../../opt
-          echo ${{ secrets.SERVER_ADMIN_PASSWORD }} | sudo -S sh redeploy.sh ${{ secrets.DOPPLER_TOKEN }}
+          echo ${{ secrets.SERVER_ADMIN_PASSWORD }} | sudo -S sh restart.sh ${{ secrets.DOPPLER_TOKEN }}
   restart-success:
     name: Success restart bots
     runs-on: ubuntu-latest
