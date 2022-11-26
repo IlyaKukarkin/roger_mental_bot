@@ -41,7 +41,7 @@ async def stata_show_mes(message: types.Message):
                                                 "_id": 1, "text": 1, "media_link": 1, "is_approved": 1, "image_ids": 1, "is_anonymous": 1, "created_at": 1})
     length = len(list(messages.clone()))
     if (length == 0):
-        await bot.send_message(message.chat.id, "У тебя нет созданных сообщений. Как насчет сделать первое?\n\n" + link_to_form + str(user['form_id']))
+        await bot.send_message(message.chat.id, "У тебя нет созданных сообщений. Как насчет сделать первое?\n\n" + link_to_form + str(user['form_id']), disable_web_page_preview=True)
         return
     elif (length == 1):
         await send_stata(str(messages[0]["_id"]))

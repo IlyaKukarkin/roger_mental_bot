@@ -4,6 +4,7 @@ from states import Recording
 from aiogram.dispatcher import FSMContext
 from database import get_database
 from config import bot
+from aiogram.utils.exceptions import BotBlocked
 
 
 async def get_message_to_all(message: types.Message):
@@ -22,6 +23,9 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
     users = collection_name["users"].find(
         {"is_active": True}, {'_id': 1, "telegram_id": 1, "is_admin": 1})
     for i in users:
-        await bot.send_message(i["telegram_id"], message.text)
+        try: 
+            await bot.send_message(i["telegram_id"], message.text)
+        except (BotBlocked): #если юзер заблочил бота, не падаем
+            print("Юзер " + i["telegram_id"] + "пидор, заблочил бота")
     await state.finish()
     collection_name['users'].find().close()
