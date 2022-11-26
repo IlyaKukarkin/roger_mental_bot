@@ -27,7 +27,7 @@ from handlers import rate_message
 from fillform import fillform_command
 
 #текущая версия бота
-version = "1.0.4"
+version = "1.0.5"
 
 
 # read texts from json file
@@ -51,6 +51,10 @@ async def process_version_command(message: types.Message):
 async def process_restart_command(message: types.Message):
     await restart_command(message)
 
+#тестовая команда
+@dp.message_handler(commands=['test'])
+async def process_start_command(message: types.Message):
+    await bot.send_message(message.chat.id, "Меня не тестили, сорри!")
 
 #вывод статистики по созданному пользователем сообщению
 #колбек для обработки статистики по сообщению пользователя

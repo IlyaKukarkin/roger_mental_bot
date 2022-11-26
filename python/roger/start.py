@@ -30,7 +30,7 @@ async def start_command(message: types.Message):
         await bot.send_message(message.chat.id, "Вот такая простая магия ✨")
         time.sleep(3)
         await bot.send_message(message.chat.id, "Давай познакомимся с тобой поближе! Только будь внимателен — зарегистрироваться можно только один раз 🙃")
-        time.sleep(5)
+        time.sleep(2)
         await bot.send_message(message.chat.id, "Тебя зовут " + message.from_user.first_name + "? Подтверди свое имя или введи другое", reply_markup=ask_for_name_kb)
         await Recording.Name.set()
         collection_name['users'].find().close()
