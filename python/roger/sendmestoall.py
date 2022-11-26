@@ -25,7 +25,7 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
     for i in users:
         try: 
             await bot.send_message(i["telegram_id"], message.text)
-        except (BotBlocked):
+        except (BotBlocked): #если юзер заблочил бота, не падаем
             print("Юзер " + i["telegram_id"] + "пидор, заблочил бота")
     await state.finish()
     collection_name['users'].find().close()
