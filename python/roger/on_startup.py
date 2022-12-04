@@ -62,7 +62,7 @@ async def enable_task_to_send_mes():
                     await sendmes(int(user['telegram_id']))
         except (BotBlocked): #если юзер заблочил бота, не падаем
             print("Юзер " + user['telegram_id'] + "пидор, заблочил бота")
-        except (Exception):
+        except (Exception): #ловим другие эксепшоны
             print ("Failed to send a message to a user " + user['telegram_id'])
         collection_name['users'].find().close()
         collection_name['user_messages'].find().close()
