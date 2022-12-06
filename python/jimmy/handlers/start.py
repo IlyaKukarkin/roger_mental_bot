@@ -17,7 +17,7 @@ async def start_handler(message: types.Message):
     user = users.get_user_by_telegram_id(str(message.chat.id))
 
     if (not user['is_volunteer']):
-        await bot.send_message(message.chat.id, "А ты не волонтёр!\nЖди приглашения в основном боте:\nhttps://t.me/RogerMentalBot")
+        await bot.send_message(message.chat.id, "А ты не волонтёр!\nЖди приглашения в основном боте:\nhttps://t.me/RogerMentalBot", disable_web_page_preview=True)
         return
 
     if (user['is_banned_from_volunteering']):
@@ -27,15 +27,15 @@ async def start_handler(message: types.Message):
     await bot.send_message(message.chat.id, "Здорова волонтёрам!")
     time.sleep(1)
     await bot.send_message(message.chat.id, "В этом чате ты можешь лайкать и дизлайкать сообщения пользователей")
-    time.sleep(5)
+    time.sleep(3)
     await bot.send_message(message.chat.id, "Все сообщения должны пройти модерацию, прежде чем попасть к основным пользователям")
-    time.sleep(5)
-    await bot.send_message(message.chat.id, "Периодически, мы будем присылать тебе сообщение для прохождения модерации")
-    time.sleep(5)
+    time.sleep(3)
+    await bot.send_message(message.chat.id, "Периодически мы будем присылать тебе сообщение для прохождения модерации")
+    time.sleep(3)
     await bot.send_message(message.chat.id, "Поставь под ним лайк или дизлайк")
     time.sleep(4)
     await bot.send_message(message.chat.id, "Дополнительно можно оценить до 3 сообщений в день с помощью команды меню /rate")
-    time.sleep(5)
+    time.sleep(2)
     await bot.send_message(message.chat.id, "Лови сразу первое сообщение на оценку!)")
     time.sleep(4)
     await get_message_and_send(ObjectId(user['_id']), message.chat.id)
