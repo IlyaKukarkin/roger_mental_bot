@@ -27,7 +27,7 @@ from handlers import rate_message
 from fillform import fillform_command
 
 #текущая версия бота
-version = "1.0.6"
+version = "1.0.7"
 
 
 # read texts from json file
@@ -135,6 +135,9 @@ async def send_to_admin_photo(message: types.Message, state: FSMContext):
 async def process_sendmes_command(message: types.Message):
     await sendmes(message.from_user.id)
 
+@dp.message_handler(commands=['money'])
+async def process_sendmes_command(message: types.Message):
+    await bot.send_message(message.chat.id, "Держите 5 денег")
 
 #регистрация пользователя
 #получаем имя пользователя
