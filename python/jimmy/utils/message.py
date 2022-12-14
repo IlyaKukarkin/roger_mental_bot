@@ -36,6 +36,12 @@ async def send_message(telegram_id, message):
     else:
         message_string = message_string + '\n'
 
+    #телега не пускает сообщения с этими символами, сделал экранирование
+    message['text'] = message['text'].replace("_", "\\_")
+    message['text'] = message['text'].replace("(", "\\(")
+    message['text'] = message['text'].replace(")", "\\)")
+    message['text'] = message['text'].replace("-", "\\-")
+    
     message_string = message_string + \
         text(bold("Сообщение: ") + '\n' + message['text'] + '\n')
     message_string = message_string + '\n'
@@ -43,7 +49,7 @@ async def send_message(telegram_id, message):
     if message['media_link'] != "":
         message_string = message_string + \
             text(bold("Что стоит глянуть: ") + '\n' + message['media_link'])
-
+         
     message = await bot.send_message(telegram_id, message_string, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True, reply_markup=ask_for_rate_messages)
 
     return message.message_id
