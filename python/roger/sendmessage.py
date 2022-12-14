@@ -36,6 +36,7 @@ async def sendmes(chat_id: int):
             {"rate": 0, "id_user": user['_id']}, {'id_tg_message': 1}, sort=[("date", -1)])
         if (id_previous_mes != None):
             await delete_keyboard(chat_id, id_previous_mes['id_tg_message'])
+        await bot.send_message(chat_id, await get_options('greetings'), parse_mode=ParseMode.MARKDOWN)
         id = await bot.send_message(chat_id, await get_options('polls_questions'), parse_mode=ParseMode.MARKDOWN, reply_markup=kb_for_mental_poll)
         collection_name['mental_rate'].insert_one(
             {"rate": 0, "id_user": user['_id'], "date": datetime.datetime.now(), "id_tg_message": id.message_id})
@@ -85,6 +86,11 @@ async def create_message_with_support(chat_id: int, cursor: list, username: str,
         await bot.send_media_group(chat_id, media=media)
     else:
         message = message + '\n'
+    #телега не пускает сообщения с этими символами, сделал экранирование
+    cursor['text'] = cursor['text'].replace("_", "\\_")
+    cursor['text'] = cursor['text'].replace("(", "\\(")
+    cursor['text'] = cursor['text'].replace(")", "\\)")
+    cursor['text'] = cursor['text'].replace("-", "\\-")
     message = message + text(bold("Сообщение: ") +
                              '\n' + cursor['text'] + '\n')
     message = message + '\n'
@@ -154,7 +160,7 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
                 #пиздец, это надо не в коде делать, а в монгодб с их ресурсами 
                 messages = collection_name["messages"].find_one({"$and": [{'is_approved': True}, {'id_user': {'$ne': user_id["_id"]}}, {
                                                                 '_id': {"$nin": arr}}]}, {'_id': 1, 'text': 1, 'media_link': 1, 'id_user': 1, 'is_anonymous': 1, 'image_ids': 1})
-                #print('Выбрал из базы сообщение: ' + str(messages[0]))
+
                 if messages != None:
                     user_who_create_message = collection_name["users"].find_one(
                         {"_id": ObjectId(str(messages['id_user']))}, {'name': 1})

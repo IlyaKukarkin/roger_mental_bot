@@ -31,6 +31,7 @@ from fillform import fillform_command
 version = "1.1.0"
 
 
+
 # read texts from json file
 with open('texts.json') as t:
     texts = json.load(t)
