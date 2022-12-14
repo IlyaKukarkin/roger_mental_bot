@@ -21,13 +21,15 @@ from reg.reg_user_timezone import get_user_timezone, customer_timezone
 from stata import stata_show_mes, delete_from_cart_handler1
 from ratestata import send_rate_stata, get_rate_stata
 from sendmessage import sendmes, callback_after_click_on_color_button
-from on_startup import enable_task_to_send_mes
+from on_startup import enable_task_to_send_mes, start_12_hours_message_loop
 from config import dp, bot
 from handlers import rate_message
 from fillform import fillform_command
 
 #текущая версия бота
-version = "1.0.7"
+
+version = "1.1.0"
+
 
 
 # read texts from json file
@@ -50,6 +52,12 @@ async def process_version_command(message: types.Message):
 @dp.message_handler(commands=['restart'])
 async def process_restart_command(message: types.Message):
     await restart_command(message)
+
+#Запуск 12 часов отправки сообщений
+@dp.message_handler(commands=['start_message_loop'])
+async def process_restart_command(message: types.Message):
+    print('Запускаю 12 часов цикл отправки сообщений')
+    asyncio.create_task(start_12_hours_message_loop())
 
 #тестовая команда
 @dp.message_handler(commands=['test'])
@@ -234,4 +242,5 @@ async def set_task_to_send_messages(x):
     asyncio.create_task(enable_task_to_send_mes())
 
 if __name__ == "__main__":
-    executor.start_polling(dp, on_startup=set_task_to_send_messages)
+    # executor.start_polling(dp, on_startup=set_task_to_send_messages)
+    executor.start_polling(dp)

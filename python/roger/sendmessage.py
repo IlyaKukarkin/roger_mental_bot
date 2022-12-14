@@ -160,6 +160,7 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
                 #пиздец, это надо не в коде делать, а в монгодб с их ресурсами 
                 messages = collection_name["messages"].find_one({"$and": [{'is_approved': True}, {'id_user': {'$ne': user_id["_id"]}}, {
                                                                 '_id': {"$nin": arr}}]}, {'_id': 1, 'text': 1, 'media_link': 1, 'id_user': 1, 'is_anonymous': 1, 'image_ids': 1})
+
                 if messages != None:
                     user_who_create_message = collection_name["users"].find_one(
                         {"_id": ObjectId(str(messages['id_user']))}, {'name': 1})
