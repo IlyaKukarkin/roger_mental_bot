@@ -1,7 +1,7 @@
 import { ObjectId, FindCursor } from "mongodb";
 
 import clientPromise from "../mongodb";
-import { getHurryUpMessage, getThatsItMessage, getMoodMessage } from "../../tg_messages"
+import { getHurryUpMessage, getThatsItMessage, getMoodMessage, getGreetingsMessage } from "../../tg_messages"
 import { User, TgMessage } from "./types"
 
 export const getTelegramId = async (userId: ObjectId): Promise<string> => {
@@ -93,6 +93,8 @@ export const sendMoodMessage = async (userTelegramId: string): Promise<TgMessage
         callback_data: 'red_button_answer'
       }]]
   };
+
+  await fetch(`https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${userTelegramId}&text=${getGreetingsMessage()}&parse_mode=Markdown&reply_markup=${JSON.stringify(buttons)}`, { method: 'POST' })
 
   const resp = await fetch(`https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${userTelegramId}&text=${getMoodMessage()}&parse_mode=Markdown&reply_markup=${JSON.stringify(buttons)}`, { method: 'POST' })
 

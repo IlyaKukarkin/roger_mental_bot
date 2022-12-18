@@ -28,7 +28,7 @@ from fillform import fillform_command
 
 #текущая версия бота
 
-version = "1.1.1"
+version = "1.1.2"
 
 
 # read texts from json file
