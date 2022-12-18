@@ -86,11 +86,13 @@ async def create_message_with_support(chat_id: int, cursor: list, username: str,
         await bot.send_media_group(chat_id, media=media)
     else:
         message = message + '\n'
-    #телега не пускает сообщения с этими символами, сделал экранирование
-    cursor['text'] = cursor['text'].replace("_", "\\_")
-    cursor['text'] = cursor['text'].replace("(", "\\(")
-    cursor['text'] = cursor['text'].replace(")", "\\)")
-    cursor['text'] = cursor['text'].replace("-", "\\-")
+    
+    # телега не пускает сообщения с этими символами, сделали экранирование вместе 🤝
+    cursor['text'] = cursor['text'].replace("_", "\_")
+    cursor['text'] = cursor['text'].replace("*", "\*")
+    cursor['text'] = cursor['text'].replace("`", "\`")
+    cursor['text'] = cursor['text'].replace("[", "\[")
+    
     message = message + text(bold("Сообщение: ") +
                              '\n' + cursor['text'] + '\n')
     message = message + '\n'

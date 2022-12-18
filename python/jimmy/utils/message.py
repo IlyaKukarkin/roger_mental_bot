@@ -36,11 +36,11 @@ async def send_message(telegram_id, message):
     else:
         message_string = message_string + '\n'
 
-    #телега не пускает сообщения с этими символами, сделал экранирование
-    message['text'] = message['text'].replace("_", "\\_")
-    message['text'] = message['text'].replace("(", "\\(")
-    message['text'] = message['text'].replace(")", "\\)")
-    message['text'] = message['text'].replace("-", "\\-")
+    # телега не пускает сообщения с этими символами, сделали экранирование вместе 🤝
+    message['text'] = message['text'].replace("_", "\_")
+    message['text'] = message['text'].replace("*", "\*")
+    message['text'] = message['text'].replace("`", "\`")
+    message['text'] = message['text'].replace("[", "\[")
     
     message_string = message_string + \
         text(bold("Сообщение: ") + '\n' + message['text'] + '\n')
