@@ -12,20 +12,23 @@ from utils.keyboards import delete_keyboard
 
 
 async def rate_handler(message: types.Message):
+    await send_one_more_message_to_rate(message.chat.id)
+
+async def send_one_more_message_to_rate(chat_id: int):
     bot = Bot().get_bot()
     users = Users()
     user_messages = User_Messages()
     app_settings = App_Settings()
 
-    user = users.get_user_by_telegram_id(str(message.chat.id))
+    user = users.get_user_by_telegram_id(str(chat_id))
     user_id = ObjectId(user['_id'])
 
     if (not user['is_volunteer']):
-        await bot.send_message(message.chat.id, "А ты не волонтёр!\nЖди приглашения в основном боте:\nhttps://t.me/RogerMentalBot")
+        await bot.send_message(chat_id, "А ты не волонтёр!\nЖди приглашения в основном боте:\nhttps://t.me/RogerMentalBot")
         return
 
     if (user['is_banned_from_volunteering']):
-        await bot.send_message(message.chat.id, "Тебя забанили, :D")
+        await bot.send_message(chat_id, "Сообщений на оценку не осталось, возвращайся завтра 👋")
         return
 
     count_messages = list(user_messages.get_already_sended_messages(user_id))
@@ -34,10 +37,10 @@ async def rate_handler(message: types.Message):
         settings = app_settings.get_app_settings()
 
         if (count_messages[0]['count_messages'] >= settings['volunteer_messages_in_day']):
-            await bot.send_message(message.chat.id, "Сообщений на оценку не осталось, возвращайся завтра 👋")
+            await bot.send_message(chat_id, "Сообщений на оценку не осталось, возвращайся завтра 👋")
             return
 
-    await get_message_and_send(user_id, message.chat.id)
+    await get_message_and_send(user_id, chat_id)
 
 
 async def get_message_and_send(user_id, chat_id):

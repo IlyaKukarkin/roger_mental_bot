@@ -8,6 +8,7 @@ from utils.images import get_pictures
 from utils.keyboards import ask_for_rate_messages
 
 
+
 async def send_message(telegram_id, message):
     bot = Bot().get_bot()
     users = Users()

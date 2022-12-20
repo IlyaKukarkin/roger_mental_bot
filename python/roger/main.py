@@ -144,7 +144,7 @@ async def process_sendmes_command(message: types.Message):
 
 @dp.message_handler(commands=['money'])
 async def process_sendmes_command(message: types.Message):
-    await bot.send_message(message.chat.id, "Задонатить Роджеру: https://www.tinkoff.ru/cf/9KODrlaoPCR. Деньги будут потрачены на более мощный сервер 🔥")
+    await bot.send_message(message.chat.id, "Задонатить Роджеру: https://www.tinkoff.ru/cf/9KODrlaoPCR. Деньги будут потрачены на более мощный сервер 🔥", disable_web_page_preview=True)
 
 #регистрация пользователя
 #получаем имя пользователя

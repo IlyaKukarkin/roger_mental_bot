@@ -6,6 +6,7 @@ from db.rate import Rate
 from db.user_messages import User_Messages
 from utils.message import send_message
 from utils.keyboards import delete_keyboard
+from handlers.rate import send_one_more_message_to_rate
 
 
 async def rate_bad_handler(callback_query: types.CallbackQuery, state: FSMContext):
@@ -22,3 +23,4 @@ async def rate_bad_handler(callback_query: types.CallbackQuery, state: FSMContex
                      message_to_update["id_message"], False)
 
     await bot.send_message(callback_query.from_user.id, "Спасибо за оценку!")
+    await send_one_more_message_to_rate(callback_query.from_user.id)
