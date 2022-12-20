@@ -39,7 +39,7 @@ async def send_message_to_rate():
 
                     print('Отправляю сообщение: ' + str(message_to_send))
 
-                    await bot.send_message(str(user['telegram_id']), "Привет 👋\nОцени пожалуйста это сообщение от пользователя:")
+                    await bot.send_message(str(user['telegram_id']), "Привет 👋\nОцени, пожалуйста, это сообщение от пользователя:")
 
                     tg_message_id = await send_message(str(user['telegram_id']), message_to_send)
 
@@ -49,3 +49,4 @@ async def send_message_to_rate():
         print(f"Юзер 'хуй знает кто' пидор, заблочил бота")
     except Exception as e:
         print(e)
+
