@@ -165,6 +165,8 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
 
   const updateToApproved: ObjectId[] = [];
   const updateToReview: ObjectId[] = [];
+  //потом убрать))
+  await sendMessageToAdmins("Сорри, тут тестово выведу, кому бы написал бот, что его сообщение прошло модерацию 😘")
 
   for await (const message of messages) {
     const calculatedMessage = calculateRate(message, settings);
@@ -172,6 +174,9 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
     if (message.is_approved !== calculatedMessage.is_approved) {
       if (calculatedMessage.is_approved) {
         updateToApproved.push(calculatedMessage._id)
+        //тут уведомление пользака, что его сообщение прошло модерацию
+        await sendMessageToAdmins("To: " + message.id_user + "\nMessage: " + "Привет! Твое сообщение прошло модерацию и будет показываться пользователям. Спасибо за вклад, обнимаю 😍\n\nТут вывести текст, ссылку и картинку сообщения. А пока\nТвое сообщение создано: " + message.created_date)
+       
       } else {
         updateToReview.push(calculatedMessage._id)
       }
