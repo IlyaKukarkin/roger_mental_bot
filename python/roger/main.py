@@ -20,7 +20,7 @@ from reg.reg_user_time import get_user_time_to_send_messages, user_time_20, user
 from reg.reg_user_timezone import get_user_timezone, customer_timezone
 from stata import stata_show_mes, delete_from_cart_handler1
 from ratestata import send_rate_stata, get_rate_stata
-from sendmessage import sendmes, callback_after_click_on_color_button
+from sendmessage import sendmes, callback_after_click_on_color_button, get_options_color
 from on_startup import enable_task_to_send_mes, start_12_hours_message_loop
 from config import dp, bot
 from handlers import rate_message
@@ -28,7 +28,7 @@ from fillform import fillform_command
 
 #текущая версия бота
 
-version = "1.1.2"
+version = "1.1.3"
 
 
 # read texts from json file
@@ -90,6 +90,10 @@ cart_cb = CallbackData("q", "id", "button_parameter")
 async def process_rate_stata_command(message: types.Message):
     await get_rate_stata(message)
 
+@dp.message_handler(commands=['test_random'])
+async def process_rate_stata_command(message: types.Message):
+    await get_options_color('red', message.chat.id)
+
 @dp.callback_query_handler(lambda c: c.data == 'month', state=Recording.AwaitForARateStata)
 async def rate_stata_handler_month(callback_query: types.CallbackQuery, state: FSMContext):
     await state.finish()
@@ -144,7 +148,7 @@ async def process_sendmes_command(message: types.Message):
 
 @dp.message_handler(commands=['money'])
 async def process_sendmes_command(message: types.Message):
-    await bot.send_message(message.chat.id, "Задонатить Роджеру: https://www.tinkoff.ru/cf/9KODrlaoPCR. Деньги будут потрачены на более мощный сервер 🔥")
+    await bot.send_message(message.chat.id, "Задонатить Роджеру: https://www.tinkoff.ru/cf/9KODrlaoPCR. Деньги будут потрачены на более мощный сервер 🔥", disable_web_page_preview=True)
 
 #регистрация пользователя
 #получаем имя пользователя
