@@ -19,7 +19,8 @@ async def rate_message(callback_query: types.CallbackQuery, state: FSMContext, r
         print(rate)
 
         collection_name['rate'].insert_one({"id_user": message_to_update["id_user"],
-                                           "id_message": message_to_update["id_message"], "rate": rate, "created_at": datetime.datetime.now(pytz.utc)})
+                                           "id_message": message_to_update["id_message"], "rate": rate, "time_to_send": datetime.datetime.now(pytz.utc)})
+        print ("written")                                   
         collection_name['rate'].find().close()
         collection_name['user_messages'].find().close()
         await bot.send_message(callback_query.from_user.id, "Спасибо за оценку! Продолжайте наблюдение 😎")
