@@ -190,15 +190,15 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
     if (message.is_approved !== calculatedMessage.is_approved) {
       if (calculatedMessage.is_approved) {
         updateToApproved.push(calculatedMessage._id)
-        //тут уведомление пользака, что его сообщение прошло модерацию
-        const user: User = await usersCol.findOne([
-          {
-              '$match': {
-                  '_id': message.id_user
-              }
-          }
-      ]);
-        await sendMessageToAdmins("To: " + user.telegram_id + "\nMessage: " + "Привет! Твое сообщение прошло модерацию и будет показываться пользователям. Спасибо за вклад, обнимаю 😍\n\nТут вывести текст, ссылку и картинку сообщения. " + message.text)
+      //   //тут уведомление пользака, что его сообщение прошло модерацию
+      //   const user: User = await usersCol.findOne([
+      //     {
+      //         '$match': {
+      //             '_id': message.id_user
+      //         }
+      //     }
+      // ]);
+      //   await sendMessageToAdmins("To: " + user.telegram_id + "\nMessage: " + "Привет! Твое сообщение прошло модерацию и будет показываться пользователям. Спасибо за вклад, обнимаю 😍\n\nТут вывести текст, ссылку и картинку сообщения. " + message.text)
       } else {
         updateToReview.push(calculatedMessage._id)
       }
