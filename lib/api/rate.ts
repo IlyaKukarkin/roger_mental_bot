@@ -30,6 +30,21 @@ type Settings = {
   volunteer_ban_dislikes_in_a_row: number;
 }
 
+type User = {
+  _id: ObjectId;
+  telegram_username: string;
+  name: string;
+  timezone: string;
+  is_volunteer: boolean;
+  is_banned_from_volunteering: boolean;
+  form_id: ObjectId;
+  telegram_id: string;
+  is_admin: boolean;
+  is_active: boolean;
+  created_at: string;
+  time_to_send_messages: number;
+}
+
 type RateResponse = {
   update_to_approve: number;
   update_to_review: number;
@@ -39,6 +54,7 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
   const client = await clientPromise;
   const messagesCol = client.db("roger-bot-db").collection("messages");
   const settingsCol = client.db("roger-bot-db").collection("app_settings");
+  const usersCol = client.db("roger-bot-db").collection("users");
 
   const messages: MessageToRate[] = await messagesCol.aggregate([
     {
@@ -162,10 +178,10 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
   ]);
 
   const settings: Settings = await settingsCol.findOne();
-
+  
   const updateToApproved: ObjectId[] = [];
   const updateToReview: ObjectId[] = [];
-  //потом убрать)))
+  //потом убрать
   await sendMessageToAdmins("Сорри, тут тестово выведу, кому бы написал бот, что его сообщение прошло модерацию 😘")
 
   for await (const message of messages) {
@@ -175,8 +191,14 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
       if (calculatedMessage.is_approved) {
         updateToApproved.push(calculatedMessage._id)
         //тут уведомление пользака, что его сообщение прошло модерацию
-        await sendMessageToAdmins("To: " + message.id_user + "\nMessage: " + "Привет! Твое сообщение прошло модерацию и будет показываться пользователям. Спасибо за вклад, обнимаю 😍\n\nТут вывести текст, ссылку и картинку сообщения. А пока\nТвое сообщение создано: " + message.created_date)
-       
+        const user: User = await usersCol.findOne([
+          {
+              '$match': {
+                  '_id': message.id_user
+              }
+          }
+      ]);
+        await sendMessageToAdmins("To: " + user.telegram_id + "\nMessage: " + "Привет! Твое сообщение прошло модерацию и будет показываться пользователям. Спасибо за вклад, обнимаю 😍\n\nТут вывести текст, ссылку и картинку сообщения. " + message.text)
       } else {
         updateToReview.push(calculatedMessage._id)
       }
