@@ -22,5 +22,5 @@ async def rate_good_handler(callback_query: types.CallbackQuery, state: FSMConte
     rate.insert_rate(message_to_update["id_user"],
                      message_to_update["id_message"], True)
 
-    await bot.send_message(callback_query.from_user.id, "Спасибо за оценку!")
+    await callback_query.answer("Спасибо за оценку ❤️")
     await send_one_more_message_to_rate(callback_query.from_user.id)
