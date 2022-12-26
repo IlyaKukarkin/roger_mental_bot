@@ -62,7 +62,7 @@ async def get_message_and_send(user_id, chat_id):
 
         print('Отправляю сообщение: ' + str(message_to_send))
 
-        await bot.send_message(chat_id, "Оцени пожалуйста это сообщение от пользователя:")
+        await bot.send_message(chat_id, "Оцени, пожалуйста, это сообщение от пользователя:")
 
         tg_message_id = await send_message(chat_id, message_to_send)
 
