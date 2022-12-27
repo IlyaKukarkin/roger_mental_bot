@@ -1,13 +1,26 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from keyboards import feedback_keyboard
+from aiogram.types import ParseMode
 
 from database import get_database
 from states import Recording
-from config import bot
+from common import delete_keyboard
+from config import dp, bot
 
 #переводим пользователя в стейт ожидания сообщения
-async def feedback_command(message: types.Message):
+async def feedback_start(message: types.Message):
     await bot.send_message(message.chat.id, 
+                          "Отлично! Приступаем к созданию фидбека?\nЕсли ты передумал отправлять фидбек, просто не нажимай на кнопку ниже", parse_mode=ParseMode.MARKDOWN, reply_markup = feedback_keyboard)
+
+@dp.callback_query_handler(lambda c: c.data == 'feedback_start')
+async def rate_stata_handler_week2(callback_query: types.CallbackQuery):
+    await callback_query.answer("Не передавай конфиденциальные данные")
+    await feedback_getting(callback_query.from_user.id, callback_query.message.message_id)
+
+async def feedback_getting(chat_id: int, message_id: int):
+    await delete_keyboard(chat_id, message_id)
+    await bot.send_message(chat_id, 
                           "Отправь любое сообщение (текст или фото) — и я перешлю его разработчикам")
     await Recording.AwaitForAFeedback.set()
 

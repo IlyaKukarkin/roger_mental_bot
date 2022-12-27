@@ -10,7 +10,7 @@ from aiogram.utils.callback_data import CallbackData
 from states import Recording
 from common import check_id_username_is_valid_before_save, delete_keyboard
 from database import create_new_user
-from feedback import feedback_command, feedback_get_text_from_user, feedback_get_photo_from_user
+from feedback import feedback_start, feedback_get_text_from_user, feedback_get_photo_from_user
 from version import version_command
 from restart import restart_command
 from sendmestoall import send_message_to_all, get_message_to_all
@@ -115,7 +115,7 @@ async def rate_stata_handler_week(callback_query: types.CallbackQuery, state: FS
 #заполняем форму по команде
 @dp.message_handler(commands=['fillform'])
 async def process_fillform_command(message: types.Message):
-    await fillform_command (message)
+    await fillform_command(message)
 
 #отправляем сообщение всем пользователям от имени бота, доступно только админам
 @dp.message_handler(commands=['sendmestoall'])
@@ -130,7 +130,7 @@ async def process_callback_awaitforamessage_button(message: types.Message, state
 #получаем фидбек от пользователя
 @dp.message_handler(commands=['feedback'])
 async def process_feedback_command(message: types.Message):
-    await feedback_command(message)
+    await feedback_start(message)
 
 @dp.message_handler(state=Recording.AwaitForAFeedback)
 async def send_to_admin_text(message: types.Message, state: FSMContext):
