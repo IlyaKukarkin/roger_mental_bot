@@ -23,7 +23,7 @@ async def rate_message(callback_query: types.CallbackQuery, state: FSMContext, r
         print ("written")                                   
         collection_name['rate'].find().close()
         collection_name['user_messages'].find().close()
-        await bot.send_message(callback_query.from_user.id, "Спасибо за оценку! Продолжайте наблюдение 😎")
+        await callback_query.answer("Спасибо за оценку ❤️")
     except (Exception):
         await bot.send_message(callback_query.from_user.id, "Ой, кажется, что-то пошло не так 😞 \nПовтори действие через несколько минут или напиши разработчикам через команду /feedback")
 

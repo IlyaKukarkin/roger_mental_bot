@@ -43,3 +43,8 @@ rate_stata_week = InlineKeyboardButton(
     'За неделю', callback_data='week')
 ask_for_rate_stata_kb = InlineKeyboardMarkup().add(
     rate_stata_month, rate_stata_week_2, rate_stata_week)
+
+feedback_start_button = InlineKeyboardButton(
+    'Написать сообщение', callback_data='feedback_start')
+feedback_keyboard = InlineKeyboardMarkup().add(
+    feedback_start_button)
