@@ -37,7 +37,7 @@ async def feedback_get_text_from_user(message: types.Message, state: FSMContext)
     #отправка сообщения всем админам
     for id in admins:
         await bot.send_message(id["telegram_id"], 
-            "Новый фидбек от пользователя " + user['telegram_username'] + ' из RogerBot. Вот, что он пишет: \n\n"' + message.text + '"')
+            "Новый фидбек от пользователя " + user['telegram_username'] + ' из RogerMentalBot. Вот, что он пишет: \n\n"' + message.text + '"')
     await bot.send_message(message.chat.id, "Сообщение улетело разработчикам. Спасибо! 😍")
     collection_name['users'].find().close()    
     await state.finish()
