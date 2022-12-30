@@ -29,6 +29,7 @@ from feedback_answer import feedback_answer_start, feedback_send_text_to_user
 
 #текущая версия бота
 
+
 version = "1.1.5"
 
 
@@ -147,6 +148,7 @@ async def process_feedback_answer_command(message: types.Message):
 
 @dp.message_handler(state=Recording.AwaitForAnAnswerToFeedback)
 async def send_to_user_feedback_answer_text(message: types.Message, state: FSMContext):
+
     await feedback_send_text_to_user(message, state)
 
 #принудительная отправка сообщения для оценки настроения за день

@@ -26,6 +26,7 @@ async def feedback_send_text_to_user(message: types.Message, state: FSMContext):
         feedback_chat_id = mes_str.partition('chat_id: ')[2].partition('.')[0]
         feedback_message_id = mes_str.partition('message_id: ')[2].partition('.')[0]
         await bot.send_message(int(feedback_chat_id), text(bold("Разработчик прислал ответ на твой фидбек: \n\n")) + message.text, reply_to_message_id=int(feedback_message_id), parse_mode=ParseMode.MARKDOWN)
+
         await bot.send_message(message.chat.id, "Ответ на фидбек отправлен")
     except:
         await bot.send_message(message.chat.id, "Не получилось отправить. Сделай все заново")
