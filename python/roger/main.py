@@ -25,10 +25,11 @@ from on_startup import enable_task_to_send_mes, start_12_hours_message_loop
 from config import dp, bot
 from handlers import rate_message
 from fillform import fillform_command
+from feedback_answer import feedback_answer_start, feedback_send_text_to_user
 
 #текущая версия бота
 
-version = "1.1.3"
+version = "1.1.5"
 
 
 # read texts from json file
@@ -140,6 +141,13 @@ async def send_to_admin_text(message: types.Message, state: FSMContext):
 async def send_to_admin_photo(message: types.Message, state: FSMContext):
     await feedback_get_photo_from_user(message, state)
 
+@dp.message_handler(commands=['feedbackanswer'])
+async def process_feedback_answer_command(message: types.Message):
+    await feedback_answer_start(message)
+
+@dp.message_handler(state=Recording.AwaitForAnAnswerToFeedback)
+async def send_to_user_feedback_answer_text(message: types.Message, state: FSMContext):
+    await feedback_send_text_to_user(message, state)
 
 #принудительная отправка сообщения для оценки настроения за день
 @dp.message_handler(commands=['sendmes'])
