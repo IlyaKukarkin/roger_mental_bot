@@ -29,7 +29,8 @@ from feedback_answer import feedback_answer_start, feedback_send_text_to_user
 
 #текущая версия бота
 
-version = "1.1.4"
+
+version = "1.1.5"
 
 
 # read texts from json file
@@ -142,11 +143,12 @@ async def send_to_admin_photo(message: types.Message, state: FSMContext):
     await feedback_get_photo_from_user(message, state)
 
 @dp.message_handler(commands=['feedbackanswer'])
-async def feedback_answer_command(message: types.Message):
+async def process_feedback_answer_command(message: types.Message):
     await feedback_answer_start(message)
 
 @dp.message_handler(state=Recording.AwaitForAnAnswerToFeedback)
-async def send_to_admin_text(message: types.Message, state: FSMContext):
+async def send_to_user_feedback_answer_text(message: types.Message, state: FSMContext):
+
     await feedback_send_text_to_user(message, state)
 
 #принудительная отправка сообщения для оценки настроения за день

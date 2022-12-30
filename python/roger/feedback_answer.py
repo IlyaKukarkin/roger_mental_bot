@@ -18,11 +18,15 @@ async def feedback_answer_start(message: types.Message):
 
 async def feedback_send_text_to_user(message: types.Message, state: FSMContext):
     try: 
-        await state.update_data(Name=message.text)
-        print(message.reply_to_message.text)
-        feedback_chat_id = message.reply_to_message.text.partition('chat_id: ')[2].partition('.')[0]
-        feedback_message_id = message.reply_to_message.text.partition('message_id: ')[2].partition('.')[0]
-        await bot.send_message(int(feedback_chat_id), text(bold("Разработчики прислали ответ на твой фидбек: \n\n")) + message.text, reply_to_message_id=int(feedback_message_id), parse_mode=ParseMode.MARKDOWN)
+        await state.update_data(AwaitForAnAnswerToFeedback=message.text)
+        if type(message.reply_to_message.text) == type(None):
+            mes_str = message.reply_to_message.caption
+        else:
+            mes_str = message.reply_to_message.text
+        feedback_chat_id = mes_str.partition('chat_id: ')[2].partition('.')[0]
+        feedback_message_id = mes_str.partition('message_id: ')[2].partition('.')[0]
+        await bot.send_message(int(feedback_chat_id), text(bold("Разработчик прислал ответ на твой фидбек: \n\n")) + message.text, reply_to_message_id=int(feedback_message_id), parse_mode=ParseMode.MARKDOWN)
+
         await bot.send_message(message.chat.id, "Ответ на фидбек отправлен")
     except:
         await bot.send_message(message.chat.id, "Не получилось отправить. Сделай все заново")
