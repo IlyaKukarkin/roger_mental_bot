@@ -44,6 +44,7 @@ async def feedback_get_text_from_user(message: types.Message, state: FSMContext)
 
 #получаем фото от пользователя и пересылаем админам
 async def feedback_get_photo_from_user(message: types.Message, state: FSMContext):
+    await state.update_data(name=message.caption)
     collection_name = get_database()
     #поиск ника пользователя для отображения в сообщении
     user = collection_name["users"].find_one(
@@ -55,7 +56,7 @@ async def feedback_get_photo_from_user(message: types.Message, state: FSMContext
     for id in admins:
         await bot.send_message(id['telegram_id'], 
             "Новое фото от пользователя " + user['telegram_username'] + '. Вот оно:')
-        await bot.send_photo(id['telegram_id'], photo=message.photo[-1].file_id, caption='chat_id: ' + str(message.chat.id) + '.\nmessage_id: ' + str(message.message_id) + '.')
+        await bot.send_photo(id['telegram_id'], photo=message.photo[-1].file_id, caption='chat_id: ' + str(message.chat.id) + '.\nmessage_id: ' + str(message.message_id) + '.\n\nТекст сообщения: "' + message.caption + '"')
     await bot.send_message(message.chat.id, "Сообщение улетело разработчикам. Спасибо! 😍")
     collection_name['users'].find().close()    
     await state.finish()
