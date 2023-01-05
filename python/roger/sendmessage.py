@@ -35,7 +35,7 @@ async def sendmes(chat_id: int):
             {"telegram_id": str(chat_id)}, {'_id': 1, 'id_user': 1})
         id_previous_mes = collection_name['mental_rate'].find_one(
             {"rate": 0, "id_user": user['_id']}, {'id_tg_message': 1}, sort=[("date", -1)])
-        if (id_previous_mes != None):
+        if (id_previous_mes):
             await delete_keyboard(chat_id, id_previous_mes['id_tg_message'])
         await bot.send_message(chat_id, await get_options('greetings'), parse_mode=ParseMode.MARKDOWN)
         id = await bot.send_message(chat_id, await get_options('polls_questions'), parse_mode=ParseMode.MARKDOWN, reply_markup=kb_for_mental_poll)
