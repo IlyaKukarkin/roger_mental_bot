@@ -29,7 +29,7 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
             print("Юзер " + i["telegram_id"] + "пидор, заблочил бота")
             collection_name = get_database()
             collection_name["users"].find_one_and_update(
-                {'_id': user['_id']}, {'is_active': False})
+                {'_id': i['_id']}, {'is_active': False})
             collection_name['users'].find().close() 
     await state.finish()
     collection_name['users'].find().close()
