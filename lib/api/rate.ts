@@ -182,7 +182,7 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
   const updateToApproved: ObjectId[] = [];
   const updateToReview: ObjectId[] = [];
   //потом убрать
-  await sendMessageToAdmins("Сорри, тут тестово выведу, кому бы написал бот, что его сообщение прошло модерацию 😘")
+  //await sendMessageToAdmins("Сорри, тут тестово выведу, кому бы написал бот, что его сообщение прошло модерацию 😘")
 
   for await (const message of messages) {
     const calculatedMessage = calculateRate(message, settings);

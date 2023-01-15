@@ -15,14 +15,13 @@ async def start_handler(message: types.Message):
     users = Users()
 
     user = users.get_user_by_telegram_id(str(message.chat.id))
+    if (user['is_banned_from_volunteering']):
+        await bot.send_message(message.chat.id, "Сообщений на оценку не осталось, возвращайся завтра 👋")
+        return
 
     if (not user['is_volunteer']):
-        await bot.send_message(message.chat.id, "А ты не волонтёр!\nЖди приглашения в основном боте:\nhttps://t.me/RogerMentalBot", disable_web_page_preview=True)
-        return
-
-    if (user['is_banned_from_volunteering']):
-        await bot.send_message(message.chat.id, "Тебя забанили, :D")
-        return
+            await bot.send_message(message.chat.id, "А ты не волонтёр!\nЖди приглашения в основном боте:\nhttps://t.me/RogerMentalBot", disable_web_page_preview=True)
+            return
 
     await bot.send_message(message.chat.id, "Здорова волонтёрам!")
     time.sleep(1)
