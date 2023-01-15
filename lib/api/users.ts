@@ -55,7 +55,7 @@ export const sendThatsItMessage = async (userTelegramId: string): Promise<void> 
 };
 
 export const deleteMarkupKeyboard = async (userTelegramId: string, messageId: number) => {
-  return await fetch(`https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/editMessageReplyMarkup?chat_id=${userTelegramId}&message_id=${messageId}&reply_markup=[]`, { method: 'POST' })
+  return await fetch(`https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/editMessageReplyMarkup?chat_id=${userTelegramId}&message_id=${messageId}&reply_markup=`, { method: 'POST' })
 }
 
 export const sendMoodMessage = async (userTelegramId: string): Promise<TgMessage> => {

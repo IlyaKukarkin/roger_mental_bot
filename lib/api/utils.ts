@@ -63,10 +63,10 @@ export const checkAndDeleteMoodKeyboard = async (userId: ObjectId) => {
             await sendHurryUpMessage(telegramId);
         }
 
-        if (dateDiff === 4) {
+        if (dateDiff === 12) {
             const telegramId = await getTelegramId(userId);
             await deleteMarkupKeyboard(telegramId, tgMessage);
-            await sendThatsItMessage(telegramId);
+            //await sendThatsItMessage(telegramId);
         }
     }
 }
