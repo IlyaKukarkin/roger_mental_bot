@@ -7,12 +7,20 @@ from keyboards import ask_for_name_kb
 from config import bot
 
 
+
+
 async def start_command(message: types.Message):
     collection_name = get_database()
     user = collection_name["users"].find_one(
-        {"telegram_id": str(message.chat.id)}, {'_id': 1, 'name': 1})
-    if (user != None):
+        {"telegram_id": str(message.chat.id)}, {'_id': 1, 'name': 1, "is_active": 1})
+    if (user != None and user["is_active"] == True):
         await bot.send_message(message.chat.id, "Кажется, мы уже знакомы, " + user['name'])
+    elif (user != None and user["is_active"] == False):
+        await bot.send_message(message.chat.id, "Здорово, что ты вернулся, " + user['name'] + " 😍")
+        collection_name = get_database()
+        collection_name["users"].find_one_and_update(
+                {'_id': user['_id']}, {"$set": {'is_active': True}})
+        collection_name['users'].find().close() 
     else:
         await bot.send_message(message.chat.id, "Привет 👋 \n \nЯ Роджер — бот для твоей кукухи.")
         time.sleep(1)

@@ -7,6 +7,7 @@ from db.messages import Messages
 from db.user_messages import User_Messages
 from utils.message import send_message
 from utils.keyboards import delete_keyboard
+from roger.database import get_database
 
 
 async def send_message_to_rate():
@@ -47,6 +48,10 @@ async def send_message_to_rate():
                         str(message_to_send['_id'])), tg_message_id)
     except (BotBlocked):
         print(f"Юзер 'хуй знает кто' пидор, заблочил бота")
+        collection_name = get_database()
+        collection_name["users"].find_one_and_update(
+            {'_id': user_id}, {"$set": {'is_volunteer': False}})
+        collection_name['users'].find().close() 
     except Exception as e:
         print(e)
 

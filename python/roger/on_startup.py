@@ -62,6 +62,10 @@ async def enable_task_to_send_mes():
                     await sendmes(int(user['telegram_id']))
         except (BotBlocked): #если юзер заблочил бота, не падаем
             print("Юзер " + user['telegram_id'] + "пидор, заблочил бота")
+            collection_name = get_database()
+            collection_name["users"].find_one_and_update(
+                {'_id': user['_id']}, {"$set": {'is_active': False}})
+            collection_name['users'].find().close() 
         except (Exception): #ловим другие эксепшоны
             print ("Failed to send a message to a user " + user['telegram_id'])
         collection_name['users'].find().close()
@@ -127,6 +131,10 @@ async def start_12_hours_message_loop():
                     await sendmes(int(user['telegram_id']))
         except (BotBlocked): #если юзер заблочил бота, не падаем
             print("Юзер " + user['telegram_id'] + "пидор, заблочил бота")
+            collection_name = get_database()
+            collection_name["users"].find_one_and_update(
+                {'_id': user['_id']}, {"$set": {'is_active': False}})
+            collection_name['users'].find().close() 
         except (Exception): #ловим другие эксепшоны
             print ("Failed to send a message to a user " + user['telegram_id'])
 

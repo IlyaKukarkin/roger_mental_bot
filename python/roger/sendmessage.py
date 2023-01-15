@@ -45,6 +45,10 @@ async def sendmes(chat_id: int):
         collection_name['mental_rate'].find().close()
     except (BotBlocked):
         print(f"Юзер {chat_id} пидор, заблочил бота")
+        collection_name = get_database()
+        collection_name["users"].find_one_and_update(
+                {'_id': user['_id']}, {"$set": {'is_active': False}})
+        collection_name['users'].find().close() 
     except (Exception):
         await bot.send_message(chat_id, "Ой, кажется, что-то пошло не так 😞 \nПовтори отправку настроения через несколько минут или напиши разработчикам через команду /feedback")
 
