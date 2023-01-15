@@ -41,7 +41,7 @@ async def feedback_get_text_from_user(message: types.Message, state: FSMContext)
     await bot.send_message(message.chat.id, "Сообщение улетело разработчикам. Спасибо! 😍")
     collection_name['users'].find().close()    
     await state.finish()
-
+#коммент
 #получаем фото от пользователя и пересылаем админам
 async def feedback_get_photo_from_user(message: types.Message, state: FSMContext):
     await state.update_data(name=message.caption)
