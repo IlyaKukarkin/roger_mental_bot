@@ -9,7 +9,7 @@ class Users(object):
         users = SingletonClass().collection_name["users"]
 
         self.users = users
-
+    
     def get_all_volunteers_by_time(self):
         currDate = datetime.now(pytz.utc)
 
@@ -126,3 +126,5 @@ class Users(object):
 
     def get_user_by_telegram_id(self, id):
         return self.users.find_one({"telegram_id": id})
+
+    
