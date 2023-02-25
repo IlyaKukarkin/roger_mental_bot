@@ -12,5 +12,3 @@ class Recording(StatesGroup):
     AwaitForAFeedback = State()
     AwaitForAMessageForAll = State()
     AwaitForAnAnswerToFeedback = State()
-    AwaitForAProblem = State()
-
