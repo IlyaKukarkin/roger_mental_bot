@@ -23,6 +23,11 @@ ask_for_rate_bad = InlineKeyboardButton('❌', callback_data='rate_bad')
 ask_for_rate_messages = InlineKeyboardMarkup().add(
     ask_for_rate_good, ask_for_rate_bad)
 
+ask_for_rate_good_support = InlineKeyboardButton('✅', callback_data='rate_good_support')
+ask_for_rate_bad_support = InlineKeyboardButton('❌', callback_data='rate_bad_support')
+ask_for_rate_messages_support = InlineKeyboardMarkup().add(
+    ask_for_rate_good_support, ask_for_rate_bad_support)
+
 ask_for_time_to_send_20 = InlineKeyboardButton(
     '20:00-21:00', callback_data='ask_for_time_20')
 ask_for_time_to_send_21 = InlineKeyboardButton(

@@ -20,6 +20,7 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
         await bot.send_message(message.chat.id, "Сорри, ты не админ этого бота. Не расстраивайся, ты же клиент!")
         await state.finish()
         return
+    await state.finish()
     users = collection_name["users"].find(
         {"is_active": True}, {'_id': 1, "telegram_id": 1, "is_admin": 1})
     for i in users:
