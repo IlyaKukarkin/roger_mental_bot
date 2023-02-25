@@ -249,15 +249,7 @@ async def process_callback_rategood_button(callback_query: types.CallbackQuery, 
 @dp.callback_query_handler(lambda c: c.data == 'rate_bad_support', state=Recording.AwaitForAProblem)
 async def process_callback_ratebad_button(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_after_click_on_button_support(callback_query, state, False)
-
-@dp.callback_query_handler(lambda c: c.data == 'rate_good_support')
-async def process_callback_rategood_button(callback_query: types.CallbackQuery, state: FSMContext):
-    await callback_after_click_on_button_support(callback_query, state, True)
-
-@dp.callback_query_handler(lambda c: c.data == 'rate_bad_support')
-async def process_callback_ratebad_button(callback_query: types.CallbackQuery, state: FSMContext):
-    await callback_after_click_on_button_support(callback_query, state, False)
-
+    
 #оценка настроения за день
 @dp.callback_query_handler(lambda c: c.data == 'green_button_answer')
 async def process_callback_greenbutton_button4(callback_query: types.CallbackQuery, state: FSMContext):
