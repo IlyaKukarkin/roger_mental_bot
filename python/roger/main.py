@@ -26,12 +26,11 @@ from config import dp, bot
 from handlers import rate_message
 from fillform import fillform_command
 from feedback_answer import feedback_answer_start, feedback_send_text_to_user
-from chatgpt import support_message, await_for_a_problem, callback_after_click_on_button_support
 
 #текущая версия бота
 
 
-version = "1.2.0"
+version = "1.1.5"
 
 
 # read texts from json file
@@ -93,6 +92,10 @@ cart_cb = CallbackData("q", "id", "button_parameter")
 async def process_rate_stata_command(message: types.Message):
     await get_rate_stata(message)
 
+@dp.message_handler(commands=['test_random'])
+async def process_rate_stata_command(message: types.Message):
+    await get_options_color('red', message.chat.id)
+
 @dp.callback_query_handler(lambda c: c.data == 'month', state=Recording.AwaitForARateStata)
 async def rate_stata_handler_month(callback_query: types.CallbackQuery, state: FSMContext):
     await state.finish()
@@ -145,25 +148,13 @@ async def process_feedback_answer_command(message: types.Message):
 
 @dp.message_handler(state=Recording.AwaitForAnAnswerToFeedback)
 async def send_to_user_feedback_answer_text(message: types.Message, state: FSMContext):
+
     await feedback_send_text_to_user(message, state)
 
 #принудительная отправка сообщения для оценки настроения за день
 @dp.message_handler(commands=['sendmes'])
 async def process_sendmes_command(message: types.Message):
     await sendmes(message.from_user.id)
-
-@dp.message_handler(commands=['support'])
-async def process_support_command(message: types.Message):
-    await support_message(message)
-
-@dp.message_handler(commands=['stop'])
-async def process_support_command(message: types.Message, state: FSMContext):
-    await bot.send_message(message.chat.id, "Ты вышел из режима диалога с ботом. Чтобы вернуться в него снова, вызови команду /support")
-    await state.finish()
-
-@dp.message_handler(state=Recording.AwaitForAProblem)
-async def send_to_user_feedback_answer_text(message: types.Message, state: FSMContext):
-    await await_for_a_problem(message, state)
 
 @dp.message_handler(commands=['money'])
 async def process_sendmes_command(message: types.Message):
@@ -240,23 +231,6 @@ async def process_callback_rategood_button(callback_query: types.CallbackQuery, 
 @dp.callback_query_handler(lambda c: c.data == 'rate_bad')
 async def process_callback_ratebad_button(callback_query: types.CallbackQuery, state: FSMContext):
     await rate_message(callback_query, state, False)
-
-#получаем оценку ChatGPT от пользователя
-@dp.callback_query_handler(lambda c: c.data == 'rate_good_support', state=Recording.AwaitForAProblem)
-async def process_callback_rategood_button(callback_query: types.CallbackQuery, state: FSMContext):
-    await callback_after_click_on_button_support(callback_query, state, True)
-
-@dp.callback_query_handler(lambda c: c.data == 'rate_bad_support', state=Recording.AwaitForAProblem)
-async def process_callback_ratebad_button(callback_query: types.CallbackQuery, state: FSMContext):
-    await callback_after_click_on_button_support(callback_query, state, False)
-
-@dp.callback_query_handler(lambda c: c.data == 'rate_good_support')
-async def process_callback_rategood_button(callback_query: types.CallbackQuery, state: FSMContext):
-    await callback_after_click_on_button_support(callback_query, state, True)
-
-@dp.callback_query_handler(lambda c: c.data == 'rate_bad_support')
-async def process_callback_ratebad_button(callback_query: types.CallbackQuery, state: FSMContext):
-    await callback_after_click_on_button_support(callback_query, state, False)
 
 #оценка настроения за день
 @dp.callback_query_handler(lambda c: c.data == 'green_button_answer')
