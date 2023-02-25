@@ -79,8 +79,7 @@ export const askMood = async (): Promise<Boolean> => {
 
           await mentalRateCl.insertOne({"rate": 0, "id_user": user['_id'], "date": new Date(), "id_tg_message": message.message_id})
         }
-      } 
-      catch (e) {
+      } catch (e) {
         console.log("Ошибка при отправке настроения: ", e)
       }
     })
