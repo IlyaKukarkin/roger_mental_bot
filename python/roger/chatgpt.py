@@ -10,9 +10,7 @@ from keyboards import ask_for_rate_messages_support
 from database import get_database
 import datetime
 from common import delete_keyboard
-#from config import chatGPT_token
-
-chatGPT_token = "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" 
+from config import chatGPT_token
 
 async def support_message(message: types.Message):
     await bot.send_message(message.chat.id, "Ты перешел в тестовый режим диалога. Чтобы выйти из него, введи команду /stop. Оставить фидбек или пожаловаться можно по команде /feedback")
