@@ -10,9 +10,7 @@ from keyboards import ask_for_rate_messages_support
 from database import get_database
 import datetime
 from common import delete_keyboard
-#from config import chatGPT_token
-
-chatGPT_token = "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" 
+from config import chatGPT_token
 
 async def support_message(message: types.Message):
     await bot.send_message(message.chat.id, "Ты перешел в тестовый режим диалога. Чтобы выйти из него, введи команду /stop. Оставить фидбек или пожаловаться можно по команде /feedback")
@@ -26,6 +24,11 @@ async def await_for_a_problem(message: types.Message, state: FSMContext):
         await state.finish()
         await bot.send_message(message.chat.id, "Ты вышел из режима диалога с ботом. Чтобы вернуться в него снова, вызови команду /support")
         return 
+    
+    if str(message.text)[0] == '/':
+        await bot.send_message(message.chat.id, "Ты находишься в режиме диалога с ботом. Чтобы выйти из него, выбери команду /stop, а затем повторно вызови нужную команду")
+        await Recording.AwaitForAProblem.set()
+        return
     
     collection_name = get_database()
     id_user_db = collection_name['users'].find_one({"telegram_id": str(message.chat.id)}, {
@@ -57,7 +60,7 @@ async def await_for_a_problem(message: types.Message, state: FSMContext):
 
     
 async def callback_after_click_on_button_support(callback_query: types.CallbackQuery, state: FSMContext, rate: bool):
-    await bot.answer_callback_query(callback_query.id)
+    await bot.answer_callback_query(callback_query.id, text = 'Спасибо за оценку, bestie ❤️')
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     try:
         collection_name = get_database()
