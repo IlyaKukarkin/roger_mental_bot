@@ -357,8 +357,6 @@
 			"is_labelled": 1,
 			"answers_arrays": [
 				"red_mood_reactions",
-				"gif_support",
-				"*gif*",
 				"sending_support",
 				"*support*"
 			],

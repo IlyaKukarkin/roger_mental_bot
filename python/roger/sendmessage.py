@@ -4,7 +4,7 @@ from aiogram.utils.callback_data import CallbackData
 from aiogram.utils.exceptions import BotBlocked
 from common import delete_keyboard, get_options
 import datetime
-from keyboards import kb_for_mental_poll
+from keyboards import kb_for_mental_poll, support_start_keyboard
 from database import get_database
 from aiogram.dispatcher import FSMContext
 from bson import ObjectId
@@ -37,7 +37,7 @@ async def sendmes(chat_id: int):
             {"rate": 0, "id_user": user['_id']}, {'id_tg_message': 1}, sort=[("date", -1)])
         if (id_previous_mes):
             await delete_keyboard(chat_id, id_previous_mes['id_tg_message'])
-        await bot.send_message(chat_id, await get_options('greetings'), parse_mode=ParseMode.MARKDOWN)
+        #await bot.send_message(chat_id, await get_options('greetings'), parse_mode=ParseMode.MARKDOWN)
         id = await bot.send_message(chat_id, await get_options('polls_questions'), parse_mode=ParseMode.MARKDOWN, reply_markup=kb_for_mental_poll)
         collection_name['mental_rate'].insert_one(
             {"rate": 0, "id_user": user['_id'], "date": datetime.datetime.now(), "id_tg_message": id.message_id})
@@ -65,6 +65,7 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
         await get_options_color(color, callback_query.from_user.id)
         await row_message(callback_query.from_user.id)
         await (mental_rate_strike(callback_query.from_user.id, 'volunteer'))
+        await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
         collection_name['users'].find().close()
         collection_name['mental_rate'].find().close()
     except (Exception):
@@ -244,3 +245,8 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
 
 async def row_message(chat_id: int):
     await bot.send_message(chat_id, "Ты уже замерил свое настроение " + str(await how_many_days_user_with_us(chat_id)) + " раз! Продолжай в том же духе 😎")
+
+async def offer_to_chat_with_chatgpt(color: str, user_id: int):
+    if (color in ['red', 'orange']):
+        await bot.send_message(user_id, "Как насчет поболтать со мной? Я могу поддержать диалог: умею распознавать проблемы и давать осмысленные ответы. Попробуем?", reply_markup = support_start_keyboard)
+    return

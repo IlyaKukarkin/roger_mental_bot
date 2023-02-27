@@ -4,8 +4,7 @@ from database import get_database
 from states import Recording
 from aiogram.types import ParseMode
 from aiogram.dispatcher import FSMContext
-from aiogram.utils.markdown import bold, text
-import openai, os,sys
+import openai
 from keyboards import ask_for_rate_messages_support
 from database import get_database
 import datetime
@@ -17,16 +16,22 @@ async def support_message(message: types.Message):
     await bot.send_message(message.chat.id, "Что стряслось, друг?")
     await Recording.AwaitForAProblem.set()
 
+async def support_callback(callback_query: types.CallbackQuery):
+    await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
+    await bot.send_message(callback_query.from_user.id, "Ты перешел в тестовый режим диалога. Чтобы выйти из него, введи команду /stop. Оставить фидбек или пожаловаться можно по команде /feedback")
+    await bot.send_message(callback_query.from_user.id, "Что стряслось, друг?")
+    await Recording.AwaitForAProblem.set()
+
 async def await_for_a_problem(message: types.Message, state: FSMContext):
    
     await state.update_data(AwaitForAProblem=message.text)
     if message.text == "/stop":
         await state.finish()
-        await bot.send_message(message.chat.id, "Ты вышел из режима диалога с ботом. Чтобы вернуться в него снова, вызови команду /support")
+        await bot.send_message(message.chat.id, "Ты вышел из режима диалога. Чтобы вернуться в него снова, вызови команду /support")
         return 
     
     if str(message.text)[0] == '/':
-        await bot.send_message(message.chat.id, "Ты находишься в режиме диалога с ботом. Чтобы выйти из него, выбери команду /stop, а затем повторно вызови нужную команду")
+        await bot.send_message(message.chat.id, "Ты находишься в режиме диалога. Чтобы выйти из него, выбери команду /stop, а затем повторно вызови нужную команду")
         await Recording.AwaitForAProblem.set()
         return
     
