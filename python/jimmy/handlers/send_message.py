@@ -1,14 +1,23 @@
 from bson import ObjectId
 from aiogram.utils.exceptions import BotBlocked
+from pymongo import MongoClient
+from bson import ObjectId
+import certifi
 
+import os
 from singleton import Bot
 from db.users import Users
 from db.messages import Messages
 from db.user_messages import User_Messages
 from utils.message import send_message
 from utils.keyboards import delete_keyboard
-from roger.database import get_database
 
+db_token = os.getenv("MONGODB_URI")
+
+def get_database():
+    client = MongoClient(db_token, tlsCAFile=certifi.where())
+    collection_name = client["roger-bot-db"]
+    return collection_name
 
 async def send_message_to_rate():
     bot = Bot().get_bot()
