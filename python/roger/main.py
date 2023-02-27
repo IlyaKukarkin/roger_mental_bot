@@ -26,12 +26,12 @@ from config import dp, bot
 from handlers import rate_message
 from fillform import fillform_command
 from feedback_answer import feedback_answer_start, feedback_send_text_to_user
-from chatgpt import support_message, await_for_a_problem, callback_after_click_on_button_support
+from chatgpt import support_message, await_for_a_problem, callback_after_click_on_button_support, support_callback
 
 #текущая версия бота
 
 
-version = "1.2.0"
+version = "1.2.1"
 
 
 # read texts from json file
@@ -125,7 +125,6 @@ async def process_sendmestoall_command(message: types.Message):
 async def process_callback_awaitforamessage_button(message: types.Message, state: FSMContext):
     await send_message_to_all(message, state)
 
-
 #получаем фидбек от пользователя
 @dp.message_handler(commands=['feedback'])
 async def process_feedback_command(message: types.Message):
@@ -156,10 +155,17 @@ async def process_sendmes_command(message: types.Message):
 async def process_support_command(message: types.Message):
     await support_message(message)
 
+@dp.callback_query_handler(lambda c: c.data == 'support_start')
+async def support_start_dialog(callback_query: types.CallbackQuery, state: FSMContext):
+    await support_callback(callback_query)
+
+
 @dp.message_handler(commands=['stop'])
 async def process_support_command(message: types.Message, state: FSMContext):
     await bot.send_message(message.chat.id, "Ты вышел из режима диалога с ботом. Чтобы вернуться в него снова, вызови команду /support")
     await state.finish()
+
+
 
 @dp.message_handler(state=Recording.AwaitForAProblem)
 async def send_to_user_feedback_answer_text(message: types.Message, state: FSMContext):
@@ -247,6 +253,14 @@ async def process_callback_rategood_button(callback_query: types.CallbackQuery, 
     await callback_after_click_on_button_support(callback_query, state, True)
 
 @dp.callback_query_handler(lambda c: c.data == 'rate_bad_support', state=Recording.AwaitForAProblem)
+async def process_callback_ratebad_button(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_after_click_on_button_support(callback_query, state, False)
+
+@dp.callback_query_handler(lambda c: c.data == 'rate_good_support')
+async def process_callback_rategood_button(callback_query: types.CallbackQuery, state: FSMContext):
+    await callback_after_click_on_button_support(callback_query, state, True)
+
+@dp.callback_query_handler(lambda c: c.data == 'rate_bad_support')
 async def process_callback_ratebad_button(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_after_click_on_button_support(callback_query, state, False)
     

@@ -53,3 +53,8 @@ feedback_start_button = InlineKeyboardButton(
     'Написать сообщение', callback_data='feedback_start')
 feedback_keyboard = InlineKeyboardMarkup().add(
     feedback_start_button)
+
+support_start_button = InlineKeyboardButton(
+    'Начать диалог с Роджером', callback_data='support_start')
+support_start_keyboard = InlineKeyboardMarkup().add(
+    support_start_button)
