@@ -4,7 +4,7 @@ from states import Recording
 from aiogram.dispatcher import FSMContext
 from database import get_database
 from config import bot
-from aiogram.utils.exceptions import BotBlocked
+from aiogram.utils.exceptions import BotBlocked, ChatNotFound
 
 
 async def get_message_to_all(message: types.Message):
@@ -35,15 +35,24 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
         try: 
             await bot.send_message(int(i["telegram_id"]), message.text)
             count_received_messages +=1
-            count_bot_blocked +=1 
-            count_other_exceptions +=1
         except (BotBlocked): #если юзер заблочил бота, не падаем
-            print("Юзер " + i["telegram_id"] + "пидор, заблочил бота")
+            print("Юзер " + i["telegram_id"] + " пидор, заблочил бота")
             collection_name = get_database()
             collection_name["users"].find_one_and_update(
                 {'_id': i['_id']}, {'is_active': False})
+            count_bot_blocked +=1
             collection_name['users'].find().close() 
-        except (Exception): 
-            print ("Failed to send a message to a user " + user['telegram_id'])
+        except (ChatNotFound):
+            print("Юзер " + i["telegram_id"] + " пидор, заблочил бота")
+            collection_name = get_database()
+            collection_name["users"].find_one_and_update(
+                {'_id': i['_id']}, {'is_active': False})
+            count_bot_blocked +=1
+            collection_name['users'].find().close() 
+        except Exception as e: 
+            print ("Failed to send a message to a user " + i['telegram_id'])
+            print (e)
+            count_other_exceptions +=1
     await bot.send_message(message.chat.id, "Сообщение доставлено " + str (count_received_messages) + " пользователям. Бот заблокирован: " + str(count_bot_blocked) + ". Прочие ошибки: " + str(count_other_exceptions))
+
     collection_name['users'].find().close()
