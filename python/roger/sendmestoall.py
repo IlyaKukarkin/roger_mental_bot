@@ -28,9 +28,15 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
     await state.finish()
     users = collection_name["users"].find(
         {"is_active": True}, {'_id': 1, "telegram_id": 1})
+    count_received_messages = 0
+    count_bot_blocked = 0
+    count_other_exceptions = 0
     for i in users:
         try: 
             await bot.send_message(int(i["telegram_id"]), message.text)
+            count_received_messages +=1
+            count_bot_blocked +=1 
+            count_other_exceptions +=1
         except (BotBlocked): #если юзер заблочил бота, не падаем
             print("Юзер " + i["telegram_id"] + "пидор, заблочил бота")
             collection_name = get_database()
@@ -39,4 +45,5 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
             collection_name['users'].find().close() 
         except (Exception): 
             print ("Failed to send a message to a user " + user['telegram_id'])
+    await bot.send_message(message.chat.id, "Сообщение доставлено " + str (count_received_messages) + " пользователям. Бот заблокирован: " + str(count_bot_blocked) + ". Прочие ошибки: " + str(count_other_exceptions))
     collection_name['users'].find().close()
