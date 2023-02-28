@@ -49,6 +49,7 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
                 {'_id': i['_id']}, {"$set": {'is_active': False}})            
             count_bot_blocked +=1
             collection_name['users'].find().close() 
+
         except Exception as e: 
             print ("Failed to send a message to a user " + i['telegram_id'])
             print (e)
