@@ -162,3 +162,12 @@ async def check_if_delete_mental_keyboard(user_id: ObjectId):
                 await delete_keyboard(int(user['telegram_id']), int(list(mental_hours_clone)[0]['id_tg_message']))
                 collection_name['users'].find().close()
     collection_name['mental_rate'].find().close()
+
+
+def today_is_the_day(day: int, timezone_offset: int):
+    """A function that checks whether today is a particular weekday (specified by day parameter, 0-6:Monday-Sunday)
+    considering the timezone offset"""
+    delta = datetime.timedelta(hours=timezone_offset)
+    tz = datetime.timezone(delta)
+    date = datetime.datetime.now(tz)
+    return date.weekday() == day
