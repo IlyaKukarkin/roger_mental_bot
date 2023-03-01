@@ -9,7 +9,7 @@ from database import get_database
 from aiogram.dispatcher import FSMContext
 from bson import ObjectId
 from aiogram.utils.markdown import bold, text
-from common import get_pictures
+from common import get_pictures, rand_select_obj_texts, Weekdays
 from keyboards import ask_for_rate_messages
 import requests
 from volunteers import mental_rate_strike, how_many_days_user_with_us
@@ -17,7 +17,6 @@ import json
 import random
 import time
 from config import contentful_api_readonly_url, contenful_space_id, contenful_access_token, link_to_form, bot
-from common import rand_select_obj_texts
 from ratestata import send_rate_stata
 from mentalstrikes import mental_rates_strike_in_a_row
 
@@ -67,7 +66,7 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
         await row_message(callback_query.from_user.id)
         await (mental_rate_strike(callback_query.from_user.id, 'volunteer'))
         # 3 is for Thursday
-        if today_is_the_day(3, int(user['timezone'])):
+        if today_is_the_day(Weekdays.Thursday, int(user['timezone'])):
             await sunday_send_rate_stata(callback_query.from_user.id)
         await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
         collection_name['users'].find().close()

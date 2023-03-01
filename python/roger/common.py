@@ -6,6 +6,7 @@ from database import get_database
 import datetime
 import pytz
 from config import bot, contentful_api_readonly_url, contenful_access_token, contenful_space_id
+from enum import IntEnum
 
 # read texts from json file
 with open('texts.json') as t:
@@ -164,8 +165,18 @@ async def check_if_delete_mental_keyboard(user_id: ObjectId):
     collection_name['mental_rate'].find().close()
 
 
-def today_is_the_day(day: int, timezone_offset: int):
-    """A function that checks whether today is a particular weekday (specified by day parameter, 0-6:Monday-Sunday)
+class Weekdays(IntEnum):
+    Monday = 0
+    Tuesday = 1
+    Wednesday = 2
+    Thursday = 3
+    Friday = 4
+    Saturday = 5
+    Sunday = 6
+
+
+def today_is_the_day(day: Weekdays, timezone_offset: int):
+    """A function that checks whether today is a particular weekday (specified by day parameter)
     considering the timezone offset"""
     delta = datetime.timedelta(hours=timezone_offset)
     tz = datetime.timezone(delta)
