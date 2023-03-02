@@ -9,7 +9,7 @@ from database import get_database
 from aiogram.dispatcher import FSMContext
 from bson import ObjectId
 from aiogram.utils.markdown import bold, text
-from common import get_pictures, rand_select_obj_texts, Weekdays
+from common import get_pictures, rand_select_obj_texts, Weekdays, n_days_since_date
 from keyboards import ask_for_rate_messages
 import requests
 from volunteers import mental_rate_strike, how_many_days_user_with_us
@@ -65,9 +65,9 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
         await get_options_color(color, callback_query.from_user.id)
         await row_message(callback_query.from_user.id)
         await (mental_rate_strike(callback_query.from_user.id, 'volunteer'))
-        # 3 is for Thursday
-        if today_is_the_day(Weekdays.Thursday, int(user['timezone'])):
+        if need_send_weekly_rate_stata(int(user['timezone']), user['created_at']):
             await sunday_send_rate_stata(callback_query.from_user.id)
+
         await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
         collection_name['users'].find().close()
         collection_name['mental_rate'].find().close()
@@ -254,6 +254,11 @@ async def offer_to_chat_with_chatgpt(color: str, user_id: int):
     if (color in ['red', 'orange']):
         await bot.send_message(user_id, "Как насчет поболтать со мной? Я могу поддержать диалог: умею распознавать проблемы и давать осмысленные ответы. Попробуем?", reply_markup = support_start_keyboard)
     return
+
+
+def need_send_weekly_rate_stata(timezone_offset: int, created_at: str):
+    """Function, that is used to check whether we should display weekly stata to a user after they rated their mood"""
+    return today_is_the_day(Weekdays.Thursday, timezone_offset) and n_days_since_date(3, created_at)
 
 
 async def sunday_send_rate_stata(chat_id: int):
