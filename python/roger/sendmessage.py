@@ -257,7 +257,7 @@ async def offer_to_chat_with_chatgpt(color: str, user_id: int):
 
 
 async def sunday_send_rate_stata(chat_id: int):
-    """A modification of send_rate stata for the purposes of sending weekly stata after a user
+    """A non-destructive modification of send_rate stata for the purposes of sending weekly stata after a user
     has rated their mood on a Sunday.
     Sends a message from a collection of specially manufactured texts and then
     sends mental state statistics for the past week."""

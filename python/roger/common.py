@@ -175,7 +175,7 @@ class Weekdays(IntEnum):
     Sunday = 6
 
 
-def today_is_the_day(day: Weekdays, timezone_offset: int):
+def today_is_the_day(day: Weekdays, timezone_offset: int) -> bool:
     """A function that checks whether today is a particular weekday (specified by day parameter)
     considering the timezone offset"""
     delta = datetime.timedelta(hours=timezone_offset)
