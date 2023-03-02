@@ -184,11 +184,9 @@ def today_is_the_day(day: Weekdays, timezone_offset: int) -> bool:
     return date.weekday() == day
 
 
-def n_days_since_date(number_of_days: int, date: str) -> bool:
+def n_days_since_date(number_of_days: int, date: datetime.datetime) -> bool:
     """Function that checks, whether a number of days has passed since a certain date"""
-    date_format = '%Y-%m-%dT%H:%M:%S.%f+00:00'
-    datetime_obj = datetime.datetime.strptime(date, date_format)
     now = datetime.datetime.utcnow()
-    diff: datetime.timedelta = now - datetime_obj
+    diff: datetime.timedelta = now - date
     return diff.days > number_of_days
 
