@@ -3,6 +3,7 @@ import json
 import random
 from bson import ObjectId
 from database import get_database
+from pymongo.cursor import Cursor
 import datetime
 import pytz
 from config import bot, contentful_api_readonly_url, contenful_access_token, contenful_space_id
@@ -191,13 +192,25 @@ def n_days_since_date(number_of_days: int, date: datetime.datetime) -> bool:
     return diff.days > number_of_days
 
 
-def any_ratings_in_past_n_days(user_id: int, n: int = 7):
+def any_ratings_in_past_n_days(id_user: ObjectId, n: int = 7) -> bool:
     """
     Checks whether a user has rated their at all mood for the past n days (including the current day)
-    :param user_id: chat_id and user id in mongo collection
+    :param id_user: chat_id and user id in mongo collection
     :param n: number of days to take into account (including the current day); the search will be conducted backwards:
     from current day to a day n - 1 days before that
     :return:
     """
-    ...
+    collection_name = get_database()
+
+    today = datetime.datetime.utcnow()
+    period_end = datetime.datetime(today.year, today.month, today.day-1, hour=23, minute=59)
+    period_start = period_end - datetime.timedelta(days=6)
+
+    past_week_ratings: Cursor = collection_name['mental_rate'].find({
+        'id_user': id_user,
+        'date': {'$gt': period_start, '$lt': period_end},
+        'rate': {'$gt': 0}})
+    past_week_ratings_lst = list(past_week_ratings)
+    past_week_ratings.close()
+    return bool(past_week_ratings_lst)
 
