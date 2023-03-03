@@ -2,14 +2,14 @@ from aiogram.types import ParseMode
 from aiogram import types
 from aiogram.utils.callback_data import CallbackData
 from aiogram.utils.exceptions import BotBlocked
-from common import delete_keyboard, get_options
+from common import delete_keyboard, get_options, today_is_the_day
 import datetime
 from keyboards import kb_for_mental_poll, support_start_keyboard
 from database import get_database
 from aiogram.dispatcher import FSMContext
 from bson import ObjectId
 from aiogram.utils.markdown import bold, text
-from common import get_pictures
+from common import get_pictures, rand_select_obj_texts, Weekdays, n_days_since_date, any_ratings_in_past_n_days
 from keyboards import ask_for_rate_messages
 import requests
 from volunteers import mental_rate_strike, how_many_days_user_with_us
@@ -17,7 +17,7 @@ import json
 import random
 import time
 from config import contentful_api_readonly_url, contenful_space_id, contenful_access_token, link_to_form, bot
-from common import rand_select_obj_texts
+from ratestata import send_rate_stata
 from mentalstrikes import mental_rates_strike_in_a_row
 
 
@@ -65,6 +65,8 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
         await get_options_color(color, callback_query.from_user.id)
         await row_message(callback_query.from_user.id)
         await (mental_rate_strike(callback_query.from_user.id, 'volunteer'))
+        if need_send_weekly_rate_stata(int(user['timezone']), user['created_at'], user['_id']):
+            await sunday_send_rate_stata(callback_query.from_user.id)
         await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
         collection_name['users'].find().close()
         collection_name['mental_rate'].find().close()
@@ -246,7 +248,30 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
 async def row_message(chat_id: int):
     await bot.send_message(chat_id, "Ты уже замерил свое настроение " + str(await how_many_days_user_with_us(chat_id)) + " раз! Продолжай в том же духе 😎")
 
+
 async def offer_to_chat_with_chatgpt(color: str, user_id: int):
     if (color in ['red', 'orange']):
         await bot.send_message(user_id, "Как насчет поболтать со мной? Я могу поддержать диалог: умею распознавать проблемы и давать осмысленные ответы. Попробуем?", reply_markup = support_start_keyboard)
     return
+
+
+def need_send_weekly_rate_stata(timezone_offset: int, created_at: datetime.datetime, id_user: ObjectId) -> bool:
+    """Function, that is used to check whether we should display weekly stata to a user after they rated their mood"""
+    try:
+        return \
+            today_is_the_day(Weekdays.Sunday, timezone_offset) and \
+            n_days_since_date(3, created_at) and \
+            any_ratings_in_past_n_days(id_user, 7)
+    except Exception as e:
+        print(f'need_send_weekly_rate_stata failed check, exception: {e}')
+        return False
+
+
+async def sunday_send_rate_stata(chat_id: int):
+    """A non-destructive modification of send_rate stata for the purposes of sending weekly stata after a user
+    has rated their mood on a Sunday.
+    Sends a message from a collection of specially manufactured texts and then
+    sends mental state statistics for the past week."""
+    mes = await rand_select_obj_texts(texts.get('mental_week_stata'))
+    await bot.send_message(chat_id, mes['text'])
+    await send_rate_stata(str(chat_id), 'week')

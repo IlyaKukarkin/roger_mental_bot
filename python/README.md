@@ -1,4 +1,4 @@
-## Setup python
+~~~~## Setup python
 
 First, make sure that python 3.10.8 is installed: [Link to install python](https://www.python.org/downloads/)
 

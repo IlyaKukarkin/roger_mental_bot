@@ -31,11 +31,11 @@ async def send_rate_stata(id_message: str, stata_type: str):
         date_now.year, date_now.month, date_now.day, 0, 0, 0, 0, tzinfo=pytz.utc)
 
     if (stata_type == 'month'):
-        from_date_str = date_now_clear - relativedelta(months=1)
+        from_date_str = date_now_clear - relativedelta(months=1) + relativedelta(days=1)
     elif (stata_type == 'week2'):
-        from_date_str = date_now_clear - relativedelta(days=14)
+        from_date_str = date_now_clear - relativedelta(days=13)
     else:
-        from_date_str = date_now_clear - relativedelta(days=7)
+        from_date_str = date_now_clear - relativedelta(days=6)
 
     from_date = datetime.datetime.strptime(
         str(from_date_str), '%Y-%m-%d %H:%M:%S%z')
