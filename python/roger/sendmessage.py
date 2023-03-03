@@ -257,10 +257,14 @@ async def offer_to_chat_with_chatgpt(color: str, user_id: int):
 
 def need_send_weekly_rate_stata(timezone_offset: int, created_at: datetime.datetime, id_user: ObjectId) -> bool:
     """Function, that is used to check whether we should display weekly stata to a user after they rated their mood"""
-    return \
-        today_is_the_day(Weekdays.Sunday, timezone_offset) and \
-        n_days_since_date(3, created_at) and \
-        any_ratings_in_past_n_days(id_user, 7)
+    try:
+        return \
+            today_is_the_day(Weekdays.Sunday, timezone_offset) and \
+            n_days_since_date(3, created_at) and \
+            any_ratings_in_past_n_days(id_user, 7)
+    except Exception as e:
+        print(f'need_send_weekly_rate_stata failed check, exception: {e}')
+        return False
 
 
 async def sunday_send_rate_stata(chat_id: int):
