@@ -257,6 +257,7 @@ async def offer_to_chat_with_chatgpt(color: str, user_id: int):
 
 def need_send_weekly_rate_stata(timezone_offset: int, created_at: datetime.datetime) -> bool:
     """Function, that is used to check whether we should display weekly stata to a user after they rated their mood"""
+    # TODO add check for whether a user has rated their mood at all this time period (i.e. week)
     return today_is_the_day(Weekdays.Thursday, timezone_offset) and n_days_since_date(3, created_at)
 
 

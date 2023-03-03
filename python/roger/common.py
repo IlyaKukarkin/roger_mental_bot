@@ -190,3 +190,14 @@ def n_days_since_date(number_of_days: int, date: datetime.datetime) -> bool:
     diff: datetime.timedelta = now - date
     return diff.days > number_of_days
 
+
+def any_ratings_in_past_n_days(user_id: int, n: int = 7):
+    """
+    Checks whether a user has rated their at all mood for the past n days (including the current day)
+    :param user_id: chat_id and user id in mongo collection
+    :param n: number of days to take into account (including the current day); the search will be conducted backwards:
+    from current day to a day n - 1 days before that
+    :return:
+    """
+    ...
+
