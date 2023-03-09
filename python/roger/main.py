@@ -31,7 +31,7 @@ from chatgpt import support_message, await_for_a_problem, callback_after_click_o
 #текущая версия бота
 
 
-version = "1.2.1"
+version = "1.2.2"
 
 
 # read texts from json file
@@ -143,7 +143,7 @@ async def process_feedback_answer_command(message: types.Message):
     await feedback_answer_start(message)
 
 @dp.message_handler(state=Recording.AwaitForAnAnswerToFeedback)
-async def send_to_user_feedback_answer_text(message: types.Message, state: FSMContext):
+async def send_to_user_feedback_answer_text_1(message: types.Message, state: FSMContext):
     await feedback_send_text_to_user(message, state)
 
 #принудительная отправка сообщения для оценки настроения за день
@@ -156,7 +156,7 @@ async def process_support_command(message: types.Message):
     await support_message(message)
 
 @dp.callback_query_handler(lambda c: c.data == 'support_start')
-async def support_start_dialog(callback_query: types.CallbackQuery, state: FSMContext):
+async def support_start_dialog(callback_query: types.CallbackQuery):
     await support_callback(callback_query)
 
 
@@ -239,45 +239,45 @@ async def create_user (message: types.Message):
 
 #оценки
 #получаем оценку сообщения от пользователя
-@dp.callback_query_handler(lambda c: c.data == 'rate_good')
+@dp.callback_query_handler(lambda c: c.data == 'rate_good', state='*')
 async def process_callback_rategood_button(callback_query: types.CallbackQuery, state: FSMContext):
     await rate_message(callback_query, state, True)
 
-@dp.callback_query_handler(lambda c: c.data == 'rate_bad')
+@dp.callback_query_handler(lambda c: c.data == 'rate_bad', state='*')
 async def process_callback_ratebad_button(callback_query: types.CallbackQuery, state: FSMContext):
     await rate_message(callback_query, state, False)
 
 #получаем оценку ChatGPT от пользователя
-@dp.callback_query_handler(lambda c: c.data == 'rate_good_support', state=Recording.AwaitForAProblem)
+@dp.callback_query_handler(lambda c: c.data == 'rate_good_support', state='*')
 async def process_callback_rategood_button(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_after_click_on_button_support(callback_query, state, True)
 
-@dp.callback_query_handler(lambda c: c.data == 'rate_bad_support', state=Recording.AwaitForAProblem)
+@dp.callback_query_handler(lambda c: c.data == 'rate_bad_support', state='*')
 async def process_callback_ratebad_button(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_after_click_on_button_support(callback_query, state, False)
 
-@dp.callback_query_handler(lambda c: c.data == 'rate_good_support')
+@dp.callback_query_handler(lambda c: c.data == 'rate_good_support', state='*')
 async def process_callback_rategood_button(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_after_click_on_button_support(callback_query, state, True)
 
-@dp.callback_query_handler(lambda c: c.data == 'rate_bad_support')
+@dp.callback_query_handler(lambda c: c.data == 'rate_bad_support', state='*')
 async def process_callback_ratebad_button(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_after_click_on_button_support(callback_query, state, False)
     
 #оценка настроения за день
-@dp.callback_query_handler(lambda c: c.data == 'green_button_answer')
+@dp.callback_query_handler(lambda c: c.data == 'green_button_answer', state='*')
 async def process_callback_greenbutton_button4(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_after_click_on_color_button(callback_query, state, 4, 'green')
 
-@dp.callback_query_handler(lambda c: c.data == 'yellow_button_answer')
+@dp.callback_query_handler(lambda c: c.data == 'yellow_button_answer', state='*')
 async def process_callback_yellowbutton_button3(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_after_click_on_color_button(callback_query, state, 3, 'yellow')
 
-@dp.callback_query_handler(lambda c: c.data == 'orange_button_answer')
+@dp.callback_query_handler(lambda c: c.data == 'orange_button_answer', state='*')
 async def process_callback_orangebutton_button2(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_after_click_on_color_button(callback_query, state, 2, 'orange')
 
-@dp.callback_query_handler(lambda c: c.data == 'red_button_answer')
+@dp.callback_query_handler(lambda c: c.data == 'red_button_answer', state='*')
 async def process_callback_redbutton_button1(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_after_click_on_color_button(callback_query, state, 1, 'red')
 

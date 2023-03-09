@@ -173,7 +173,7 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
                 print("\n")
                 print("Пользователь, кому отправляем сообщение")
                 print(user_id["_id"])
-
+# поменял местами localField и foreignField, потому что мне отправлялись сообщения, которые я уже видел
                 message = collection_name["messages"].aggregate([
                     {
                         '$match': {
@@ -185,8 +185,8 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
                     }, {
                         '$lookup': {
                             'from': 'user_messages',
-                            'localField': '_id',
-                            'foreignField': 'id_message',
+                            'localField': 'id_message',
+                            'foreignField': '_id', 
                             'pipeline': [
                                 {
                                     '$match': {
@@ -233,9 +233,10 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
                 i = 0
                 # поставить вызов функции
             if item == "*wait_for_answer_to_form*":
+                s = await rand_select_obj_texts(texts.get('invite_to_form'))
                 user_id = collection_name["users"].find_one(
                     {"telegram_id": str(chat_id)})
-                await bot.send_message(chat_id, link_to_form + str(user_id['form_id']), disable_web_page_preview=True)
+                await bot.send_message(chat_id, s.get('text') + '\n' + link_to_form + str(user_id['form_id']), disable_web_page_preview=True)
         else:
             s = await rand_select_obj_texts(texts.get(item))
             await bot.send_message(chat_id, s.get('text'))
