@@ -1,6 +1,5 @@
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-
 class Recording(StatesGroup):
     Name = State()
     AwaitForAName = State()

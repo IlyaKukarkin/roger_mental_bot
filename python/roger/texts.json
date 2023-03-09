@@ -327,6 +327,11 @@
 			"id": 8,
 			"text": "Эх! Ничего, я здесь, сейчас будем доставать тебя из плохого настроения 😌",
 			"frequency": 3
+		},
+		{
+			"id": 9,
+			"text": "Не переживай! И на твою улицу приедет праздник. Может быть, уже завтра!",
+			"frequency": 3
 		}
 	],
 	"what_was_good_today": [
@@ -368,7 +373,6 @@
 			"is_labelled": 1,
 			"answers_arrays": [
 				"yellow_mood_reactions",
-				"invite_to_form",
 				"*wait_for_answer_to_form*"
 			],
 			"color": "yellow",
@@ -390,7 +394,6 @@
 			"is_labelled": 1,
 			"answers_arrays": [
 				"green_mood_reactions",
-				"invite_to_form",
 				"*wait_for_answer_to_form*"
 			],
 			"color": "green",

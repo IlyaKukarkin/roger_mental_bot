@@ -2,7 +2,6 @@ from aiogram import types
 from config import bot
 from database import get_database
 from states import Recording
-from aiogram.types import ParseMode
 from aiogram.dispatcher import FSMContext
 import openai
 from keyboards import ask_for_rate_messages_support
@@ -23,8 +22,8 @@ async def support_callback(callback_query: types.CallbackQuery):
     await Recording.AwaitForAProblem.set()
 
 async def await_for_a_problem(message: types.Message, state: FSMContext):
-   
     await state.update_data(AwaitForAProblem=message.text)
+    arr = [{'role': 'assistant', 'content': 'Отвечай от имени Роджера. Это бот, который поддерживает людей с плохим настроением'}]
     if message.text == "/stop":
         await state.finish()
         await bot.send_message(message.chat.id, "Ты вышел из режима диалога. Чтобы вернуться в него снова, вызови команду /support")
@@ -34,25 +33,25 @@ async def await_for_a_problem(message: types.Message, state: FSMContext):
         await bot.send_message(message.chat.id, "Ты находишься в режиме диалога. Чтобы выйти из него, выбери команду /stop, а затем повторно вызови нужную команду")
         await Recording.AwaitForAProblem.set()
         return
-    
-    collection_name = get_database()
-    id_user_db = collection_name['users'].find_one({"telegram_id": str(message.chat.id)}, {
-                                                                    "_id": 1})
-    collection_name['support_messages_income'].insert_one({"user_id": id_user_db["_id"], "tg_id_user": message.chat.id, "time_to_send": datetime.datetime.now(), "id_tg_message": message.message_id, "text": message.text})
 
     try: 
         openai.api_key = chatGPT_token
+        collection_name = get_database()
+        id_user_db = collection_name['users'].find_one({"telegram_id": str(message.chat.id)}, {
+                                                                    "_id": 1})
+        collection_name['support_messages_income'].insert_one({"user_id": id_user_db["_id"], "tg_id_user": message.chat.id, "time_to_send": datetime.datetime.now(), "id_tg_message": message.message_id, "text": message.text})
 
-        completions = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=message.text,
-        max_tokens=2048,
-        n=1,
-        stop=None,
-        temperature=0.5,
+        role = "user"
+        mes = message.text.replace('\n', ' ')
+        answer = {'role': role, 'content': mes}
+        arr.append(answer)
+        completions = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=arr
+
 )
+        message_text = str(completions.choices[0].message.content).encode('unicode_escape').decode('unicode_escape', 'ignore')
 
-        message_text = completions.choices[0].text
         id_message = await bot.send_message(message.chat.id, message_text, reply_markup=ask_for_rate_messages_support)
         
         collection_name['support_messages_outcome'].insert_one({"user_id": id_user_db["_id"], "tg_id_user": message.chat.id, "time_to_send": datetime.datetime.now(), "id_tg_message": id_message.message_id, "text": id_message.text, "rate": None})
@@ -75,4 +74,4 @@ async def callback_after_click_on_button_support(callback_query: types.CallbackQ
     except Exception as e: 
           await bot.send_message(callback_query.from_user.id, "Не получилось обработать запрос. Переформулируй его или попробуй повторить его позже. Ошибка: " + str(e))
 
-    
+
