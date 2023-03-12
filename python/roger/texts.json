@@ -54,6 +54,11 @@
 			"id": 11,
 			"text": "Хай!",
 			"frequency": 1
+		},
+		{
+			"id": 12,
+			"text": "Еще один день прошел!",
+			"frequency": 2
 		}
 	],
 	"polls_questions": [
