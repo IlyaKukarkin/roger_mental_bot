@@ -6,6 +6,7 @@ from config import bot, link_to_form
 
 async def create_new_message_after_registration(telegram_id: str, name: str, form_id: ObjectId):
     await bot.send_message(int(telegram_id), """Кайф! Давай быстренько расскажу тебе, что я умею:\n\n
+/support - тут можно пообщаться со мной. Я умею давать советы и поддерживать тебя!\n\n
 /mentalstata — тут можно посмотреть свой календарь настроений за прошедшие дни. Выясни свои самые зеленые и красные дни!\n\n
 /fillform — написать сообщение со словами поддержки для грустных людей\n\n
 /stata — посмотреть, как часто твое сообщение показывалось пользователям и сколько людей оно порадовало\n\n
