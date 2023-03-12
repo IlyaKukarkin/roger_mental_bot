@@ -1,7 +1,7 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
-from states import Recording
+from states import Registration
 from common import delete_keyboard
 from keyboards import ask_for_time_to_send_kb
 from config import bot
@@ -9,7 +9,7 @@ from config import bot
 #получить время, когда отправлять пользователю сообщения с замером настроения
 async def get_user_time_to_send_messages(chat_id: int):
     await bot.send_message(chat_id, "Во сколько часов мне лучше интересоваться твоим настроением?", reply_markup=ask_for_time_to_send_kb)
-    await Recording.AwaitForATimeToSend.set()
+    await Registration.AwaitForATimeToSend.set()
 
 async def user_time_20(callback_query: types.CallbackQuery, state: FSMContext):
     user_time = 20
