@@ -38,6 +38,8 @@ async def get_friend_nickname(message: types.Message, state: FSMContext):
         await send_friends_request(message.chat.id, friend)
         await bot.send_message(message.chat.id, "Отправил запрос дружбы пользователю " + message.text)
 
+#пока не работает 
+
 
 
     
