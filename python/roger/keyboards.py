@@ -1,4 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import ReplyKeyboardRemove, \
+    ReplyKeyboardMarkup, KeyboardButton, \
+    InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButtonRequestUser, KeyboardButtonRequestChat
 
 
 green_button_answer = InlineKeyboardButton(
@@ -58,3 +61,9 @@ support_start_button = InlineKeyboardButton(
     'Начать диалог с Роджером', callback_data='support_start')
 support_start_keyboard = InlineKeyboardMarkup().add(
     support_start_button)
+
+share_contact_button = KeyboardButton('Поделиться контактом друга', request_user=KeyboardButtonRequestUser(123), сallback_data='send_contact')
+share_contact_kb = ReplyKeyboardMarkup()
+share_contact_kb.add(share_contact_button)
+
+approve_friends_request = InlineKeyboardButton('Добавить в друзья', сallback_data='approve_request')
