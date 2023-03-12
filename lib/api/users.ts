@@ -34,7 +34,7 @@ export const sendMessageToAdmins = async (message: string): Promise<void> => {
   await Promise.all(
     adminUsers.map(async (user) => {
       try {
-        await await fetch(`https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${message}`, { method: 'POST' })
+        await fetch(`https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${message}`, { method: 'POST' })
       } catch (e) {
         console.log("Ошибка при отправке сообщения Админам: ", e)
       }

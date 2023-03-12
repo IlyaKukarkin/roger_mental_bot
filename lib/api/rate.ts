@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 
 import clientPromise from "../mongodb";
-import { sendMessageToAdmins } from "./users";
+import { sendMessageToAdmins, sendMessageToUser } from "./users";
 
 type MessageToRate = {
   _id: ObjectId;
@@ -17,6 +17,7 @@ type MessageToRate = {
   admin_bad_rates: number;
   user_good_rates: number;
   user_bad_rates: number;
+  user_telegram_id: string;
 }
 
 type Settings = {
@@ -174,32 +175,47 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
           '$size': '$user_bad_rates'
         }
       }
-    }
+    },{
+          '$lookup': {
+              'from': 'users', 
+              'localField': 'id_user', 
+              'foreignField': '_id', 
+              'as': 'user'
+          }
+      }, {
+          '$unwind': {
+              'path': '$user'
+          }
+      }, {
+          '$addFields': {
+              'user_telegram_id': '$user.telegram_id'
+          }
+      }, {
+          '$project': {
+              'user': 0
+          }
+      }
   ]);
 
   const settings: Settings = await settingsCol.findOne();
   
   const updateToApproved: ObjectId[] = [];
   const updateToReview: ObjectId[] = [];
-  //потом убрать
-  //await sendMessageToAdmins("Сорри, тут тестово выведу, кому бы написал бот, что его сообщение прошло модерацию 😘")
 
   for await (const message of messages) {
     const calculatedMessage = calculateRate(message, settings);
-
+   
     if (message.is_approved !== calculatedMessage.is_approved) {
       if (calculatedMessage.is_approved) {
         updateToApproved.push(calculatedMessage._id)
-      //   //тут уведомление пользака, что его сообщение прошло модерацию
-      //   const user: User = await usersCol.findOne([
-      //     {
-      //         '$match': {
-      //             '_id': message.id_user
-      //         }
-      //     }
-      // ]);
-      //   await sendMessageToAdmins("To: " + user.telegram_id + "\nMessage: " + "Привет! Твое сообщение прошло модерацию и будет показываться пользователям. Спасибо за вклад, обнимаю 😍\n\nТут вывести текст, ссылку и картинку сообщения. " + message.text)
-      } else {
+
+        try {
+             await sendMessageToUser(message.user_telegram_id, `Твоё сообщение «${message.text.slice(0, 60)}${message.text.length>60 && "..."}» прошло модерацию и будет показываться тем, кому это важно.%0A%0AСпасибо ❤️%0A%0AСоздать новое сообщение можно через команду /fillform`)
+        } catch (e) {
+          console.log("Ошибка при отправке сообщения пользователю (rate.ts): ", e)
+        }
+
+} else {
         updateToReview.push(calculatedMessage._id)
       }
     }
@@ -256,7 +272,7 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
     await sendMessageToAdmins(resString)
   }
 
-  return { update_to_approve: updateToApproved.length, update_to_review: updateToReview.length }
+   return { update_to_approve: updateToApproved.length, update_to_review: updateToReview.length }
 };
 
 const calculateRate = (message: MessageToRate, settings: Settings): MessageToRate => {
@@ -287,3 +303,8 @@ const calculateRate = (message: MessageToRate, settings: Settings): MessageToRat
     is_approved: false
   }
 }
+
+
+
+
+
