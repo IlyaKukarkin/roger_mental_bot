@@ -1,6 +1,6 @@
 from aiogram import types
 
-from states import Registration
+from states import Recording
 from database import get_database
 import time
 from keyboards import ask_for_name_kb
@@ -40,5 +40,5 @@ async def start_command(message: types.Message):
         await bot.send_message(message.chat.id, "Давай познакомимся с тобой поближе! Только будь внимателен — зарегистрироваться можно только один раз 🙃")
         time.sleep(2)
         await bot.send_message(message.chat.id, "Тебя зовут " + message.from_user.first_name + "? Подтверди свое имя или введи другое", reply_markup=ask_for_name_kb)
-        await Registration.Name.set()
+        await Recording.Name.set()
         collection_name['users'].find().close()

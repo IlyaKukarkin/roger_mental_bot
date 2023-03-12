@@ -3,14 +3,13 @@ import json
 import asyncio
 from aiogram.utils import executor
 from aiogram.dispatcher import FSMContext
-from aiogram import types, filters
-from aiogram.types import CallbackQuery, ReplyKeyboardRemove
+from aiogram import types
+from aiogram.types import CallbackQuery
 from aiogram.utils.callback_data import CallbackData
 
-
-from states import Recording, FriendsStates, Registration
+from states import Recording
 from common import check_id_username_is_valid_before_save, delete_keyboard
-from database import create_new_user, is_user_active
+from database import create_new_user
 from feedback import feedback_start, feedback_get_text_from_user, feedback_get_photo_from_user
 from version import version_command
 from restart import restart_command
@@ -29,13 +28,10 @@ from fillform import fillform_command
 from feedback_answer import feedback_answer_start, feedback_send_text_to_user
 from chatgpt import support_message, await_for_a_problem, callback_after_click_on_button_support, support_callback
 
-from keyboards import share_contact_kb
-from friends import await_for_a_friend_nickname, get_friend_nickname
-
 #текущая версия бота
 
 
-version = "1.2.5"
+version = "1.2.2"
 
 
 # read texts from json file
@@ -43,23 +39,11 @@ with open('texts.json') as t:
     texts = json.load(t)
 
 
-
 #команда старт при первом запуске бота
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
     await start_command(message)
 
-#команда по отслеживанию, является ли пользак активным
-# @dp.message_handler()
-# async def process_start_command(message: types.Message):
-#     is_active = await is_user_active(message.chat.id)
-#     if (is_active == True):
-#         print ('is_active')
-#         return
-#     else:
-#         #тут отправить на степ знакомства, на котором пользователь отвалился в прошлый раз
-#         print (1)
-#         return 1 #пока просто базовая заглушка
 
 #версия бота
 @dp.message_handler(commands=['version'])
@@ -77,23 +61,10 @@ async def process_restart_command(message: types.Message):
     print('Запускаю 12 часов цикл отправки сообщений')
     asyncio.create_task(start_12_hours_message_loop())
 
-# #тестовая команда
-# @dp.message_handler(commands=['test'])
-# async def process_start_command(message: types.Message):
-#     await bot.send_message(message.chat.id, "Меня не тестили, сорри!", reply_markup=share_contact_kb)
-
-# @dp.message_handler(commands=['test1'])
-# async def process_start_command(message: types.Message):
-#     await bot.send_message(message.chat.id, "Меня не тестили, сорри!", reply_markup = ReplyKeyboardRemove())
-
-# @dp.message_handler(commands=['friends'])
-# async def friends_command(message: types.Message):
-#     await await_for_a_friend_nickname(message)
-
-# @dp.message_handler(state=FriendsStates.AwaitForAFriendNicknameToAdd)
-# async def process_callback_awaitforamessage_button(message: types.Message, state: FSMContext):
-#     await get_friend_nickname(message, state)
-
+#тестовая команда
+@dp.message_handler(commands=['test'])
+async def process_start_command(message: types.Message):
+    await bot.send_message(message.chat.id, "Меня не тестили, сорри!")
 
 #вывод статистики по созданному пользователем сообщению
 #колбек для обработки статистики по сообщению пользователя
@@ -206,22 +177,20 @@ async def process_sendmes_command(message: types.Message):
 
 #регистрация пользователя
 #получаем имя пользователя
-@dp.callback_query_handler(lambda c: c.data == 'name_button_yes', state=Registration.Name)
+@dp.callback_query_handler(lambda c: c.data == 'name_button_yes', state=Recording.Name)
 async def process_callback_yesname_button1(callback_query: types.CallbackQuery, state: FSMContext):
     global user_name 
     user_name = await get_user_name(callback_query, state)
     await get_user_time_to_send(callback_query.from_user.id)
 
-@dp.callback_query_handler(lambda c: c.data == 'name_button_no', state=Registration.Name)
+@dp.callback_query_handler(lambda c: c.data == 'name_button_no', state=Recording.Name)
 async def process_callback_noname_button1(callback_query: types.CallbackQuery, state: FSMContext):
     await get_printed_user_name(callback_query, state)
 
-@dp.message_handler(state=Registration.AwaitForAName)
+@dp.message_handler(state=Recording.AwaitForAName)
 async def customer_name(message: types.Message, state: FSMContext):
     global user_name 
     user_name = await get_customer_name(message, state)
-    if user_name == None:
-        return
     await get_user_time_to_send(message.chat.id)
 
 
@@ -229,25 +198,25 @@ async def customer_name(message: types.Message, state: FSMContext):
 async def get_user_time_to_send(chat_id: int):
     await get_user_time_to_send_messages(chat_id)
 
-@dp.callback_query_handler(lambda c: c.data == 'ask_for_time_20', state=Registration.AwaitForATimeToSend)
+@dp.callback_query_handler(lambda c: c.data == 'ask_for_time_20', state=Recording.AwaitForATimeToSend)
 async def process_callback_askfortime20_button(callback_query: types.CallbackQuery, state: FSMContext):
     global user_time
     user_time = await user_time_20(callback_query, state)
     await get_user_time_zone(callback_query.from_user.id)
 
-@dp.callback_query_handler(lambda c: c.data == 'ask_for_time_21', state=Registration.AwaitForATimeToSend)
+@dp.callback_query_handler(lambda c: c.data == 'ask_for_time_21', state=Recording.AwaitForATimeToSend)
 async def process_callback_askfortime21_button(callback_query: types.CallbackQuery, state: FSMContext):
     global user_time
     user_time = await user_time_21(callback_query, state)
     await get_user_time_zone(callback_query.from_user.id)
 
-@dp.callback_query_handler(lambda c: c.data == 'ask_for_time_22', state=Registration.AwaitForATimeToSend)
+@dp.callback_query_handler(lambda c: c.data == 'ask_for_time_22', state=Recording.AwaitForATimeToSend)
 async def process_callback_askfortime22_button(callback_query: types.CallbackQuery, state: FSMContext):
     global user_time
     user_time = await user_time_22(callback_query, state)
     await get_user_time_zone(callback_query.from_user.id)
 
-@dp.callback_query_handler(lambda c: c.data == 'ask_for_time_23', state=Registration.AwaitForATimeToSend)
+@dp.callback_query_handler(lambda c: c.data == 'ask_for_time_23', state=Recording.AwaitForATimeToSend)
 async def process_callback_askfortime23_button1(callback_query: types.CallbackQuery, state: FSMContext):
     global user_time
     user_time = await user_time_23(callback_query, state)
@@ -258,7 +227,7 @@ async def process_callback_askfortime23_button1(callback_query: types.CallbackQu
 async def get_user_time_zone(chat_id: int):
     await get_user_timezone(chat_id)
 
-@dp.message_handler(state=Registration.AwaitForATimeZoneToSend)
+@dp.message_handler(state=Recording.AwaitForATimeZoneToSend)
 async def customer(message: types.Message, state: FSMContext):
     global time_zone
     time_zone = await customer_timezone(message, state)
