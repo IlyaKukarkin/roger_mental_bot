@@ -208,8 +208,9 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
     if (message.is_approved !== calculatedMessage.is_approved) {
       if (calculatedMessage.is_approved) {
         updateToApproved.push(calculatedMessage._id)
+
         try {
-          await sendMessageToUser(message.user_telegram_id, `Твоё сообщение «${message.text}» прошло модерацию и будет показываться тем, кому это важно. \n\nСпасибо ❤️\n\nСоздать новое сообщение можно через команду /fillform`)
+             await sendMessageToUser(message.user_telegram_id, `Твоё сообщение «${message.text.slice(0, 60)}${message.text.length>60 && "..."}» прошло модерацию и будет показываться тем, кому это важно.%0A%0AСпасибо ❤️%0A%0AСоздать новое сообщение можно через команду /fillform`)
         } catch (e) {
           console.log("Ошибка при отправке сообщения пользователю (rate.ts): ", e)
         }
@@ -271,7 +272,7 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
     await sendMessageToAdmins(resString)
   }
 
-  return { update_to_approve: updateToApproved.length, update_to_review: updateToReview.length }
+   return { update_to_approve: updateToApproved.length, update_to_review: updateToReview.length }
 };
 
 const calculateRate = (message: MessageToRate, settings: Settings): MessageToRate => {
