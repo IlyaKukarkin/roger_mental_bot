@@ -1,4 +1,4 @@
-aiogram==2.22.2
+aiogram==2.25.1
 aiogram-media-group==0.5.1
 aiohttp==3.8.3
 aiosignal==1.2.0
