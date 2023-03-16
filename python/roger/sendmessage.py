@@ -69,7 +69,7 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
         await row_message(callback_query.from_user.id)
         await (mental_rate_strike(callback_query.from_user.id, 'volunteer'))
         if need_send_weekly_rate_stata(int(user['timezone']), user['created_at'], user['_id'], rate_record['date']):
-            await sunday_send_rate_stata(callback_query.from_user.id, int(user['timezone']))
+            await sunday_send_rate_stata(callback_query.from_user.id, rate_record['date'])
         await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
         collection_name['users'].find().close()
         collection_name['mental_rate'].find().close()
@@ -269,9 +269,9 @@ def need_send_weekly_rate_stata(timezone_offset: int, created_at: datetime.datet
     :return: True if this user needs to receive his weekly statistics, False otherwise
     """
     try:
-        today_is_monday_or_sunday = today_is_the_day(Weekdays.Sunday, timezone_offset) or \
+        today_is_monday_or_sunday = today_is_the_day(Weekdays.Friday, timezone_offset) or \
                                     today_is_the_day(Weekdays.Monday, timezone_offset)
-        rate_date_is_sunday = utc_date_is_the_day(rate_date, Weekdays.Sunday, timezone_offset)
+        rate_date_is_sunday = utc_date_is_the_day(rate_date, Weekdays.Friday, timezone_offset)
         return \
             rate_date_is_sunday and \
             today_is_monday_or_sunday and \
@@ -282,12 +282,20 @@ def need_send_weekly_rate_stata(timezone_offset: int, created_at: datetime.datet
         return False
 
 
-async def sunday_send_rate_stata(chat_id: int, timezone_offset: int):
-    """A non-destructive modification of send_rate stata for the purposes of sending weekly stata after a user
+async def sunday_send_rate_stata(chat_id: int, rate_date: datetime.datetime):
+    """
+     A non-destructive modification of send_rate stata for the purposes of sending weekly stata after a user
     has rated their mood on a Sunday.
     Sends a message from a collection of specially manufactured texts and then
-    sends mental state statistics for the past week."""
+    sends mental state statistics for the past week.
+    :param chat_id:
+    :param rate_date: datetime obj that contains info on when the rate message was sent to the user. Presumed to
+    be in UTC+00 timezone
+    :return:
+    """
+
     mes = await rand_select_obj_texts(texts.get('mental_week_stata'))
     await bot.send_message(chat_id, mes['text'])
-    # TODO check if i can avoid using today_is_the_day here somehow
-    await send_rate_stata(str(chat_id), 'week', today_is_the_day(Weekdays.Monday, timezone_offset))
+    # as mentioned before, rate date is in UTC+00 timezone, but send_rate_stata expects a function that takes a
+    # pytz.BaseTzInfo instance as its single parameter
+    await send_rate_stata(str(chat_id), 'week', lambda ptz_utc: rate_date)

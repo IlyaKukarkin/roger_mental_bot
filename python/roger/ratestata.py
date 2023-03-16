@@ -5,11 +5,13 @@ from config import bot
 from dateutil.relativedelta import relativedelta
 from aiogram import types
 from states import Recording
+from typing import Callable
 import json
 
 from database import get_database
 from keyboards import ask_for_rate_stata_kb
 from volunteers import mental_rate_strike
+
 
 
 async def get_rate_stata(message: types.Message):
@@ -21,26 +23,22 @@ async def get_rate_stata(message: types.Message):
     await Recording.AwaitForARateStata.set()
 
 
-async def send_rate_stata(id_message: str, stata_type: str, count_from_previous_day: bool = False):
+async def send_rate_stata(id_message: str, stata_type: str,
+                          datetime_factory: Callable[[pytz.BaseTzInfo], datetime.datetime] = datetime.datetime.now):
     """
 
     :param id_message:
     :param stata_type:
-    :param count_from_previous_day: flag that specifies whether we should provide the statistics a month/2 weeks/week
-    from today or the day before
+    :param datetime_factory: a factory method, that produces a date which will be used as the end of the period
     :return:
     """
     await bot.send_message(id_message, "Подгружаю статистику, немного терпения")
 
     collection_name = get_database()
 
-    date_now = datetime.datetime.now(pytz.utc)
-    # TODO maybe rewrite as neg_day_offset = int(count_from_previous_day)
-    neg_day_offset = 0
-    if count_from_previous_day:
-        neg_day_offset = 1
+    date_now = datetime_factory(pytz.utc)
     date_now_clear = datetime.datetime(
-        date_now.year, date_now.month, date_now.day - neg_day_offset, 0, 0, 0, 0, tzinfo=pytz.utc)
+        date_now.year, date_now.month, date_now.day, 0, 0, 0, 0, tzinfo=pytz.utc)
 
     if (stata_type == 'month'):
         from_date_str = date_now_clear - relativedelta(months=1) + relativedelta(days=1)

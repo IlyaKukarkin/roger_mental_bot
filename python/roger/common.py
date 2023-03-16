@@ -203,7 +203,9 @@ def any_ratings_in_previous_n_days(id_user: ObjectId, n: int = 6) -> bool:
     Checks whether a user has rated their at all mood for the previous n days (i.e. excluding the current day);
     :param id_user: chat_id and user id in mongo collection
     :param n: number of days to take into account (excluding the current day); the search will be conducted backwards:
-    from the day before the current day to the day n days before that
+    from the day before the current day to (but not including) the day n days before that (e.g. if we do this on a sunday,
+    we will search all other six days of the week starting from Saturday and going to Monday, but not including the
+    previous Sunday
     :return:
     """
     collection_name = get_database()
