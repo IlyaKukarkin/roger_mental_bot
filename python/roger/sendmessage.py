@@ -269,9 +269,9 @@ def need_send_weekly_rate_stata(timezone_offset: int, created_at: datetime.datet
     :return: True if this user needs to receive his weekly statistics, False otherwise
     """
     try:
-        today_is_monday_or_sunday = today_is_the_day(Weekdays.Friday, timezone_offset) or \
+        today_is_monday_or_sunday = today_is_the_day(Weekdays.Sunday, timezone_offset) or \
                                     today_is_the_day(Weekdays.Monday, timezone_offset)
-        rate_date_is_sunday = utc_date_is_the_day(rate_date, Weekdays.Friday, timezone_offset)
+        rate_date_is_sunday = utc_date_is_the_day(rate_date, Weekdays.Sunday, timezone_offset)
         return \
             rate_date_is_sunday and \
             today_is_monday_or_sunday and \
