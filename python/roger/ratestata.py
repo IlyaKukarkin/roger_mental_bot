@@ -5,11 +5,13 @@ from config import bot
 from dateutil.relativedelta import relativedelta
 from aiogram import types
 from states import Recording
+from typing import Callable
 import json
 
 from database import get_database
 from keyboards import ask_for_rate_stata_kb
 from volunteers import mental_rate_strike
+
 
 
 async def get_rate_stata(message: types.Message):
@@ -21,12 +23,20 @@ async def get_rate_stata(message: types.Message):
     await Recording.AwaitForARateStata.set()
 
 
-async def send_rate_stata(id_message: str, stata_type: str):
+async def send_rate_stata(id_message: str, stata_type: str,
+                          datetime_factory: Callable[[pytz.BaseTzInfo], datetime.datetime] = datetime.datetime.now):
+    """
+
+    :param id_message:
+    :param stata_type:
+    :param datetime_factory: a factory method, that produces a date which will be used as the end of the period
+    :return:
+    """
     await bot.send_message(id_message, "Подгружаю статистику, немного терпения")
 
     collection_name = get_database()
 
-    date_now = datetime.datetime.now(pytz.utc)
+    date_now = datetime_factory(pytz.utc)
     date_now_clear = datetime.datetime(
         date_now.year, date_now.month, date_now.day, 0, 0, 0, 0, tzinfo=pytz.utc)
 

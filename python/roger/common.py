@@ -179,10 +179,16 @@ class Weekdays(IntEnum):
 def today_is_the_day(day: Weekdays, timezone_offset: int) -> bool:
     """A function that checks whether today is a particular weekday (specified by day parameter)
     considering the timezone offset"""
+    return utc_date_is_the_day(datetime.datetime.now(), day, timezone_offset)
+
+
+def utc_date_is_the_day(date: datetime.datetime, day: Weekdays, timezone_offset: int):
+    """A function that checks whether the supplied date is a particular weekday (specified by day parameter)
+    considering the timezone; date parameter should be a UTC+00 date"""
     delta = datetime.timedelta(hours=timezone_offset)
     tz = datetime.timezone(delta)
-    date = datetime.datetime.now(tz)
-    return date.weekday() == day
+    date_in_tz = datetime.datetime.fromtimestamp(date.timestamp(), tz)
+    return date_in_tz.weekday() == day
 
 
 def n_days_since_date(number_of_days: int, date: datetime.datetime) -> bool:
@@ -192,19 +198,21 @@ def n_days_since_date(number_of_days: int, date: datetime.datetime) -> bool:
     return diff.days > number_of_days
 
 
-def any_ratings_in_past_n_days(id_user: ObjectId, n: int = 7) -> bool:
+def any_ratings_in_previous_n_days(id_user: ObjectId, n: int = 6) -> bool:
     """
-    Checks whether a user has rated their at all mood for the past n days (including the current day)
+    Checks whether a user has rated their at all mood for the previous n days (i.e. excluding the current day);
     :param id_user: chat_id and user id in mongo collection
-    :param n: number of days to take into account (including the current day); the search will be conducted backwards:
-    from current day to a day n - 1 days before that
+    :param n: number of days to take into account (excluding the current day); the search will be conducted backwards:
+    from the day before the current day to (but not including) the day n days before that (e.g. if we do this on a sunday,
+    we will search all other six days of the week starting from Saturday and going to Monday, but not including the
+    previous Sunday
     :return:
     """
     collection_name = get_database()
 
     today = datetime.datetime.utcnow()
     period_end = datetime.datetime(today.year, today.month, today.day-1, hour=23, minute=59)
-    period_start = period_end - datetime.timedelta(days=6)
+    period_start = period_end - datetime.timedelta(days=n)
 
     past_week_ratings: Cursor = collection_name['mental_rate'].find({
         'id_user': id_user,
