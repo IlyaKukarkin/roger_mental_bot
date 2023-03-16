@@ -2,14 +2,14 @@ from aiogram.types import ParseMode
 from aiogram import types
 from aiogram.utils.callback_data import CallbackData
 from aiogram.utils.exceptions import BotBlocked
-from common import delete_keyboard, get_options, today_is_the_day
+from common import delete_keyboard, get_options, today_is_the_day, utc_date_is_the_day
 import datetime
 from keyboards import kb_for_mental_poll, support_start_keyboard
 from database import get_database
 from aiogram.dispatcher import FSMContext
 from bson import ObjectId
 from aiogram.utils.markdown import bold, text
-from common import get_pictures, rand_select_obj_texts, Weekdays, n_days_since_date, any_ratings_in_past_n_days
+from common import get_pictures, rand_select_obj_texts, Weekdays, n_days_since_date, any_ratings_in_previous_n_days
 from keyboards import ask_for_rate_messages
 import requests
 from volunteers import mental_rate_strike, how_many_days_user_with_us
@@ -48,7 +48,7 @@ async def sendmes(chat_id: int):
         collection_name = get_database()
         collection_name["users"].find_one_and_update(
                 {'_id': user['_id']}, {"$set": {'is_active': False}})
-        collection_name['users'].find().close() 
+        collection_name['users'].find().close()
     except (Exception):
         await bot.send_message(chat_id, "Ой, кажется, что-то пошло не так 😞 \nПовтори отправку настроения через несколько минут или напиши разработчикам через команду /feedback")
 
@@ -57,16 +57,19 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
     await bot.answer_callback_query(callback_query.id)
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     try:
+
         collection_name = get_database()
         user = collection_name["users"].find_one(
             {"telegram_id": str(callback_query.from_user.id)}, {'_id': 1, 'name': 0})
-        collection_name['mental_rate'].find_one_and_update({"$and": [{"id_user": user["_id"]}, {
+        # find_one_and_update returns a record that is to be updated; in this case it is irrelevant whether
+        # we receive the updated version of the record or not, since we're only interested in the date
+        rate_record = collection_name['mental_rate'].find_one_and_update({"$and": [{"id_user": user["_id"]}, {
                                                            "id_tg_message": callback_query.message.message_id}]}, {"$set": {"rate": rate}})
         await get_options_color(color, callback_query.from_user.id)
         await row_message(callback_query.from_user.id)
         await (mental_rate_strike(callback_query.from_user.id, 'volunteer'))
-        if need_send_weekly_rate_stata(int(user['timezone']), user['created_at'], user['_id']):
-            await sunday_send_rate_stata(callback_query.from_user.id)
+        if need_send_weekly_rate_stata(int(user['timezone']), user['created_at'], user['_id'], rate_record['date']):
+            await sunday_send_rate_stata(callback_query.from_user.id, int(user['timezone']))
         await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
         collection_name['users'].find().close()
         collection_name['mental_rate'].find().close()
@@ -118,11 +121,11 @@ async def create_message_with_support(chat_id: int, cursor: list, user_to_send: 
             if (rate_previous_mes == None):
                 await delete_keyboard(chat_id, id_previous_mes['id_tg_message'])
         id_message = await bot.send_message(chat_id, message, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True, reply_markup=ask_for_rate_messages)
-        
+
         print("\n")
         print('USER_MESSAGES -> ты увидел сообщение')
         print({"id_user": user_to_send, "id_message": cursor["_id"], "time_to_send": datetime.datetime.now(), "id_tg_message": id_message.message_id})
-        
+
         collection_name['user_messages'].insert_one({"id_user": user_to_send, "id_message": cursor["_id"], "time_to_send": datetime.datetime.now(), "id_tg_message": id_message.message_id})
         collection_name['user_messages'].find().close()
     except (Exception):
@@ -255,23 +258,36 @@ async def offer_to_chat_with_chatgpt(color: str, user_id: int):
     return
 
 
-def need_send_weekly_rate_stata(timezone_offset: int, created_at: datetime.datetime, id_user: ObjectId) -> bool:
-    """Function, that is used to check whether we should display weekly stata to a user after they rated their mood"""
+def need_send_weekly_rate_stata(timezone_offset: int, created_at: datetime.datetime, id_user: ObjectId,
+                                rate_date: datetime.datetime) -> bool:
+    """
+    Function, that is used to check whether we should display weekly stata to a user after they rated their mood
+    :param timezone_offset: user's timezone offset
+    :param created_at: date at which this particular user was created
+    :param id_user: self-explanatory
+    :param rate_date: date at which the currently handled rate message was sent
+    :return: True if this user needs to receive his weekly statistics, False otherwise
+    """
     try:
+        today_is_monday_or_sunday = today_is_the_day(Weekdays.Sunday, timezone_offset) or \
+                                    today_is_the_day(Weekdays.Monday, timezone_offset)
+        rate_date_is_sunday = utc_date_is_the_day(rate_date, Weekdays.Sunday, timezone_offset)
         return \
-            today_is_the_day(Weekdays.Sunday, timezone_offset) and \
+            rate_date_is_sunday and \
+            today_is_monday_or_sunday and \
             n_days_since_date(3, created_at) and \
-            any_ratings_in_past_n_days(id_user, 7)
+            any_ratings_in_previous_n_days(id_user, 6)
     except Exception as e:
         print(f'need_send_weekly_rate_stata failed check, exception: {e}')
         return False
 
 
-async def sunday_send_rate_stata(chat_id: int):
+async def sunday_send_rate_stata(chat_id: int, timezone_offset: int):
     """A non-destructive modification of send_rate stata for the purposes of sending weekly stata after a user
     has rated their mood on a Sunday.
     Sends a message from a collection of specially manufactured texts and then
     sends mental state statistics for the past week."""
     mes = await rand_select_obj_texts(texts.get('mental_week_stata'))
     await bot.send_message(chat_id, mes['text'])
-    await send_rate_stata(str(chat_id), 'week')
+    # TODO check if i can avoid using today_is_the_day here somehow
+    await send_rate_stata(str(chat_id), 'week', today_is_the_day(Weekdays.Monday, timezone_offset))
