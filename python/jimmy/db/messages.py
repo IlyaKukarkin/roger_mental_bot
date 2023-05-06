@@ -69,5 +69,7 @@ class Messages(object):
                 }
             }, {
                 '$limit': 1
+
             }
 ])
+
