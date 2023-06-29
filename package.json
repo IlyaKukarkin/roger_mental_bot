@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "format": "prettier \"**/*.{ts,tsx,md}\" --write"
   },
   "dependencies": {
     "@vercel/og": "^0.0.20",
