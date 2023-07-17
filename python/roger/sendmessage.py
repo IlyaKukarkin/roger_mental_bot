@@ -76,7 +76,7 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
         collection_name['mental_rate'].find().close()
     except (Exception):
         await bot.send_message(callback_query.from_user.id, "Ой, кажется, что-то пошло не так 😞 \nПовтори отправку настроения через несколько минут или напиши разработчикам через команду /feedback")
-        logger.exception('FUCK!')
+        logger.exception(f'FUCK! User: {callback_query.from_user.id}, color: {color}, rate: {rate}, exception: ')
 
 
 async def create_message_with_support(chat_id: int, cursor: list, user_to_send: ObjectId):
