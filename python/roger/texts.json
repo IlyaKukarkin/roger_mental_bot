@@ -366,7 +366,6 @@
 			"id": 1,
 			"is_labelled": 1,
 			"answers_arrays": [
-				"red_mood_reactions",
 				"sending_support",
 				"*support*"
 			],
@@ -387,7 +386,6 @@
 			"id": 2,
 			"is_labelled": 1,
 			"answers_arrays": [
-				"orange_mood_reactions",
 				"sending_support",
 				"*support*"
 			],
