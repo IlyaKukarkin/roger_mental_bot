@@ -70,7 +70,8 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
         await (mental_rate_strike(callback_query.from_user.id, 'volunteer'))
         if need_send_weekly_rate_stata(int(user['timezone']), user['created_at'], user['_id'], rate_record['date']):
             await sunday_send_rate_stata(callback_query.from_user.id, rate_record['date'])
-        await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
+        #отключил чатжпт в колбеках
+        #await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
         collection_name['users'].find().close()
         collection_name['mental_rate'].find().close()
     except (Exception):
