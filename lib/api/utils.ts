@@ -9,7 +9,7 @@ type MentalHours = {
     id_tg_message: number;
     datetime_now: string;
     date_diff: number;
-    _id: ObjectId;
+    _id: ObjectId; 
     rate: number;
 }
 
@@ -63,7 +63,7 @@ export const checkAndDeleteMoodKeyboard = async (userId: ObjectId) => {
             await sendHurryUpMessage(telegramId);
         }
 
-        if (dateDiff === 12) {
+        if (dateDiff === 9) {
             const telegramId = await getTelegramId(userId);
             await deleteMarkupKeyboard(telegramId, tgMessage);
             //await sendThatsItMessage(telegramId);
