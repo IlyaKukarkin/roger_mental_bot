@@ -66,9 +66,8 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
         rate_record = collection_name['mental_rate'].find_one_and_update({"$and": [{"id_user": user["_id"]}, {
                                                            "id_tg_message": callback_query.message.message_id}]}, {"$set": {"rate": rate}})
         await bot.send_message(71488343, str(rate_record))
-        await bot.send_message(71488343, str(rate_record['date']))
-        await bot.send_message(71488343, str(rate_record['rate']))
-        await bot.send_message(71488343, str(rate_record['id_tg_message']))
+        await bot.send_message(71488343, "колбек " + str(callback_query.message.message_id))
+        await bot.send_message(71488343, "user " + str(user["_id"]))
         await get_options_color(color, callback_query.from_user.id)
         await row_message(callback_query.from_user.id)
         await (mental_rate_strike(callback_query.from_user.id, 'volunteer'))
