@@ -104,41 +104,45 @@ export const submitForm = async ({
   });
 
   if (!user) {
-    throw new Error('User not found');
+    throw new Error("User not found");
   }
 
-  let textToSend = 'Спасибо, что заполнил форму! Продолжай замерять свое настроение 🙃'
-  let textToSend2 = 'Скоро я пришлю тебе первый опрос. До встречи!'
+  let textToSend =
+    "Спасибо, что заполнил форму! Продолжай замерять свое настроение 🙃";
+  let textToSend2 = "Скоро я пришлю тебе первый опрос. До встречи!";
 
   const messages = await usersCollection.aggregate([
     {
-      '$match': {
-        '_id': new ObjectId(user._id)
-      }
-    }, {
-      '$lookup': {
-        'from': 'messages',
-        'localField': '_id',
-        'foreignField': 'id_user',
-        'as': 'messages'
-      }
-    }, {
-      '$addFields': {
-        'messages': {
-          '$size': '$messages'
-        }
-      }
-    }
-  ])
+      $match: {
+        _id: new ObjectId(user._id),
+      },
+    },
+    {
+      $lookup: {
+        from: "messages",
+        localField: "_id",
+        foreignField: "id_user",
+        as: "messages",
+      },
+    },
+    {
+      $addFields: {
+        messages: {
+          $size: "$messages",
+        },
+      },
+    },
+  ]);
 
-  let messageCount = 0
+  let messageCount = 0;
 
   for await (const message of messages) {
-    messageCount = message.messages
+    messageCount = message.messages;
   }
 
   if (messageCount === 0) {
-    textToSend = 'Спасибо, что заполнил форму! Я начну показывать сообщение другим пользователям, когда оно пройдет модерацию%0A%0AЧерез 7 дней сможешь увидеть, сколько раз я его показал и какие оценки оно получило. Не забывай каждый день замерять свое настроение, иначе магии не случится 😌';
+    textToSend =
+      "Спасибо, что заполнил форму! Я начну показывать сообщение другим пользователям, когда оно пройдет модерацию%0A%0AЧерез 7 дней сможешь увидеть, сколько раз я его показал и какие оценки оно получило. Не забывай каждый день замерять свое настроение, иначе магии не случится 😌";
   }
 
   const { media_link } = form;
@@ -147,21 +151,21 @@ export const submitForm = async ({
 
   if (media_link) {
     const params = new URLSearchParams();
-    params.append('key', process.env.CUTTLY_API_KEY || '');
-    params.append('short', media_link);
-    params.append('userDomain', '0'); // Change to 1 when custom domain is ready
+    params.append("key", process.env.CUTTLY_API_KEY || "");
+    params.append("short", media_link);
+    params.append("userDomain", "0"); // Change to 1 when custom domain is ready
 
     try {
-      const url = new URL(`http://cutt.ly/api/api.php?${params.toString()}`)
+      const url = new URL(`http://cutt.ly/api/api.php?${params.toString()}`);
 
-      const resp = await fetch(url)
+      const resp = await fetch(url);
       const linkResp = await resp.json();
 
       if (linkResp.url.status === 7) {
         short_link = linkResp.url.shortLink;
       }
     } catch (e) {
-      throw new Error('Error with URL shortifier');
+      throw new Error("Error with URL shortifier");
     }
   }
 
@@ -186,9 +190,15 @@ export const submitForm = async ({
     id_user: new ObjectId(user._id),
   });
 
-  await fetch(`https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend}`, { method: 'POST' })
+  await fetch(
+    `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend}`,
+    { method: "POST" }
+  );
 
   if (messageCount === 0) {
-    await fetch(`https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend2}`, { method: 'POST' })
+    await fetch(
+      `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend2}`,
+      { method: "POST" }
+    );
   }
 };
