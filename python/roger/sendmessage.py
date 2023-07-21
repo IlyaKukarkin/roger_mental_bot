@@ -60,7 +60,7 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
     try:
 
         collection_name = get_database()
-        user = collection_name["users"].find_one(
+        user = collection_name["users"].find_one( 
             {"telegram_id": str(callback_query.from_user.id)}, {'_id': 1, 'name': 0})
         # find_one_and_update returns a record that is to be updated; in this case it is irrelevant whether
         # we receive the updated version of the record or not, since we're only interested in the date
@@ -69,8 +69,10 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
         await get_options_color(color, callback_query.from_user.id)
         await row_message(callback_query.from_user.id)
         await (mental_rate_strike(callback_query.from_user.id, 'volunteer'))
-        if need_send_weekly_rate_stata(int(user['timezone']), user['created_at'], user['_id'], rate_record['date']):
-            await sunday_send_rate_stata(callback_query.from_user.id, rate_record['date'])
+        if rate_record!=None:
+            if need_send_weekly_rate_stata(int(user['timezone']), user['created_at'], user['_id'], rate_record['date']):
+                await sunday_send_rate_stata(callback_query.from_user.id, rate_record['date'])
+            
         #отключил чатжпт в колбеках
         #await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
         collection_name['users'].find().close()
