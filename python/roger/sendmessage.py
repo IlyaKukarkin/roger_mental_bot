@@ -19,6 +19,7 @@ import time
 from config import contentful_api_readonly_url, contenful_space_id, contenful_access_token, link_to_form, bot
 from ratestata import send_rate_stata
 from mentalstrikes import mental_rates_strike_in_a_row
+from logger import logger
 
 
 cart_cb = CallbackData("q", "id", "button_parameter")
@@ -71,13 +72,14 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
         if rate_record!=None:
             if need_send_weekly_rate_stata(int(user['timezone']), user['created_at'], user['_id'], rate_record['date']):
                 await sunday_send_rate_stata(callback_query.from_user.id, rate_record['date'])
-            #
+            
         #отключил чатжпт в колбеках
         #await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
         collection_name['users'].find().close()
         collection_name['mental_rate'].find().close()
     except (Exception):
         await bot.send_message(callback_query.from_user.id, "Ой, кажется, что-то пошло не так 😞 \nПовтори отправку настроения через несколько минут или напиши разработчикам через команду /feedback")
+        logger.exception(f'FUCK! User: {callback_query.from_user.id}, color: {color}, rate: {rate}, exception: ')
 
 
 async def create_message_with_support(chat_id: int, cursor: list, user_to_send: ObjectId):

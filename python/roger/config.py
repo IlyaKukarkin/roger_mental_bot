@@ -1,3 +1,4 @@
+import logging
 import os
 from aiogram import Bot
 from aiogram.dispatcher import Dispatcher

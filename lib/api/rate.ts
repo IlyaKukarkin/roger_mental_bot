@@ -18,7 +18,7 @@ type MessageToRate = {
   user_good_rates: number;
   user_bad_rates: number;
   user_telegram_id: string;
-}
+};
 
 type Settings = {
   _id: ObjectId;
@@ -29,7 +29,7 @@ type Settings = {
   volunteer_messages_in_day: number;
   user_ban_dislikes_in_a_row: number;
   volunteer_ban_dislikes_in_a_row: number;
-}
+};
 
 type User = {
   _id: ObjectId;
@@ -44,12 +44,12 @@ type User = {
   is_active: boolean;
   created_at: string;
   time_to_send_messages: number;
-}
+};
 
 type RateResponse = {
   update_to_approve: number;
   update_to_review: number;
-}
+};
 
 export const getCalculatedRates = async (): Promise<RateResponse> => {
   const client = await clientPromise;
@@ -59,164 +59,166 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
 
   const messages: MessageToRate[] = await messagesCol.aggregate([
     {
-      '$lookup': {
-        'from': 'rate',
-        'localField': '_id',
-        'foreignField': 'id_message',
-        'pipeline': [
+      $lookup: {
+        from: "rate",
+        localField: "_id",
+        foreignField: "id_message",
+        pipeline: [
           {
-            '$lookup': {
-              'from': 'users',
-              'localField': 'id_user',
-              'foreignField': '_id',
-              'as': 'user'
-            }
-          }, {
-            '$addFields': {
-              'user': {
-                '$first': '$user'
-              }
-            }
-          }
+            $lookup: {
+              from: "users",
+              localField: "id_user",
+              foreignField: "_id",
+              as: "user",
+            },
+          },
+          {
+            $addFields: {
+              user: {
+                $first: "$user",
+              },
+            },
+          },
         ],
-        'as': 'rates'
-      }
-    }, {
-      '$addFields': {
-        'admin_good_rates': {
-          '$filter': {
-            'input': '$rates',
-            'cond': {
-              '$and': [
+        as: "rates",
+      },
+    },
+    {
+      $addFields: {
+        admin_good_rates: {
+          $filter: {
+            input: "$rates",
+            cond: {
+              $and: [
                 {
-                  '$eq': [
-                    '$$item.user.is_admin', true
-                  ]
-                }, {
-                  '$eq': [
-                    '$$item.rate', true
-                  ]
-                }
-              ]
-            },
-            'as': 'item'
-          }
-        },
-        'admin_bad_rates': {
-          '$filter': {
-            'input': '$rates',
-            'cond': {
-              '$and': [
+                  $eq: ["$$item.user.is_admin", true],
+                },
                 {
-                  '$eq': [
-                    '$$item.user.is_admin', true
-                  ]
-                }, {
-                  '$eq': [
-                    '$$item.rate', false
-                  ]
-                }
-              ]
+                  $eq: ["$$item.rate", true],
+                },
+              ],
             },
-            'as': 'item'
-          }
+            as: "item",
+          },
         },
-        'user_good_rates': {
-          '$filter': {
-            'input': '$rates',
-            'cond': {
-              '$and': [
+        admin_bad_rates: {
+          $filter: {
+            input: "$rates",
+            cond: {
+              $and: [
                 {
-                  '$eq': [
-                    '$$item.user.is_admin', false
-                  ]
-                }, {
-                  '$eq': [
-                    '$$item.rate', true
-                  ]
-                }
-              ]
-            },
-            'as': 'item'
-          }
-        },
-        'user_bad_rates': {
-          '$filter': {
-            'input': '$rates',
-            'cond': {
-              '$and': [
+                  $eq: ["$$item.user.is_admin", true],
+                },
                 {
-                  '$eq': [
-                    '$$item.user.is_admin', false
-                  ]
-                }, {
-                  '$eq': [
-                    '$$item.rate', false
-                  ]
-                }
-              ]
+                  $eq: ["$$item.rate", false],
+                },
+              ],
             },
-            'as': 'item'
-          }
-        }
-      }
-    }, {
-      '$addFields': {
-        'admin_good_rates': {
-          '$size': '$admin_good_rates'
+            as: "item",
+          },
         },
-        'admin_bad_rates': {
-          '$size': '$admin_bad_rates'
+        user_good_rates: {
+          $filter: {
+            input: "$rates",
+            cond: {
+              $and: [
+                {
+                  $eq: ["$$item.user.is_admin", false],
+                },
+                {
+                  $eq: ["$$item.rate", true],
+                },
+              ],
+            },
+            as: "item",
+          },
         },
-        'user_good_rates': {
-          '$size': '$user_good_rates'
+        user_bad_rates: {
+          $filter: {
+            input: "$rates",
+            cond: {
+              $and: [
+                {
+                  $eq: ["$$item.user.is_admin", false],
+                },
+                {
+                  $eq: ["$$item.rate", false],
+                },
+              ],
+            },
+            as: "item",
+          },
         },
-        'user_bad_rates': {
-          '$size': '$user_bad_rates'
-        }
-      }
-    },{
-          '$lookup': {
-              'from': 'users', 
-              'localField': 'id_user', 
-              'foreignField': '_id', 
-              'as': 'user'
-          }
-      }, {
-          '$unwind': {
-              'path': '$user'
-          }
-      }, {
-          '$addFields': {
-              'user_telegram_id': '$user.telegram_id'
-          }
-      }, {
-          '$project': {
-              'user': 0
-          }
-      }
+      },
+    },
+    {
+      $addFields: {
+        admin_good_rates: {
+          $size: "$admin_good_rates",
+        },
+        admin_bad_rates: {
+          $size: "$admin_bad_rates",
+        },
+        user_good_rates: {
+          $size: "$user_good_rates",
+        },
+        user_bad_rates: {
+          $size: "$user_bad_rates",
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "id_user",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $unwind: {
+        path: "$user",
+      },
+    },
+    {
+      $addFields: {
+        user_telegram_id: "$user.telegram_id",
+      },
+    },
+    {
+      $project: {
+        user: 0,
+      },
+    },
   ]);
 
   const settings: Settings = await settingsCol.findOne();
-  
+
   const updateToApproved: ObjectId[] = [];
   const updateToReview: ObjectId[] = [];
 
   for await (const message of messages) {
     const calculatedMessage = calculateRate(message, settings);
-   
+
     if (message.is_approved !== calculatedMessage.is_approved) {
       if (calculatedMessage.is_approved) {
-        updateToApproved.push(calculatedMessage._id)
+        updateToApproved.push(calculatedMessage._id);
 
         try {
-             await sendMessageToUser(message.user_telegram_id, `Твоё сообщение «${message.text.slice(0, 60)}${message.text.length>60 ? "..." : ''}» прошло модерацию и будет показываться тем, кому это важно.%0A%0AСпасибо ❤️%0A%0AСоздать новое сообщение можно через команду /fillform`)
+          await sendMessageToUser(
+            message.user_telegram_id,
+            `Твоё сообщение «${message.text.slice(0, 60)}${
+              message.text.length > 60 ? "..." : ""
+            }» прошло модерацию и будет показываться тем, кому это важно.%0A%0AСпасибо ❤️%0A%0AСоздать новое сообщение можно через команду /fillform`
+          );
         } catch (e) {
-          console.log("Ошибка при отправке сообщения пользователю (rate.ts): ", e)
+          console.log(
+            "Ошибка при отправке сообщения пользователю (rate.ts): ",
+            e
+          );
         }
-
-} else {
-        updateToReview.push(calculatedMessage._id)
+      } else {
+        updateToReview.push(calculatedMessage._id);
       }
     }
   }
@@ -224,13 +226,13 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
   // create a filter to update all movies with a 'G' rating
   const filterToApproved = {
     _id: {
-      "$in": updateToApproved
-    }
+      $in: updateToApproved,
+    },
   };
   const filterToReview = {
     _id: {
-      "$in": updateToReview
-    }
+      $in: updateToReview,
+    },
   };
   // increment every document matching the filter with Approved state
   const docToApproved = {
@@ -245,66 +247,85 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
   };
 
   if (updateToApproved.length !== 0) {
-    const resultApprove = await messagesCol.updateMany(filterToApproved, docToApproved);
+    const resultApprove = await messagesCol.updateMany(
+      filterToApproved,
+      docToApproved
+    );
 
-    const resString = `Обновил ${resultApprove.modifiedCount} сообщение(ий) на статус "Аппрув"`
+    const resString = `Обновил ${resultApprove.modifiedCount} сообщение(ий) на статус "Аппрув"`;
 
     console.log(resString);
-    await sendMessageToAdmins(resString)
+    await sendMessageToAdmins(resString);
   } else {
-    const resString = `Нечего обновлять на статус "Аппрув"`
-    
+    const resString = `Нечего обновлять на статус "Аппрув"`;
+
     console.log(resString);
-    await sendMessageToAdmins(resString)
+    await sendMessageToAdmins(resString);
   }
 
   if (updateToReview.length !== 0) {
-    const resultReview = await messagesCol.updateMany(filterToReview, docToReview);
-    
+    const resultReview = await messagesCol.updateMany(
+      filterToReview,
+      docToReview
+    );
+
     const resString = `Обновил ${resultReview.modifiedCount} сообщение(ий) на статус "Модерация"`;
-    
+
     console.log(resString);
-    await sendMessageToAdmins(resString)
+    await sendMessageToAdmins(resString);
   } else {
-    const resString = `Нечего обновлять на статус "Модерация"`
-    
+    const resString = `Нечего обновлять на статус "Модерация"`;
+
     console.log(resString);
-    await sendMessageToAdmins(resString)
+    await sendMessageToAdmins(resString);
   }
 
-   return { update_to_approve: updateToApproved.length, update_to_review: updateToReview.length }
+  return {
+    update_to_approve: updateToApproved.length,
+    update_to_review: updateToReview.length,
+  };
 };
 
-const calculateRate = (message: MessageToRate, settings: Settings): MessageToRate => {
-  const { approve_number, admin_rate_number, volunteer_rate_number, disaprove_percent } = settings;
+const calculateRate = (
+  message: MessageToRate,
+  settings: Settings
+): MessageToRate => {
+  const {
+    approve_number,
+    admin_rate_number,
+    volunteer_rate_number,
+    disaprove_percent,
+  } = settings;
 
-  const { admin_bad_rates, admin_good_rates, user_bad_rates, user_good_rates } = { ...message }
+  const { admin_bad_rates, admin_good_rates, user_bad_rates, user_good_rates } =
+    { ...message };
 
-  const total = (admin_bad_rates + admin_good_rates) * admin_rate_number + (user_bad_rates + user_good_rates) * volunteer_rate_number;
+  const total =
+    (admin_bad_rates + admin_good_rates) * admin_rate_number +
+    (user_bad_rates + user_good_rates) * volunteer_rate_number;
 
-  const rate = (admin_good_rates * admin_rate_number) + (user_good_rates * volunteer_rate_number) - (admin_bad_rates * admin_rate_number) - (user_bad_rates * volunteer_rate_number)
+  const rate =
+    admin_good_rates * admin_rate_number +
+    user_good_rates * volunteer_rate_number -
+    admin_bad_rates * admin_rate_number -
+    user_bad_rates * volunteer_rate_number;
 
   if (total < approve_number) {
     return {
       ...message,
-      is_approved: false
-    }
+      is_approved: false,
+    };
   }
 
   if (rate / total > disaprove_percent / 100) {
     return {
       ...message,
-      is_approved: true
-    }
+      is_approved: true,
+    };
   }
 
   return {
     ...message,
-    is_approved: false
-  }
-}
-
-
-
-
-
+    is_approved: false,
+  };
+};
