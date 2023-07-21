@@ -9,6 +9,7 @@ import {
 } from "../api/users";
 
 type MentalHours = {
+
   id_user: ObjectId;
   date: string;
   id_tg_message: number;
@@ -72,10 +73,11 @@ export const checkAndDeleteMoodKeyboard = async (userId: ObjectId) => {
       await sendHurryUpMessage(telegramId);
     }
 
-    if (dateDiff === 12) {
-      const telegramId = await getTelegramId(userId);
-      await deleteMarkupKeyboard(telegramId, tgMessage);
-      //await sendThatsItMessage(telegramId);
+        if (dateDiff === 9) {
+            const telegramId = await getTelegramId(userId);
+            await deleteMarkupKeyboard(telegramId, tgMessage);
+            //await sendThatsItMessage(telegramId);
+        }
     }
   }
 };
