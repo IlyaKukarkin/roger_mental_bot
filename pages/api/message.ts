@@ -86,7 +86,7 @@ export default async function handler(
             return res.status(200).json({});
           } catch (e) {
             console.log(e);
-            return res.status(403).json({ error: 'User not found' });
+            return res.status(403).json({ error: "User not found" });
           }
         });
       } catch (e) {
