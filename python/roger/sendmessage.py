@@ -69,15 +69,16 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
         await get_options_color(color, callback_query.from_user.id)
         await row_message(callback_query.from_user.id)
         await (mental_rate_strike(callback_query.from_user.id, 'volunteer'))
-        if rate_record!=None:
-            if need_send_weekly_rate_stata(int(user['timezone']), user['created_at'], user['_id'], rate_record['date']):
-                await sunday_send_rate_stata(callback_query.from_user.id, rate_record['date'])
+        # Why? Я думал, что чисто физически невозможен сценарий, когда мы в этом обработчике, но в базе ещё нет записи на эту конкретную отметку о настроении
+        if rate_record is not None and \
+                need_send_weekly_rate_stata(int(user['timezone']), user['created_at'], user['_id'], rate_record['date']):
+            await sunday_send_rate_stata(callback_query.from_user.id, rate_record['date'])
             
         #отключил чатжпт в колбеках
         #await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
         collection_name['users'].find().close()
         collection_name['mental_rate'].find().close()
-    except (Exception):
+    except (Exception, BaseException):
         await bot.send_message(callback_query.from_user.id, "Ой, кажется, что-то пошло не так 😞 \nПовтори отправку настроения через несколько минут или напиши разработчикам через команду /feedback")
         logger.exception(f'FUCK! User: {callback_query.from_user.id}, color: {color}, rate: {rate}, exception: ')
 
@@ -115,27 +116,23 @@ async def create_message_with_support(chat_id: int, cursor: list, user_to_send: 
     if cursor['media_link'] != "":
         message = message + \
             text(bold("Что стоит глянуть: ") + '\n' + cursor['media_link'])
-    try:
-        collection_name = get_database()
+    collection_name = get_database()
 
-        id_previous_mes = collection_name['user_messages'].find_one({"id_user": user_to_send}, {
-                                                                    "id_user": 1, "id_message": 1, "id_tg_message": 1}, sort=[("time_to_send", -1)])
-        if (id_previous_mes != None):
-            rate_previous_mes = collection_name['rate'].find_one(
-                {"id_message": id_previous_mes['id_message'], 'id_user': id_previous_mes['id_user']})
-            if (rate_previous_mes == None):
-                await delete_keyboard(chat_id, id_previous_mes['id_tg_message'])
-        id_message = await bot.send_message(chat_id, message, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True, reply_markup=ask_for_rate_messages)
+    id_previous_mes = collection_name['user_messages'].find_one({"id_user": user_to_send}, {
+                                                                "id_user": 1, "id_message": 1, "id_tg_message": 1}, sort=[("time_to_send", -1)])
+    if (id_previous_mes != None):
+        rate_previous_mes = collection_name['rate'].find_one(
+            {"id_message": id_previous_mes['id_message'], 'id_user': id_previous_mes['id_user']})
+        if (rate_previous_mes == None):
+            await delete_keyboard(chat_id, id_previous_mes['id_tg_message'])
+    id_message = await bot.send_message(chat_id, message, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True, reply_markup=ask_for_rate_messages)
 
-        print("\n")
-        print('USER_MESSAGES -> ты увидел сообщение')
-        print({"id_user": user_to_send, "id_message": cursor["_id"], "time_to_send": datetime.datetime.now(), "id_tg_message": id_message.message_id})
+    print("\n")
+    print('USER_MESSAGES -> ты увидел сообщение')
+    print({"id_user": user_to_send, "id_message": cursor["_id"], "time_to_send": datetime.datetime.now(), "id_tg_message": id_message.message_id})
 
-        collection_name['user_messages'].insert_one({"id_user": user_to_send, "id_message": cursor["_id"], "time_to_send": datetime.datetime.now(), "id_tg_message": id_message.message_id})
-        collection_name['user_messages'].find().close()
-    except (Exception):
-        await bot.send_message(chat_id, "Ой, кажется, что-то пошло не так 😞 \nПовтори действие через несколько минут или напиши разработчикам через команду /feedback")
-
+    collection_name['user_messages'].insert_one({"id_user": user_to_send, "id_message": cursor["_id"], "time_to_send": datetime.datetime.now(), "id_tg_message": id_message.message_id})
+    collection_name['user_messages'].find().close()
 
 async def get_cat_gif():
     response = requests.get(contentful_api_readonly_url + 'spaces/' + contenful_space_id +
@@ -284,7 +281,7 @@ def need_send_weekly_rate_stata(timezone_offset: int, created_at: datetime.datet
             n_days_since_date(3, created_at) and \
             any_ratings_in_previous_n_days(id_user, 6)
     except Exception as e:
-        print(f'need_send_weekly_rate_stata failed check, exception: {e}')
+        logger.exception('need_send_weekly_rate_stata failed check, exception:')
         return False
 
 
