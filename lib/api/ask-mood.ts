@@ -1,7 +1,7 @@
 import { ObjectId, FindCursor } from "mongodb";
 
 import clientPromise from "../mongodb";
-import { sendMoodMessage } from "./users";
+import { sendMessageToUser, sendMoodMessage } from "./users";
 import { checkAndDeleteMoodKeyboard } from "./utils";
 import { User } from "./types";
 
