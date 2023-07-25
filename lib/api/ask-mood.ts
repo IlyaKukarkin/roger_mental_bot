@@ -82,6 +82,8 @@ export const askMood = async (): Promise<Boolean> => {
       } 
       catch (e) {
         console.log("Ошибка при отправке настроения: ", e)
+        await fetch(`https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=71488343&text=${e}`, { method: 'POST' })
+
       }
     })
   );
