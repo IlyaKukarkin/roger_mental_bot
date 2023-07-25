@@ -21,7 +21,7 @@ async def delete_keyboard(chat_id: int, message_id: int):
     try:
         await bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id, reply_markup=None)
     except (Exception):
-        logger.warning("failed to delete keyboard")
+        logger.exception(f"failed to delete keyboard, user: {chat_id}, message_id: {message_id}, exception:")
         return
 
 # получить картинку из хранилища по id

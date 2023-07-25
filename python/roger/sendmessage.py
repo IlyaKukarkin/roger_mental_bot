@@ -281,7 +281,7 @@ def need_send_weekly_rate_stata(timezone_offset: int, created_at: datetime.datet
             n_days_since_date(3, created_at) and \
             any_ratings_in_previous_n_days(id_user, 6)
     except Exception as e:
-        logger.exception('need_send_weekly_rate_stata failed check, exception:')
+        logger.exception(f'need_send_weekly_rate_stata failed check, user_id: {id_user}, exception:')
         return False
 
 
