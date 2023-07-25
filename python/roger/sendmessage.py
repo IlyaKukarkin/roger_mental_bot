@@ -69,11 +69,13 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
         await get_options_color(color, callback_query.from_user.id)
         await row_message(callback_query.from_user.id)
         await (mental_rate_strike(callback_query.from_user.id, 'volunteer'))
+
         # Why? Я думал, что чисто физически невозможен сценарий, когда мы в этом обработчике, но в базе ещё нет записи на эту конкретную отметку о настроении
         if rate_record is not None and \
                 need_send_weekly_rate_stata(int(user['timezone']), user['created_at'], user['_id'], rate_record['date']):
             await sunday_send_rate_stata(callback_query.from_user.id, rate_record['date'])
             
+
         #отключил чатжпт в колбеках
         #await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
         collection_name['users'].find().close()

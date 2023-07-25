@@ -144,12 +144,7 @@ export const sendMoodMessage = async (
     ],
   };
 
-  await fetch(
-    `https://api.telegram.org/bot${
-      process.env.ROGER_TOKEN_BOT
-    }/sendMessage?chat_id=${userTelegramId}&text=${getGreetingsMessage()}&parse_mode=Markdown`,
-    { method: "POST" }
-  );
+  //await fetch(`https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${userTelegramId}&text=${getGreetingsMessage()}&parse_mode=Markdown`, { method: 'POST' })
 
   const resp = await fetch(
     `https://api.telegram.org/bot${
@@ -161,6 +156,7 @@ export const sendMoodMessage = async (
   );
 
   const data = await resp.json();
-
+  console.log("Инфа по отправленным сообщениям с замером настроения: ", data.result)
+  
   return data.result;
 };
