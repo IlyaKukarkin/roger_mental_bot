@@ -10,6 +10,7 @@ import {
 
 type MentalHours = {
 
+
   id_user: ObjectId;
   date: string;
   id_tg_message: number;
