@@ -8,6 +8,7 @@ from aiogram.types import CallbackQuery, ReplyKeyboardRemove
 from aiogram.utils.callback_data import CallbackData
 
 
+from logger import logger
 from states import Recording, FriendsStates, Registration
 from common import check_id_username_is_valid_before_save, delete_keyboard
 from database import create_new_user, is_user_active
@@ -318,5 +319,6 @@ async def set_task_to_send_messages(x):
     asyncio.create_task(enable_task_to_send_mes())
 
 if __name__ == "__main__":
+    logger.info('LET\'S FUCKING GOOOOOOOOOOO!')
     # executor.start_polling(dp, on_startup=set_task_to_send_messages)
     executor.start_polling(dp)

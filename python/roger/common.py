@@ -8,6 +8,7 @@ import datetime
 import pytz
 from config import bot, contentful_api_readonly_url, contenful_access_token, contenful_space_id
 from enum import IntEnum
+from logger import logger
 
 # read texts from json file
 with open('texts.json') as t:
@@ -20,7 +21,7 @@ async def delete_keyboard(chat_id: int, message_id: int):
     try:
         await bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id, reply_markup=None)
     except (Exception):
-        print ("failed to delete keyboard")
+        logger.exception(f"failed to delete keyboard, user: {chat_id}, message_id: {message_id}, exception:")
         return
 
 # получить картинку из хранилища по id
