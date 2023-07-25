@@ -19,7 +19,7 @@ type User = {
   rate_month: number;
   rate_week2: number;
   rate_week: number;
-}
+};
 
 type Rate = {
   rate: boolean;
@@ -27,18 +27,18 @@ type Rate = {
   id_user: ObjectId;
   id_message: ObjectId;
   time_to_send: string;
-}
+};
 
 type Statistics = {
   _id: ObjectId;
   users_rate_month: number[];
   users_rate_2week: number[];
   users_rate_week: number[];
-}
+};
 
 type RateResponse = {
   banned_users: number;
-}
+};
 
 export const updateUserRateStatistics = async (): Promise<void> => {
   const client = await clientPromise;
@@ -47,55 +47,50 @@ export const updateUserRateStatistics = async (): Promise<void> => {
 
   const users: User[] = await usersCol.aggregate([
     {
-      '$lookup': {
-        'from': 'mental_rate',
-        'localField': '_id',
-        'foreignField': 'id_user',
-        'as': 'rates'
-      }
-    }, {
-      '$addFields': {
-        'rate_month': {
-          '$size': {
-            '$filter': {
-              'input': '$rates',
-              'cond': {
-                '$gte': [
-                  '$$rate.date', subtractMonths(1)
-                ]
+      $lookup: {
+        from: "mental_rate",
+        localField: "_id",
+        foreignField: "id_user",
+        as: "rates",
+      },
+    },
+    {
+      $addFields: {
+        rate_month: {
+          $size: {
+            $filter: {
+              input: "$rates",
+              cond: {
+                $gte: ["$$rate.date", subtractMonths(1)],
               },
-              'as': 'rate'
-            }
-          }
+              as: "rate",
+            },
+          },
         },
-        'rate_week2': {
-          '$size': {
-            '$filter': {
-              'input': '$rates',
-              'cond': {
-                '$gte': [
-                  '$$rate.date', subtractWeeks(2)
-                ]
+        rate_week2: {
+          $size: {
+            $filter: {
+              input: "$rates",
+              cond: {
+                $gte: ["$$rate.date", subtractWeeks(2)],
               },
-              'as': 'rate'
-            }
-          }
+              as: "rate",
+            },
+          },
         },
-        'rate_week': {
-          '$size': {
-            '$filter': {
-              'input': '$rates',
-              'cond': {
-                '$gte': [
-                  '$$rate.date', subtractWeeks(1)
-                ]
+        rate_week: {
+          $size: {
+            $filter: {
+              input: "$rates",
+              cond: {
+                $gte: ["$$rate.date", subtractWeeks(1)],
               },
-              'as': 'rate'
-            }
-          }
-        }
-      }
-    }
+              as: "rate",
+            },
+          },
+        },
+      },
+    },
   ]);
 
   const statistic: Statistics = await statisticCol.findOne();
@@ -110,16 +105,18 @@ export const updateUserRateStatistics = async (): Promise<void> => {
     updateWeek.push(user.rate_week);
   }
 
-  statisticCol.update({
-    _id: statistic._id
-  }, {
-    $set: {
-      users_rate_month: updateMonth,
-      users_rate_2week: updateWeek2,
-      users_rate_week: updateWeek
+  statisticCol.update(
+    {
+      _id: statistic._id,
+    },
+    {
+      $set: {
+        users_rate_month: updateMonth,
+        users_rate_2week: updateWeek2,
+        users_rate_week: updateWeek,
+      },
     }
-  }
-  )
+  );
 };
 
 const subtractMonths = (numOfMonths: number, date = new Date()) => {
@@ -128,11 +125,11 @@ const subtractMonths = (numOfMonths: number, date = new Date()) => {
   dateCopy.setMonth(dateCopy.getMonth() - numOfMonths);
 
   return dateCopy;
-}
+};
 
 const subtractWeeks = (numOfWeeks: number, date = new Date()) => {
   const dateCopy = new Date(date.getTime());
   dateCopy.setDate(dateCopy.getDate() - numOfWeeks * 7);
 
   return dateCopy;
-}
+};
