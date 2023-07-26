@@ -5,7 +5,6 @@ import {
   getHurryUpMessage,
   getThatsItMessage,
   getMoodMessage,
-  getGreetingsMessage,
 } from "../../tg_messages";
 import { User, TgMessage } from "./types";
 

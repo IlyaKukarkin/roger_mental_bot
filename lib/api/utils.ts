@@ -27,16 +27,7 @@ export const checkAndDeleteMoodKeyboard = async (userId: ObjectId) => {
       {
         $match: {
           id_user: new ObjectId(userId),
-        },
-      },
-      {
-        $match: {
           rate: 0,
-        },
-      },
-      {
-        $addFields: {
-          datetime_now: new Date(),
         },
       },
       {
@@ -44,7 +35,7 @@ export const checkAndDeleteMoodKeyboard = async (userId: ObjectId) => {
           date_diff: {
             $dateDiff: {
               startDate: "$date",
-              endDate: "$datetime_now",
+              endDate: new Date(),
               unit: "hour",
             },
           },
@@ -75,7 +66,7 @@ export const checkAndDeleteMoodKeyboard = async (userId: ObjectId) => {
     if (dateDiff === 9) {
       const telegramId = await getTelegramId(userId);
       await deleteMarkupKeyboard(telegramId, tgMessage);
-      //await sendThatsItMessage(telegramId);
+      // await sendThatsItMessage(telegramId);
     }
   }
 };
