@@ -156,7 +156,10 @@ export const sendMoodMessage = async (
   );
 
   const data = await resp.json();
-  console.log("Инфа по отправленным сообщениям с замером настроения: ", data.result)
-  
+  console.log(
+    "Инфа по отправленным сообщениям с замером настроения: ",
+    data.result
+  );
+
   return data.result;
 };
