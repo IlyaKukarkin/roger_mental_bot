@@ -78,19 +78,21 @@ export const askMood = async (): Promise<Boolean> => {
         if (!sentToday) {
           const message = await sendMoodMessage(user.telegram_id);
 
-          await mentalRateCl.insertOne({
-            rate: 0,
-            id_user: user["_id"],
-            date: new Date(),
-            id_tg_message: message.message_id,
-          });
+          if (message) {
+            await mentalRateCl.insertOne({
+              rate: 0,
+              id_user: user["_id"],
+              date: new Date(),
+              id_tg_message: message.message_id,
+            });
+          }
         }
       } catch (e) {
         console.log("Ошибка при отправке настроения: ", e);
         sendMessageToAdmins(`
-          Ошибка при отправке настроения
-          Пользователь: ${user.telegram_id}
-          Время: ${new Date()}
+          Ошибка при отправке настроения\n
+          Пользователь: ${user.telegram_id}\n
+          Время: ${new Date()}\n
           Ошибка: ${e}
           `);
       }

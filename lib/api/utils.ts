@@ -6,6 +6,7 @@ import {
   deleteMarkupKeyboard,
   sendHurryUpMessage,
   sendThatsItMessage,
+  sendMessageToAdmins,
 } from "../api/users";
 
 type MentalHours = {
@@ -54,19 +55,28 @@ export const checkAndDeleteMoodKeyboard = async (userId: ObjectId) => {
   const mentalHours = await cursorMentalHours.toArray();
 
   if (mentalHours && mentalHours.length !== 0 && mentalHours[0].date_diff) {
-    const dateDiff = mentalHours[0].date_diff;
-    const userId = mentalHours[0].id_user;
-    const tgMessage = mentalHours[0].id_tg_message;
+    try {
+      const dateDiff = mentalHours[0].date_diff;
+      const userId = mentalHours[0].id_user;
+      const tgMessage = mentalHours[0].id_tg_message;
 
-    if (dateDiff === 3) {
-      const telegramId = await getTelegramId(userId);
-      await sendHurryUpMessage(telegramId);
-    }
+      if (dateDiff === 3) {
+        const telegramId = await getTelegramId(userId);
+        await sendHurryUpMessage(telegramId);
+      }
 
-    if (dateDiff === 9) {
-      const telegramId = await getTelegramId(userId);
-      await deleteMarkupKeyboard(telegramId, tgMessage);
-      // await sendThatsItMessage(telegramId);
+      if (dateDiff === 9) {
+        const telegramId = await getTelegramId(userId);
+        await deleteMarkupKeyboard(telegramId, tgMessage);
+        // await sendThatsItMessage(telegramId);
+      }
+    } catch (e) {
+      sendMessageToAdmins(`
+          Ошибка при удалении клавиатуры\n
+          Пользователь (ID монги): ${userId}\n
+          Время: ${new Date()}\n
+          Ошибка: ${e}
+          `);
     }
   }
 };

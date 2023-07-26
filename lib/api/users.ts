@@ -100,7 +100,7 @@ export const deleteMarkupKeyboard = async (
 
 export const sendMoodMessage = async (
   userTelegramId: string
-): Promise<TgMessage> => {
+): Promise<TgMessage | null> => {
   const user = await getUserByTelegramId(userTelegramId);
 
   const client = await clientPromise;
@@ -117,7 +117,16 @@ export const sendMoodMessage = async (
   );
 
   if (prevMentalRate) {
-    await deleteMarkupKeyboard(userTelegramId, prevMentalRate.id_tg_message);
+    try {
+      await deleteMarkupKeyboard(userTelegramId, prevMentalRate.id_tg_message);
+    } catch (e) {
+      sendMessageToAdmins(`
+            Ошибка при удалении клавиатуры (будто лишняя)\n
+            Пользователь: ${userTelegramId}\n
+            Время: ${new Date()}\n
+            Ошибка: ${e}
+            `);
+    }
   }
 
   const buttons = {
@@ -145,20 +154,31 @@ export const sendMoodMessage = async (
 
   //await fetch(`https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${userTelegramId}&text=${getGreetingsMessage()}&parse_mode=Markdown`, { method: 'POST' })
 
-  const resp = await fetch(
-    `https://api.telegram.org/bot${
-      process.env.ROGER_TOKEN_BOT
-    }/sendMessage?chat_id=${userTelegramId}&text=${getMoodMessage()}&parse_mode=Markdown&reply_markup=${JSON.stringify(
-      buttons
-    )}`,
-    { method: "POST" }
-  );
+  try {
+    const resp = await fetch(
+      `https://api.telegram.org/bot${
+        process.env.ROGER_TOKEN_BOT
+      }/sendMessage?chat_id=${userTelegramId}&text=${getMoodMessage()}&parse_mode=Markdown&reply_markup=${JSON.stringify(
+        buttons
+      )}`,
+      { method: "POST" }
+    );
 
-  const data = await resp.json();
-  console.log(
-    "Инфа по отправленным сообщениям с замером настроения: ",
-    data.result
-  );
+    const data = await resp.json();
+    console.log(
+      "Инфа по отправленным сообщениям с замером настроения: ",
+      data.result
+    );
 
-  return data.result;
+    return data.result;
+  } catch (e) {
+    sendMessageToAdmins(`
+          Ошибка при отправке вопроса о настроении\n
+          Пользователь: ${userTelegramId}\n
+          Время: ${new Date()}\n
+          Ошибка: ${e}
+          `);
+  }
+
+  return null;
 };
