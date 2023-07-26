@@ -87,7 +87,12 @@ export const askMood = async (): Promise<Boolean> => {
         }
       } catch (e) {
         console.log("Ошибка при отправке настроения: ", e);
-        sendMessageToAdmins(`Ошибка при отправке настроения: ${e}`);
+        sendMessageToAdmins(`
+          Ошибка при отправке настроения
+          Пользователь: ${user.telegram_id}
+          Время: ${new Date()}
+          Ошибка: ${e}
+          `);
       }
     })
   );
