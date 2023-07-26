@@ -1,7 +1,7 @@
 import { ObjectId, FindCursor } from "mongodb";
 
 import clientPromise from "../mongodb";
-import { sendMessageToUser, sendMoodMessage } from "./users";
+import { sendMessageToAdmins, sendMoodMessage } from "./users";
 import { checkAndDeleteMoodKeyboard } from "./utils";
 import { User } from "./types";
 
@@ -87,10 +87,12 @@ export const askMood = async (): Promise<Boolean> => {
         }
       } catch (e) {
         console.log("Ошибка при отправке настроения: ", e);
-        await fetch(
-          `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=71488343&text=${e}`,
-          { method: "POST" }
-        );
+        sendMessageToAdmins(`
+          Ошибка при отправке настроения
+          Пользователь: ${user.telegram_id}
+          Время: ${new Date()}
+          Ошибка: ${e}
+          `);
       }
     })
   );
