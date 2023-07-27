@@ -68,6 +68,10 @@ export const askMood = async (): Promise<Boolean> => {
 
   const users = await cursorUsers.toArray();
 
+  sendMessageToAdmins(
+    `Начинаю отправлять настроение ${users.length} пользователям`
+  );
+
   await Promise.all(
     users.map(async (user) => {
       try {
@@ -90,9 +94,9 @@ export const askMood = async (): Promise<Boolean> => {
       } catch (e) {
         console.log("Ошибка при отправке настроения: ", e);
         sendMessageToAdmins(`
-          Ошибка при отправке настроения\n
-          Пользователь: ${user.telegram_id}\n
-          Время: ${new Date()}\n
+          Ошибка при отправке настроения
+          Пользователь: ${user.telegram_id}
+          Время: ${new Date()}
           Ошибка: ${e}
           `);
       }

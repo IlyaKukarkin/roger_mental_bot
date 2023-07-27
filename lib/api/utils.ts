@@ -72,9 +72,9 @@ export const checkAndDeleteMoodKeyboard = async (userId: ObjectId) => {
       }
     } catch (e) {
       sendMessageToAdmins(`
-          Ошибка при удалении клавиатуры\n
-          Пользователь (ID монги): ${userId}\n
-          Время: ${new Date()}\n
+          Ошибка при удалении клавиатуры
+          Пользователь (ID монги): ${userId}
+          Время: ${new Date()}
           Ошибка: ${e}
           `);
     }

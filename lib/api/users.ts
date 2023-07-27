@@ -121,9 +121,9 @@ export const sendMoodMessage = async (
       await deleteMarkupKeyboard(userTelegramId, prevMentalRate.id_tg_message);
     } catch (e) {
       sendMessageToAdmins(`
-            Ошибка при удалении клавиатуры (будто лишняя)\n
-            Пользователь: ${userTelegramId}\n
-            Время: ${new Date()}\n
+            Ошибка при удалении клавиатуры (будто лишняя)
+            Пользователь: ${userTelegramId}
+            Время: ${new Date()}
             Ошибка: ${e}
             `);
     }
@@ -173,9 +173,9 @@ export const sendMoodMessage = async (
     return data.result;
   } catch (e) {
     sendMessageToAdmins(`
-          Ошибка при отправке вопроса о настроении\n
-          Пользователь: ${userTelegramId}\n
-          Время: ${new Date()}\n
+          Ошибка при отправке вопроса о настроении
+          Пользователь: ${userTelegramId}
+          Время: ${new Date()}
           Ошибка: ${e}
           `);
   }
