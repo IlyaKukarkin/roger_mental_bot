@@ -68,7 +68,7 @@ export const checkAndDeleteMoodKeyboard = async (userId: ObjectId) => {
       if (dateDiff === 9) {
         const telegramId = await getTelegramId(userId);
         await deleteMarkupKeyboard(telegramId, tgMessage);
-        await sendThatsItMessage(telegramId);
+        // await sendThatsItMessage(telegramId);
       }
     } catch (e) {
       await sendMessageToAdmins(`
