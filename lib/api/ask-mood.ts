@@ -36,10 +36,6 @@ export const askMood = async (): Promise<Boolean> => {
             },
           },
         },
-      },
-    },
-    {
-      $addFields: {
         user_time: {
           $toDouble: "$timezone",
         },
@@ -59,17 +55,13 @@ export const askMood = async (): Promise<Boolean> => {
         },
       },
     },
-    {
-      $match: {
-        result: true,
-      },
-    },
   ]);
 
   const users = await cursorUsers.toArray();
+  const usersToSend = users.filter((user) => user.result);
 
-  sendMessageToAdmins(
-    `Начинаю отправлять настроение ${users.length} пользователям`
+  await sendMessageToAdmins(
+    `Достал ${users.length} пользователей из БД, время настало у ${usersToSend.length} пользователей`
   );
 
   await Promise.all(
@@ -77,23 +69,26 @@ export const askMood = async (): Promise<Boolean> => {
       try {
         await checkAndDeleteMoodKeyboard(user._id);
 
-        const sentToday = await checkAlreadySendToday(user._id);
+        // Проверка, что время для отправки опроса настало
+        if (user.result) {
+          const sentToday = await checkAlreadySendToday(user._id);
 
-        if (!sentToday) {
-          const message = await sendMoodMessage(user.telegram_id);
+          if (!sentToday) {
+            const message = await sendMoodMessage(user.telegram_id);
 
-          if (message) {
-            await mentalRateCl.insertOne({
-              rate: 0,
-              id_user: user["_id"],
-              date: new Date(),
-              id_tg_message: message.message_id,
-            });
+            if (message) {
+              await mentalRateCl.insertOne({
+                rate: 0,
+                id_user: user["_id"],
+                date: new Date(),
+                id_tg_message: message.message_id,
+              });
+            }
           }
         }
       } catch (e) {
         console.log("Ошибка при отправке настроения: ", e);
-        sendMessageToAdmins(`
+        await sendMessageToAdmins(`
           Ошибка при отправке настроения
           Пользователь: ${user.telegram_id}
           Время: ${new Date()}
