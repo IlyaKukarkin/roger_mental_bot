@@ -177,6 +177,8 @@ export const sendMoodMessage = async (
           Код ошибки: ${data.error_code}
           Ошибка: ${data.description}
           `);
+
+    return null;
   } catch (e) {
     await sendMessageToAdmins(`
           Ошибка при отправке вопроса о настроении
