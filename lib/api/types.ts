@@ -22,3 +22,14 @@ export type User = {
 export type TgMessage = {
   message_id: number;
 };
+
+export type TgResponse =
+  | {
+      ok: true;
+      result: TgMessage;
+    }
+  | {
+      ok: false;
+      error_code: number;
+      description: string;
+    };

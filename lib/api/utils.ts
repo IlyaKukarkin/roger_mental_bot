@@ -71,7 +71,7 @@ export const checkAndDeleteMoodKeyboard = async (userId: ObjectId) => {
         // await sendThatsItMessage(telegramId);
       }
     } catch (e) {
-      sendMessageToAdmins(`
+      await sendMessageToAdmins(`
           Ошибка при удалении клавиатуры
           Пользователь (ID монги): ${userId}
           Время: ${new Date()}
