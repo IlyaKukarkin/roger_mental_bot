@@ -83,6 +83,13 @@ export const askMood = async (): Promise<Boolean> => {
                 date: new Date(),
                 id_tg_message: message.message_id,
               });
+            } else {
+              await sendMessageToAdmins(`
+              Ответ АПИ телеграмма на отправку настроения
+              Пользователь: ${user.telegram_id}
+              Время: ${new Date()}
+              Ошибка: ${message}
+              `);
             }
           }
         }

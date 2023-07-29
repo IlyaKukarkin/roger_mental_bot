@@ -6,7 +6,7 @@ import {
   getThatsItMessage,
   getMoodMessage,
 } from "../../tg_messages";
-import { User, TgMessage } from "./types";
+import { User, TgMessage, TgResponse } from "./types";
 
 export const getTelegramId = async (userId: ObjectId): Promise<string> => {
   const client = await clientPromise;
@@ -164,13 +164,19 @@ export const sendMoodMessage = async (
       { method: "POST" }
     );
 
-    const data = await resp.json();
-    console.log(
-      "Инфа по отправленным сообщениям с замером настроения: ",
-      data.result
-    );
+    const data: TgResponse = await resp.json();
 
-    return data.result;
+    if (data.ok) {
+      return data.result;
+    }
+
+    await sendMessageToAdmins(`
+          Ошибка при отправке вопроса о настроении
+          Пользователь: ${userTelegramId}
+          Время: ${new Date()}
+          Код ошибки: ${data.error_code}
+          Ошибка: ${data.description}
+          `);
   } catch (e) {
     await sendMessageToAdmins(`
           Ошибка при отправке вопроса о настроении
