@@ -45,6 +45,6 @@ function MyApp({ Component, pageProps }: AppProps) {
   );
 }
 
-export { reportWebVitals } from "next-axiom";
+export { reportWebVitals } from "@logtail/next";
 
 export default MyApp;

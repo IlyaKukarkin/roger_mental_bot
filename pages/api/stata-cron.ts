@@ -1,28 +1,61 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiResponse } from "next";
+import { withLogtail, LogtailAPIRequest } from "@logtail/next";
 
 import { updateUserRateStatistics } from "../../lib/api/stata";
+import {
+  CronLogData,
+  CronLogError,
+  CronLogEvent,
+  CronName,
+  LogError,
+} from "./types";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+const CRON_NAME = CronName.STATA;
+const logData: CronLogData = {
+  name: CRON_NAME,
+};
+
+async function handler(req: LogtailAPIRequest, res: NextApiResponse) {
   if (req.method === "POST") {
     try {
+      req.log.info(`${CronLogEvent.START}${CRON_NAME}`, {
+        cron: logData,
+      });
+
       const { authorization } = req.headers;
 
       if (authorization === `Bearer ${process.env.CRON_API_KEY}`) {
         await updateUserRateStatistics();
 
+        req.log.info(`${CronLogEvent.SUCCESS}${CRON_NAME}`, {
+          cron: logData,
+        });
         res.status(200).json({ success: true });
       } else {
+        const logError: LogError = {
+          name: CronLogError.UNAUTHORIZED,
+        };
+        req.log.warn(`${CronLogEvent.ERROR}${CRON_NAME}`, {
+          cron: { ...logData, error: logError },
+        });
         res.status(401).json({ success: false });
       }
-    } catch (err) {
-      // @ts-ignore
-      res.status(500).json({ statusCode: 500, message: err.message });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      const logError: LogError = {
+        name: CronLogError.GENERIC,
+        trace: errorMessage,
+      };
+      req.log.error(`${CronLogEvent.ERROR}${CRON_NAME}`, {
+        cron: { ...logData, error: logError },
+      });
+      res.status(500).json({ statusCode: 500, message: errorMessage });
     }
   } else {
     res.setHeader("Allow", "POST");
     res.status(405).end("Method Not Allowed");
   }
 }
+
+export default withLogtail(handler);
