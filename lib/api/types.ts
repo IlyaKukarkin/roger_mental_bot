@@ -33,3 +33,31 @@ export type TgResponse =
       error_code: number;
       description: string;
     };
+
+export enum APILogStage {
+  ASK_MOOD = "Ask mood",
+  RATE = "Rate",
+}
+
+export enum APILogErrorName {
+  GENERIC = "Generic",
+  TELEGRAM_API = "Telegram API",
+}
+
+export type APILogError = {
+  name: APILogErrorName;
+  code?: number;
+  trace?: string;
+};
+
+export type APILogContext = {
+  stage: APILogStage;
+};
+
+export type APILogUser = Partial<User>;
+
+export type APILog = {
+  context: APILogContext;
+  user?: APILogUser;
+  error?: APILogError;
+};

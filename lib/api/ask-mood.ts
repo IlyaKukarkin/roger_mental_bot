@@ -1,9 +1,16 @@
 import { ObjectId, FindCursor } from "mongodb";
+import { log } from "@logtail/next";
 
 import clientPromise from "../mongodb";
 import { sendMessageToAdmins, sendMoodMessage } from "./users";
 import { checkAndDeleteMoodKeyboard } from "./utils";
-import { User } from "./types";
+import {
+  User,
+  APILog,
+  APILogStage,
+  APILogError,
+  APILogErrorName,
+} from "./types";
 
 type RateToday = {
   current_date: string;
@@ -13,6 +20,12 @@ type RateToday = {
   id_user: ObjectId;
   date: string;
   id_tg_message: number;
+};
+
+const logData: APILog = {
+  context: {
+    stage: APILogStage.ASK_MOOD,
+  },
 };
 
 export const askMood = async (): Promise<Boolean> => {
@@ -60,13 +73,25 @@ export const askMood = async (): Promise<Boolean> => {
   const users = await cursorUsers.toArray();
   const usersToSend = users.filter((user) => user.result);
 
+  // ToDo: убрать, как проверю, что логи совпадают
   await sendMessageToAdmins(
     `Достал ${users.length} пользователей из БД, время настало у ${usersToSend.length} пользователей`
+  );
+  log.info(
+    `Retrieved ${users.length} users from the database, time has come for ${usersToSend.length} users`,
+    {
+      ...logData,
+    }
   );
 
   await Promise.all(
     users.map(async (user) => {
       try {
+        log.info(`Start sending mood process`, {
+          ...logData,
+          user,
+        });
+
         await checkAndDeleteMoodKeyboard(user._id);
 
         // Проверка, что время для отправки опроса настало
@@ -86,13 +111,26 @@ export const askMood = async (): Promise<Boolean> => {
             }
           }
         }
-      } catch (e) {
-        console.log("Ошибка при отправке настроения: ", e);
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        const logError: APILogError = {
+          name: APILogErrorName.GENERIC,
+          trace: errorMessage,
+        };
+
+        log.error("Send mood error", {
+          ...logData,
+          user,
+          error: logError,
+        });
+
+        // ToDo: убрать, как проверю, что логи совпадают
         await sendMessageToAdmins(`
           Ошибка при отправке настроения
           Пользователь: ${user.telegram_id}
           Время: ${new Date()}
-          Ошибка: ${e}
+          Ошибка: ${errorMessage}
           `);
       }
     })
