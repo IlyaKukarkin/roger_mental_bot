@@ -19,7 +19,6 @@ class Messages(object):
                 '$match': {
                     '$and': [
                         {
-                            'is_approved': False,
                             'id_user': {
                                 '$ne': user_id
                             }
@@ -50,7 +49,10 @@ class Messages(object):
                     'sent': '$sent.id_user',
                     'image_ids': 1,
                     'is_anonymous': 1,
-                    'created_date': 1
+                    'created_date': 1, 
+                    'rates_count': {
+                        '$size': '$users'
+                }
                 }
             }, {
                 '$match': {
@@ -61,5 +63,13 @@ class Messages(object):
                         '$ne': user_id
                     }
                 }
+            }, {
+                '$sort': {
+                    'rates_count': 1
+                }
+            }, {
+                '$limit': 1
+
             }
-        ])
+])
+
