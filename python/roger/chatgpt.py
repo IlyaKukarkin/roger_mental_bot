@@ -16,7 +16,7 @@ from classes.chatgpt_arrays import ArrayOfChats
 array_of_chats = ArrayOfChats()
 
 async def support_message(message: types.Message):
-    await bot.send_message(message.chat.id, "Ты перешел в режим диалога. Чтобы выйти из него, введи команду /stop. Оставить фидбек или пожаловаться на бота можно по команде /feedback\n\nДисклеймер: ответы генерируются автоматически и могут быть несовершенны. Если у тебя возникли серьезные проблемы, пожалуйста, обратись к следующим организациям:\n\n1. Служба психологической поддержки: 8 (800) 333-44-34\n2. Региональные номера телефонов служба поддержки: [ссылка](https://secretmag.ru/survival/telefony-besplatnoi-psikhologicheskoi-pomoshi-v-rossii.htm')", parse_mode="Markdown", disable_web_page_preview=True)
+    await bot.send_message(message.chat.id, "Ты перешел в режим диалога. Чтобы выйти из него, введи команду /stop. Оставить фидбек или пожаловаться на бота можно по команде /feedback\n\nДисклеймер: ответы генерируются автоматически и могут быть несовершенны. Если у тебя возникли серьезные проблемы, пожалуйста, обратись к следующим организациям:\n\n1. Служба психологической поддержки: 8 (800) 333-44-34\n2. Региональные номера телефонов служба поддержки: [ссылка](https://secretmag.ru/survival/telefony-besplatnoi-psikhologicheskoi-pomoshi-v-rossii.htm)", parse_mode="Markdown", disable_web_page_preview=True)
     await bot.send_message(message.chat.id, "Что стряслось, друг?")
     array_of_chats.add_message (message.chat.id, {'role': 'assistant', 'content': 'Отвечай от имени Роджера. Это бот, который поддерживает людей с плохим настроением'})
 
