@@ -34,17 +34,11 @@ from keyboards import share_contact_kb
 from friends import await_for_a_friend_nickname, get_friend_nickname, get_menu_for_command, show_active_friends, show_info, watch_friends_internal_requests
 
 #текущая версия бота
-
-
-version = "1.2.5"
-
-
+version = "1.3.0"
 
 # read texts from json file
 with open('texts.json') as t:
     texts = json.load(t)
-
-
 
 #команда старт при первом запуске бота
 @dp.message_handler(commands=['start'])
@@ -334,6 +328,7 @@ async def process_support_command(message: types.Message, state: FSMContext):
 #запускаем второй поток для отправки сообщений раз в сутки
 async def set_task_to_send_messages(x):
     asyncio.create_task(enable_task_to_send_mes())
+
 
 if __name__ == "__main__":
     # executor.start_polling(dp, on_startup=set_task_to_send_messages)
