@@ -154,7 +154,6 @@ export const sendMoodMessage = async (
 
   //await fetch(`https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${userTelegramId}&text=${getGreetingsMessage()}&parse_mode=Markdown`, { method: 'POST' })
 
-
   try {
     const resp = await fetch(
       `https://api.telegram.org/bot${

@@ -4,36 +4,28 @@ from database import get_database
 from states import Recording
 from aiogram.dispatcher import FSMContext
 import openai
-from openai.error import RateLimitError 
 from keyboards import ask_for_rate_messages_support
 from database import get_database
 import datetime
 from common import delete_keyboard
 from config import chatGPT_token
 
-from classes.chatgpt_arrays import ArrayOfChats
-
-array_of_chats = ArrayOfChats()
-
 async def support_message(message: types.Message):
     await bot.send_message(message.chat.id, "Ты перешел в тестовый режим диалога. Чтобы выйти из него, введи команду /stop. Оставить фидбек или пожаловаться можно по команде /feedback")
     await bot.send_message(message.chat.id, "Что стряслось, друг?")
-    array_of_chats.add_message (message.chat.id, {'role': 'assistant', 'content': 'Отвечай от имени Роджера. Это бот, который поддерживает людей с плохим настроением'})
-
     await Recording.AwaitForAProblem.set()
 
 async def support_callback(callback_query: types.CallbackQuery):
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await bot.send_message(callback_query.from_user.id, "Ты перешел в тестовый режим диалога. Чтобы выйти из него, введи команду /stop. Оставить фидбек или пожаловаться можно по команде /feedback")
     await bot.send_message(callback_query.from_user.id, "Что стряслось, друг?")
-    array_of_chats.add_message (callback_query.from_user.id, {'role': 'assistant', 'content': 'Отвечай от имени Роджера. Это бот, который поддерживает людей с плохим настроением'})
     await Recording.AwaitForAProblem.set()
 
 async def await_for_a_problem(message: types.Message, state: FSMContext):
     await state.update_data(AwaitForAProblem=message.text)
+    arr = [{'role': 'assistant', 'content': 'Отвечай от имени Роджера. Это бот, который поддерживает людей с плохим настроением'}]
     if message.text == "/stop":
         await state.finish()
-        array_of_chats.delete_array(message.chat.id)
         await bot.send_message(message.chat.id, "Ты вышел из режима диалога. Чтобы вернуться в него снова, вызови команду /support")
         return 
     
@@ -52,27 +44,23 @@ async def await_for_a_problem(message: types.Message, state: FSMContext):
         role = "user"
         mes = message.text.replace('\n', ' ')
         answer = {'role': role, 'content': mes}
-        array_of_chats.add_message(message.chat.id, answer)
+        arr.append(answer)
         completions = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=array_of_chats.get_chat(message.chat.id)
+            messages=arr
 
 )
         message_text = str(completions.choices[0].message.content).encode('unicode_escape').decode('unicode_escape', 'ignore')
 
         id_message = await bot.send_message(message.chat.id, message_text, reply_markup=ask_for_rate_messages_support)
-        role = "assistant"
-        answer = {'role': role, 'content': message_text}
-        array_of_chats.add_message(message.chat.id, answer)
+        
         collection_name['support_messages_outcome'].insert_one({"user_id": id_user_db["_id"], "tg_id_user": message.chat.id, "time_to_send": datetime.datetime.now(), "id_tg_message": id_message.message_id, "text": id_message.text, "rate": None})
 
         await Recording.AwaitForAProblem.set()
         collection_name['support_messages_income'].find().close() 
         collection_name['support_messages_outcome'].find().close() 
-    except RateLimitError:
-        await bot.send_message(message.chat.id, "Бот сейчас перегружен запросами 😿 Подожди 10 секунд и повтори свой вопрос")
-    except Exception as e:     
-        await bot.send_message(message.chat.id, "Не получилось обработать запрос. Переформулируй его или попробуй повторить его позже. Ошибка: " + str(e))
+    except Exception as e: 
+          await bot.send_message(message.chat.id, "Не получилось обработать запрос. Переформулируй его или попробуй повторить его позже. Ошибка: " + str(e))
 
     
 async def callback_after_click_on_button_support(callback_query: types.CallbackQuery, state: FSMContext, rate: bool):
