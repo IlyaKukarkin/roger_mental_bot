@@ -32,7 +32,7 @@ from feedback_answer import feedback_answer_start, feedback_send_text_to_user
 from chatgpt import support_message, await_for_a_problem, callback_after_click_on_button_support, support_callback
 
 from keyboards import share_contact_kb
-from friends import await_for_a_friend_nickname, get_friend_nickname, get_menu_for_command, show_active_friends, show_info, watch_friends_internal_requests
+#from friends import await_for_a_friend_nickname, get_friend_nickname, get_menu_for_command, show_active_friends, show_info, watch_friends_internal_requests
 
 #текущая версия бота
 version = "1.3.0"
