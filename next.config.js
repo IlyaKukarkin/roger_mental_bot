@@ -1,4 +1,4 @@
-const { withAxiom } = require("next-axiom");
+const { withLogtail } = require('@logtail/next');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -10,4 +10,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withAxiom(nextConfig);
+module.exports = withLogtail(nextConfig);

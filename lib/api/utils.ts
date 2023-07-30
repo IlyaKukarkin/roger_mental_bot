@@ -1,4 +1,5 @@
 import { ObjectId, FindCursor } from "mongodb";
+import { log } from "@logtail/next";
 
 import clientPromise from "../mongodb";
 import {
@@ -8,6 +9,13 @@ import {
   sendThatsItMessage,
   sendMessageToAdmins,
 } from "../api/users";
+import {
+  APILog,
+  APILogError,
+  APILogErrorName,
+  APILogStage,
+  APILogUser,
+} from "./types";
 
 type MentalHours = {
   id_user: ObjectId;
@@ -19,7 +27,22 @@ type MentalHours = {
   rate: number;
 };
 
+const logData: APILog = {
+  context: {
+    stage: APILogStage.ASK_MOOD,
+  },
+};
+
 export const checkAndDeleteMoodKeyboard = async (userId: ObjectId) => {
+  const logUser: APILogUser = {
+    _id: userId,
+  };
+
+  log.info(`Start delete mood keyboard`, {
+    ...logData,
+    user: logUser,
+  });
+
   const client = await clientPromise;
   const mentalRateCol = client.db("roger-bot-db").collection("mental_rate");
 
@@ -60,6 +83,16 @@ export const checkAndDeleteMoodKeyboard = async (userId: ObjectId) => {
       const userId = mentalHours[0].id_user;
       const tgMessage = mentalHours[0].id_tg_message;
 
+      log.info(`Hours passed from last unanswered mood message`, {
+        ...logData,
+        user: logUser,
+        details: {
+          dateDiff,
+          tgMessage,
+          userId,
+        },
+      });
+
       if (dateDiff === 3) {
         const telegramId = await getTelegramId(userId);
         await sendHurryUpMessage(telegramId);
@@ -70,12 +103,26 @@ export const checkAndDeleteMoodKeyboard = async (userId: ObjectId) => {
         await deleteMarkupKeyboard(telegramId, tgMessage);
         // await sendThatsItMessage(telegramId);
       }
-    } catch (e) {
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      const logError: APILogError = {
+        name: APILogErrorName.GENERIC,
+        trace: errorMessage,
+      };
+
+      log.error("Delete mood keyboard error", {
+        ...logData,
+        user: logUser,
+        error: logError,
+      });
+
+      // ToDo: убрать, как проверю, что логи совпадают
       await sendMessageToAdmins(`
           Ошибка при удалении клавиатуры
           Пользователь (ID монги): ${userId}
           Время: ${new Date()}
-          Ошибка: ${e}
+          Ошибка: ${errorMessage}
           `);
     }
   }
