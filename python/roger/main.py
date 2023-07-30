@@ -6,12 +6,13 @@ from aiogram.dispatcher import FSMContext
 from aiogram import types, filters
 from aiogram.types import CallbackQuery, ReplyKeyboardRemove
 from aiogram.utils.callback_data import CallbackData
+from aiogram.types import UserShared
 
 
 from logger import logger
 from states import Recording, FriendsStates, Registration
 from common import check_id_username_is_valid_before_save, delete_keyboard
-from database import create_new_user, is_user_active
+from database import create_new_user, is_user_active#, update_rename_users
 from feedback import feedback_start, feedback_get_text_from_user, feedback_get_photo_from_user
 from version import version_command
 from restart import restart_command
@@ -31,19 +32,14 @@ from feedback_answer import feedback_answer_start, feedback_send_text_to_user
 from chatgpt import support_message, await_for_a_problem, callback_after_click_on_button_support, support_callback
 
 from keyboards import share_contact_kb
-from friends import await_for_a_friend_nickname, get_friend_nickname
+#from friends import await_for_a_friend_nickname, get_friend_nickname, get_menu_for_command, show_active_friends, show_info, watch_friends_internal_requests
 
 #текущая версия бота
-
-
-version = "1.2.5"
-
+version = "1.3.0"
 
 # read texts from json file
 with open('texts.json') as t:
     texts = json.load(t)
-
-
 
 #команда старт при первом запуске бота
 @dp.message_handler(commands=['start'])
@@ -78,23 +74,34 @@ async def process_restart_command(message: types.Message):
     print('Запускаю 12 часов цикл отправки сообщений')
     asyncio.create_task(start_12_hours_message_loop())
 
-# #тестовая команда
-# @dp.message_handler(commands=['test'])
-# async def process_start_command(message: types.Message):
-#     await bot.send_message(message.chat.id, "Меня не тестили, сорри!", reply_markup=share_contact_kb)
-
-# @dp.message_handler(commands=['test1'])
-# async def process_start_command(message: types.Message):
-#     await bot.send_message(message.chat.id, "Меня не тестили, сорри!", reply_markup = ReplyKeyboardRemove())
+#тестовая команда
+@dp.message_handler(commands=['test'])
+async def process_start_command(message: types.Message):
+    await bot.send_message(message.chat.id, "Меня не тестили, сорри!", reply_markup=share_contact_kb)
 
 # @dp.message_handler(commands=['friends'])
 # async def friends_command(message: types.Message):
-#     await await_for_a_friend_nickname(message)
+#     await get_menu_for_command(message)
+
+# @dp.callback_query_handler(lambda c: c.data == 'add_friends')
+# async def add_friends_handler(callback_query: types.CallbackQuery):
+#     await await_for_a_friend_nickname(callback_query)
 
 # @dp.message_handler(state=FriendsStates.AwaitForAFriendNicknameToAdd)
 # async def process_callback_awaitforamessage_button(message: types.Message, state: FSMContext):
 #     await get_friend_nickname(message, state)
 
+# @dp.callback_query_handler(lambda c: c.data == 'check_friend_list')
+# async def friends_list_handler(callback_query: types.CallbackQuery):
+#     await show_active_friends(callback_query)
+
+# @dp.callback_query_handler(lambda c: c.data == 'info_friend_list')
+# async def friends_info_handler(callback_query: types.CallbackQuery):
+#     await show_info(callback_query)
+
+# @dp.callback_query_handler(lambda c: c.data == 'friends_internal_requests')
+# async def friends_info_handler(callback_query: types.CallbackQuery):
+#     await watch_friends_internal_requests(callback_query)
 
 #вывод статистики по созданному пользователем сообщению
 #колбек для обработки статистики по сообщению пользователя
@@ -313,10 +320,16 @@ async def process_callback_orangebutton_button2(callback_query: types.CallbackQu
 async def process_callback_redbutton_button1(callback_query: types.CallbackQuery, state: FSMContext):
     await callback_after_click_on_color_button(callback_query, state, 1, 'red')
 
+# дефолтная обработка любого сообщения
+@dp.message_handler(content_types = 'text', state = '*')
+async def process_support_command(message: types.Message, state: FSMContext):
+    await bot.send_message(message.chat.id, "Не знаю эту команду. Попробуй написать что-нибудь другое")
+
 #дефолтный запуск
 #запускаем второй поток для отправки сообщений раз в сутки
 async def set_task_to_send_messages(x):
     asyncio.create_task(enable_task_to_send_mes())
+
 
 if __name__ == "__main__":
     logger.info('LET\'S FUCKING GOOOOOOOOOOO!')
