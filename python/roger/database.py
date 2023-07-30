@@ -69,3 +69,13 @@ async def is_user_active(id_user: int):
         return user['is_active']
     except (Exception):
         await bot.send_message(int(id_user), "Ой, кажется, что-то пошло не так 😞 \nПовтори действие через несколько минут или напиши разработчикам через команду /feedback")
+
+async def search_user_by_object_id(id: ObjectId):
+    try: 
+        collection_name = get_database()
+        user = collection_name["users"].find_one(
+                {"_id": id}, {'_id': 1, 'name': 1, 'telegram_username': 1, "telegram_id": 1})
+        collection_name['users'].find().close()
+        return user
+    except (Exception):
+        return None
