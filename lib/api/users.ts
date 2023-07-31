@@ -139,37 +139,6 @@ export const sendMoodMessage = async (
     user: logUser,
   });
 
-  // ToDo: это удаление клавиатуры тут не нужно, т.к. сейчас клавиатура удалится через 9 часов
-  // ToDo: убрать этот код, если ничего не сломается
-
-  // const user = await getUserByTelegramId(userTelegramId);
-
-  // const client = await clientPromise;
-  // const mentalRateCl = client.db("roger-bot-db").collection("mental_rate");
-
-  // const options = {
-  //   sort: { date: -1 },
-  //   projection: { id_tg_message: 1 },
-  // };
-
-  // const prevMentalRate = await mentalRateCl.findOne(
-  //   { rate: 0, id_user: user["_id"] },
-  //   options
-  // );
-
-  // if (prevMentalRate) {
-  //   try {
-  //     await deleteMarkupKeyboard(userTelegramId, prevMentalRate.id_tg_message);
-  //   } catch (e) {
-  //     await sendMessageToAdmins(`
-  //           Ошибка при удалении клавиатуры (будто лишняя)
-  //           Пользователь: ${userTelegramId}
-  //           Время: ${new Date()}
-  //           Ошибка: ${e}
-  //           `);
-  //   }
-  // }
-
   const buttons = {
     inline_keyboard: [
       [
@@ -246,15 +215,6 @@ export const sendMoodMessage = async (
       error: logError,
     });
 
-    // ToDo: убрать, как проверю, что логи совпадают
-    await sendMessageToAdmins(`
-          Ошибка при отправке вопроса о настроении
-          Пользователь: ${userTelegramId}
-          Время: ${new Date()}
-          Код ошибки: ${data.error_code}
-          Ошибка: ${data.description}
-          `);
-
     return null;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -268,14 +228,6 @@ export const sendMoodMessage = async (
       user: logUser,
       error: logError,
     });
-
-    // ToDo: убрать, как проверю, что логи совпадают
-    await sendMessageToAdmins(`
-          Ошибка при отправке вопроса о настроении
-          Пользователь: ${userTelegramId}
-          Время: ${new Date()}
-          Ошибка: ${errorMessage}
-          `);
   }
 
   return null;

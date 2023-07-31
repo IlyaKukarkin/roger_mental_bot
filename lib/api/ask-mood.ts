@@ -2,7 +2,7 @@ import { ObjectId, FindCursor } from "mongodb";
 import { log } from "@logtail/next";
 
 import clientPromise from "../mongodb";
-import { sendMessageToAdmins, sendMoodMessage } from "./users";
+import { sendMoodMessage } from "./users";
 import { checkAndDeleteMoodKeyboard } from "./utils";
 import {
   User,
@@ -73,10 +73,6 @@ export const askMood = async (): Promise<Boolean> => {
   const users = await cursorUsers.toArray();
   const usersToSend = users.filter((user) => user.result);
 
-  // ToDo: убрать, как проверю, что логи совпадают
-  await sendMessageToAdmins(
-    `Достал ${users.length} пользователей из БД, время настало у ${usersToSend.length} пользователей`
-  );
   log.info(
     `Retrieved ${users.length} users from the database, time has come for ${usersToSend.length} users`,
     {
@@ -124,14 +120,6 @@ export const askMood = async (): Promise<Boolean> => {
           user,
           error: logError,
         });
-
-        // ToDo: убрать, как проверю, что логи совпадают
-        await sendMessageToAdmins(`
-          Ошибка при отправке настроения
-          Пользователь: ${user.telegram_id}
-          Время: ${new Date()}
-          Ошибка: ${errorMessage}
-          `);
       }
     })
   );
