@@ -7,7 +7,6 @@ import {
   deleteMarkupKeyboard,
   sendHurryUpMessage,
   sendThatsItMessage,
-  sendMessageToAdmins,
 } from "../api/users";
 import {
   APILog,
@@ -116,14 +115,6 @@ export const checkAndDeleteMoodKeyboard = async (userId: ObjectId) => {
         user: logUser,
         error: logError,
       });
-
-      // ToDo: убрать, как проверю, что логи совпадают
-      await sendMessageToAdmins(`
-          Ошибка при удалении клавиатуры
-          Пользователь (ID монги): ${userId}
-          Время: ${new Date()}
-          Ошибка: ${errorMessage}
-          `);
     }
   }
 };
