@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.types import ReplyKeyboardRemove, \
     ReplyKeyboardMarkup, KeyboardButton, \
-    InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButtonRequestUser, KeyboardButtonRequestChat
+    InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButtonRequestUser
 
 
 green_button_answer = InlineKeyboardButton(
@@ -57,6 +57,11 @@ feedback_start_button = InlineKeyboardButton(
 feedback_keyboard = InlineKeyboardMarkup().add(
     feedback_start_button)
 
+feedback_finish_button = InlineKeyboardButton(
+    'Не отправлять фидбек', callback_data='feedback_finish')
+feedback_finish_keyboard = InlineKeyboardMarkup().add(
+    feedback_finish_button)
+
 support_start_button = InlineKeyboardButton(
     'Начать диалог с Роджером', callback_data='support_start')
 support_start_keyboard = InlineKeyboardMarkup().add(
@@ -67,3 +72,30 @@ share_contact_kb = ReplyKeyboardMarkup()
 share_contact_kb.add(share_contact_button)
 
 approve_friends_request = InlineKeyboardButton('Добавить в друзья', сallback_data='approve_request')
+
+
+
+async def add_button_for_friends_requests(requests: int):
+    friends_menu_kb = InlineKeyboardMarkup(row_width=1, one_time_keyboard=True)
+
+    if requests > 0:
+         friends_requests_button = InlineKeyboardButton('(' + str(requests) + (') Входящие заявки'), callback_data='friends_internal_requests')
+         friends_menu_kb = friends_menu_kb.add(friends_requests_button)
+
+    add_friends_button = InlineKeyboardButton(
+    'Добавить нового друга', callback_data='add_friends')
+
+    check_friends_list_button = InlineKeyboardButton(
+    'Посмотреть список друзей', callback_data='check_friend_list')
+
+    info_friends_button = InlineKeyboardButton(
+    'Инфо', callback_data='info_friend_list')
+
+    friends_menu_kb = friends_menu_kb.add(
+    add_friends_button, check_friends_list_button, info_friends_button)
+
+    return friends_menu_kb
+
+
+
+

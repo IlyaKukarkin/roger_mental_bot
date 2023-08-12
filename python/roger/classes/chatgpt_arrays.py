@@ -16,8 +16,9 @@ class ArrayOfChats(object):
         self.get_chat(i)
 
     def delete_array(self, i):
-        self.listofarrays.pop(i)
-        self.get_list_of_chats()
+        if len(self.listofarrays)>0:
+            self.listofarrays.pop(i)
+            self.get_list_of_chats()
 
     def delete_listofarrays(self):
         self.listofarrays.clear()
