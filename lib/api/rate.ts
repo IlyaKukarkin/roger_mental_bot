@@ -40,7 +40,7 @@ type RateResponse = {
 
 const logData: APILog = {
   context: {
-    stage: APILogStage.ASK_MOOD,
+    stage: APILogStage.RATE,
   },
 };
 
