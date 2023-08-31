@@ -1,7 +1,9 @@
 import { ObjectId } from "mongodb";
+import { log } from "@logtail/next";
 
 import clientPromise from "../mongodb";
 import { sendMessageToAdmins, sendMessageToUser } from "./users";
+import { APILog, APILogStage } from "./types";
 
 type MessageToRate = {
   _id: ObjectId;
@@ -31,31 +33,21 @@ type Settings = {
   volunteer_ban_dislikes_in_a_row: number;
 };
 
-type User = {
-  _id: ObjectId;
-  telegram_username: string;
-  name: string;
-  timezone: string;
-  is_volunteer: boolean;
-  is_banned_from_volunteering: boolean;
-  form_id: ObjectId;
-  telegram_id: string;
-  is_admin: boolean;
-  is_active: boolean;
-  created_at: string;
-  time_to_send_messages: number;
-};
-
 type RateResponse = {
   update_to_approve: number;
   update_to_review: number;
+};
+
+const logData: APILog = {
+  context: {
+    stage: APILogStage.ASK_MOOD,
+  },
 };
 
 export const getCalculatedRates = async (): Promise<RateResponse> => {
   const client = await clientPromise;
   const messagesCol = client.db("roger-bot-db").collection("messages");
   const settingsCol = client.db("roger-bot-db").collection("app_settings");
-  const usersCol = client.db("roger-bot-db").collection("users");
 
   const messages: MessageToRate[] = await messagesCol.aggregate([
     {
@@ -197,12 +189,29 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
   const updateToApproved: ObjectId[] = [];
   const updateToReview: ObjectId[] = [];
 
+  log.info(
+    `Retrieved ${messages.length} messages from the database to check ratings`,
+    {
+      ...logData,
+    }
+  );
+
   for await (const message of messages) {
     const calculatedMessage = calculateRate(message, settings);
+
+    const logCalculatedResult = {
+      ...logData,
+      message,
+      details: {
+        calculatedMessage,
+      },
+    };
 
     if (message.is_approved !== calculatedMessage.is_approved) {
       if (calculatedMessage.is_approved) {
         updateToApproved.push(calculatedMessage._id);
+
+        log.info(`Message approved`, logCalculatedResult);
 
         try {
           await sendMessageToUser(
@@ -212,34 +221,43 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
             }» прошло модерацию и будет показываться тем, кому это важно.%0A%0AСпасибо ❤️%0A%0AСоздать новое сообщение можно через команду /fillform`
           );
         } catch (e) {
-          console.log(
-            "Ошибка при отправке сообщения пользователю (rate.ts): ",
-            e
+          log.error(
+            `Error sending "Message was approved" message to the user`,
+            {
+              ...logData,
+              user: {
+                telegram_id: message.user_telegram_id,
+              },
+            }
           );
         }
       } else {
+        log.info(`Message send back to review`, logCalculatedResult);
+
         updateToReview.push(calculatedMessage._id);
       }
     }
   }
 
-  // create a filter to update all movies with a 'G' rating
+  // create a filter to update all messages to "Approve"
   const filterToApproved = {
     _id: {
       $in: updateToApproved,
     },
   };
+  // create a filter to update all messages to "Review"
   const filterToReview = {
     _id: {
       $in: updateToReview,
     },
   };
-  // increment every document matching the filter with Approved state
+  // increment every document matching the filter with "Approved" state
   const docToApproved = {
     $set: {
       is_approved: true,
     },
   };
+  // increment every document matching the filter with "Review" state
   const docToReview = {
     $set: {
       is_approved: false,
@@ -252,15 +270,12 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
       docToApproved
     );
 
-    const resString = `Обновил ${resultApprove.modifiedCount} сообщение(ий) на статус "Аппрув"`;
-
-    console.log(resString);
-    await sendMessageToAdmins(resString);
+    log.info(
+      `Updated ${resultApprove.modifiedCount} messages to status "Approve"`,
+      { ...logData }
+    );
   } else {
-    const resString = `Нечего обновлять на статус "Аппрув"`;
-
-    console.log(resString);
-    await sendMessageToAdmins(resString);
+    log.info(`Updated 0 messages to status "Approve"`, { ...logData });
   }
 
   if (updateToReview.length !== 0) {
@@ -269,15 +284,12 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
       docToReview
     );
 
-    const resString = `Обновил ${resultReview.modifiedCount} сообщение(ий) на статус "Модерация"`;
-
-    console.log(resString);
-    await sendMessageToAdmins(resString);
+    log.info(
+      `Updated ${resultReview.modifiedCount} messages to status "Review"`,
+      { ...logData }
+    );
   } else {
-    const resString = `Нечего обновлять на статус "Модерация"`;
-
-    console.log(resString);
-    await sendMessageToAdmins(resString);
+    log.info(`Updated 0 messages to status "Review"`, { ...logData });
   }
 
   return {
