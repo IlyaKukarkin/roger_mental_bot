@@ -1,4 +1,4 @@
-import { ObjectId } from "mongodb";
+import { FindCursor, ObjectId } from "mongodb";
 import { log } from "@logtail/next";
 
 import clientPromise from "../mongodb";
@@ -49,7 +49,7 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
   const messagesCol = client.db("roger-bot-db").collection("messages");
   const settingsCol = client.db("roger-bot-db").collection("app_settings");
 
-  const messages: MessageToRate[] = await messagesCol.aggregate([
+  const messages: FindCursor<MessageToRate> = await messagesCol.aggregate([
     {
       $lookup: {
         from: "rate",
@@ -189,8 +189,10 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
   const updateToApproved: ObjectId[] = [];
   const updateToReview: ObjectId[] = [];
 
+  const messagesArray = await messages.toArray();
+
   log.info(
-    `Retrieved ${messages.length} messages from the database to check ratings`,
+    `Retrieved ${messagesArray.length} messages from the database to check ratings`,
     {
       ...logData,
     }
