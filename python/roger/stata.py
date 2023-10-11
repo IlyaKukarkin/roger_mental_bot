@@ -125,7 +125,7 @@ async def send_stata(id_message: str):
         image_url = image_url + \
             f"&image={urllib.parse.quote('https://' + image)}"
 
-    result_image_url = 'https://roger-bot.space/api/message-stats' + image_url
+    result_image_url = 'https://rogerbot.tech/api/message-stats' + image_url
 
     await bot.send_photo(int(user["telegram_id"]), result_image_url)
 

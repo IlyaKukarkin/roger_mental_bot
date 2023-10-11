@@ -5,23 +5,23 @@ jobs:
     name: Restart bots
     runs-on: ubuntu-latest
     steps:
-    - name: Restarting docker images for bots
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ${{ secrets.SERVER_ADMIN_USER }}
-        password: ${{ secrets.SERVER_ADMIN_PASSWORD }}
-        port: ${{ secrets.SERVER_PORT }}
-        script: |
-          cd ../../opt
-          echo ${{ secrets.SERVER_ADMIN_PASSWORD }} | sudo -S sh restart.sh ${{ secrets.DOPPLER_TOKEN }}
+      - name: Restarting docker images for bots
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_ADMIN_USER }}
+          password: ${{ secrets.SERVER_ADMIN_PASSWORD }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            cd ../../opt
+            echo ${{ secrets.SERVER_ADMIN_PASSWORD }} | sudo -S sh restart.sh ${{ secrets.DOPPLER_TOKEN }}
   restart-success:
     name: Success restart bots
     runs-on: ubuntu-latest
     needs: restart
     steps:
-    - name: Notification for admins
-      run: |
+      - name: Notification for admins
+        run: |
           curl --request POST \
-          --url 'https://roger-bot.space/api/restart-success' \
+          --url 'https://rogerbot.tech/api/restart-success' \
           --header 'Authorization: Bearer ${{ secrets.CRON_API_KEY }}'
