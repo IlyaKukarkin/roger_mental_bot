@@ -130,7 +130,7 @@ async def send_rate_stata(id_message: str, stata_type: str,
 
     image_url = f"?username={urllib.parse.quote(user['name'])}&compare_to_others={round(compare / compare_total_users * 100)}&title={urllib.parse.quote(title)}&data={urllib.parse.quote(json.dumps(data))}"
 
-    result_image_url = 'https://roger-bot.space/api/user-stats' + image_url
+    result_image_url = 'https://rogerbot.tech/api/user-stats' + image_url
 
     await bot.send_photo(id_message, result_image_url)
 

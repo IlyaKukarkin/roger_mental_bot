@@ -1,7 +1,7 @@
 name: rate-cron
 on:
   schedule:
-    - cron: '0 23,11 * * *'
+    - cron: "0 23,11 * * *"
 jobs:
   cron:
     runs-on: ubuntu-latest
@@ -9,5 +9,5 @@ jobs:
       - name: Call our API route to calculate rate
         run: |
           curl --request POST \
-          --url 'https://roger-bot.space/api/rate-cron' \
+          --url 'https://rogerbot.tech/api/rate-cron' \
           --header 'Authorization: Bearer ${{ secrets.CRON_API_KEY }}'
