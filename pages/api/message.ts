@@ -24,10 +24,10 @@ export default async function handler(
   switch (req.method) {
     case "GET":
       try {
-        const result = await checkFormId(req.query.form_id as string);
+        const user = await checkFormId(req.query.form_id as string);
 
-        if (result) {
-          return res.status(200).json({ name: result });
+        if (user) {
+          return res.status(200).json({ ...user });
         }
         return res.status(403).json({});
       } catch (e: any) {

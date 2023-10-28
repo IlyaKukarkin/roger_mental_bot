@@ -6,6 +6,7 @@ const contentful = require("contentful-management");
 
 import clientPromise from "../mongodb";
 import { ADMIN_USER } from "../../utils/constants";
+import { User } from "./types";
 
 export type ImageData = {
   filename: string;
@@ -22,24 +23,35 @@ export type FormDataType = {
   is_anonymous: boolean;
 };
 
-export const checkFormId = async (form_id: string = ""): Promise<string> => {
+export const checkFormId = async (
+  form_id: string = ""
+): Promise<User | null> => {
   if (!form_id || !ObjectId.isValid(form_id)) {
-    return "";
+    return null;
   }
 
   const client = await clientPromise;
   const collection = client.db("roger-bot-db").collection("users");
-  const results = await collection.findOne({ form_id: new ObjectId(form_id) });
+  const user = await collection.findOne({ form_id: new ObjectId(form_id) });
 
-  if (results && results.is_admin) {
-    return ADMIN_USER;
+  if (!user) {
+    return null;
   }
 
-  if (results && results.name) {
-    return results.name;
+  if (user.is_admin) {
+    return {
+      ...user,
+      name: ADMIN_USER,
+      telegram_username: ADMIN_USER,
+      telegram_id: ADMIN_USER,
+    };
   }
 
-  return "";
+  if (user.name) {
+    return user;
+  }
+
+  return null;
 };
 
 export const uploadImage = async (image: ImageData): Promise<any> => {

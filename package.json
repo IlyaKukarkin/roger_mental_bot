@@ -10,6 +10,7 @@
     "format": "prettier \"**/*.{ts,tsx,md}\" --write"
   },
   "dependencies": {
+    "@amplitude/analytics-browser": "^2.3.3",
     "@logtail/next": "^0.1.0",
     "@vercel/og": "^0.0.20",
     "contentful-management": "^10.18.1",
