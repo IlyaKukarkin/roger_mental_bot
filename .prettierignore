@@ -1,3 +1,7 @@
 # Ignore artifacts:
 .next
 node_modules
+.vercel
+__pycache__
+jimmy-venv
+roger-venv
