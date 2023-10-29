@@ -31,8 +31,9 @@ from fillform import fillform_command
 from feedback_answer import feedback_answer_start, feedback_send_text_to_user
 from chatgpt import support_message, await_for_a_problem, callback_after_click_on_button_support, support_callback
 
-from keyboards import share_contact_kb
-#from friends import await_for_a_friend_nickname, get_friend_nickname, get_menu_for_command, show_active_friends, show_info, watch_friends_internal_requests
+from friends import await_for_a_friend_nickname, get_friend_nickname, get_menu_for_command, show_active_friends, show_info, watch_friends_internal_requests, send_request_to_a_friend, friends_internal_request, call_back_approve, call_back_decline, delete_friends, delete_friends_message
+from aiogram.utils.callback_data import CallbackData
+
 
 #текущая версия бота
 version = "1.3.0"
@@ -74,34 +75,74 @@ async def process_restart_command(message: types.Message):
     print('Запускаю 12 часов цикл отправки сообщений')
     asyncio.create_task(start_12_hours_message_loop())
 
-#тестовая команда
-@dp.message_handler(commands=['test'])
-async def process_start_command(message: types.Message):
-    await bot.send_message(message.chat.id, "Меня не тестили, сорри!", reply_markup=share_contact_kb)
+@dp.message_handler(commands=['friends'])
+async def friends_command(message: types.Message):
+    await get_menu_for_command(message.chat.id)
 
-# @dp.message_handler(commands=['friends'])
-# async def friends_command(message: types.Message):
-#     await get_menu_for_command(message)
+@dp.callback_query_handler(lambda c: c.data == 'main', state='*')
+async def add_friends_handler(callback_query: types.CallbackQuery, state: FSMContext):
+    await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
+    await state.finish()
+    await bot.answer_callback_query(callback_query.id, text = 'Ты вышел из прошлого режима, можешь выбрать другой 😌')
 
-# @dp.callback_query_handler(lambda c: c.data == 'add_friends')
-# async def add_friends_handler(callback_query: types.CallbackQuery):
-#     await await_for_a_friend_nickname(callback_query)
+@dp.callback_query_handler(lambda c: c.data == 'friends_menu')
+async def add_friends_handler(callback_query: types.CallbackQuery):
+    await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
+    await get_menu_for_command(callback_query.from_user.id)
 
-# @dp.message_handler(state=FriendsStates.AwaitForAFriendNicknameToAdd)
-# async def process_callback_awaitforamessage_button(message: types.Message, state: FSMContext):
-#     await get_friend_nickname(message, state)
+@dp.callback_query_handler(lambda c: c.data == 'add_friends')
+async def add_friends_handler(callback_query: types.CallbackQuery):
+    await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(types.KeyboardButton("Выбрать контакт", request_user=types.KeyboardButtonRequestUser(1, user_is_bot=False)))
+    await bot.send_message(callback_query.from_user.id, "Выбери контакт в Telegram, который хочешь добавить в друзья", reply_markup=keyboard)
+    await Recording.AwaitForAFriendContact.set()
 
-# @dp.callback_query_handler(lambda c: c.data == 'check_friend_list')
-# async def friends_list_handler(callback_query: types.CallbackQuery):
-#     await show_active_friends(callback_query)
+@dp.message_handler(content_types=types.ContentType.USER_SHARED, state=Recording.AwaitForAFriendContact)
+async def contacts(msg: types.Message, state: FSMContext):
+    await msg.answer("Вычисляю, знаком ли я с твоим другом...", reply_markup=types.ReplyKeyboardRemove())
+    await send_request_to_a_friend(msg)
+    await state.finish()
 
-# @dp.callback_query_handler(lambda c: c.data == 'info_friend_list')
-# async def friends_info_handler(callback_query: types.CallbackQuery):
-#     await show_info(callback_query)
+@dp.callback_query_handler(call_back_approve.filter(id = 'friend_approve'))
+async def process_callback_friend_request_approve_button(callback_query: types.CallbackQuery, callback_data: dict):
+    friend = callback_data.get("friend")
+    await friends_internal_request(callback_query, friend, True)
 
-# @dp.callback_query_handler(lambda c: c.data == 'friends_internal_requests')
-# async def friends_info_handler(callback_query: types.CallbackQuery):
-#     await watch_friends_internal_requests(callback_query)
+@dp.callback_query_handler(lambda c: c.data == 'friend_decline')
+async def process_callback_friend_request_decline_button(callback_query: types.CallbackQuery, callback_data: dict):
+    friend = callback_data.get("friend")
+    await friends_internal_request(callback_query, friend, False)
+
+@dp.callback_query_handler(lambda c: c.data == 'friend_delete')
+async def process_callback_friend_request_decline_button(callback_query: types.CallbackQuery, callback_data: dict):
+    friend = callback_data.get("friend")
+    
+    await delete_friends_message()
+
+@dp.message_handler(state=FriendsStates.AwaitForAFriendNicknameToAdd)
+async def process_callback_awaitforamessage_button(message: types.Message, state: FSMContext):
+    await get_friend_nickname(message, state)
+
+@dp.callback_query_handler(lambda c: c.data == 'check_friend_list')
+async def friends_list_handler(callback_query: types.CallbackQuery):
+    await show_active_friends(callback_query)
+
+@dp.callback_query_handler(lambda c: c.data == 'info_friend_list')
+async def friends_info_handler(callback_query: types.CallbackQuery):
+    await show_info(callback_query)
+
+@dp.callback_query_handler(lambda c: c.data == 'delete_from_friends')
+async def delete_friends_handler(callback_query: types.CallbackQuery):
+    await delete_friends(callback_query)
+
+@dp.callback_query_handler(lambda c: c.data == 'friends_internal_requests')
+async def friends_info_handler(callback_query: types.CallbackQuery):
+    await watch_friends_internal_requests(callback_query.from_user.id, callback_query.message.message_id, True)
+
+@dp.message_handler(commands=['friends_internal_requests'])
+async def friends_command(message: types.Message):
+    await watch_friends_internal_requests(message.chat.id, message.message_id, False)
 
 #вывод статистики по созданному пользователем сообщению
 #колбек для обработки статистики по сообщению пользователя
@@ -208,7 +249,7 @@ async def process_support_command(message: types.Message, state: FSMContext):
 async def send_to_user_feedback_answer_text(message: types.Message, state: FSMContext):
     await await_for_a_problem(message, state)
 
-@dp.message_handler(commands=['money'])
+@dp.message_handler(commands=['donate'])
 async def process_sendmes_command(message: types.Message):
     await bot.send_message(message.chat.id, "Задонатить Роджеру: https://www.tinkoff.ru/cf/9KODrlaoPCR. Деньги будут потрачены на более мощный сервер 🔥", disable_web_page_preview=True)
 

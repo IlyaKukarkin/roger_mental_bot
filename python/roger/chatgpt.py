@@ -59,7 +59,6 @@ async def await_for_a_problem(message: types.Message, state: FSMContext):
 
 )
         message_text = str(completions.choices[0].message.content).encode('unicode_escape').decode('unicode_escape', 'ignore')
-
         id_message = await bot.send_message(message.chat.id, message_text, reply_markup=ask_for_rate_messages_support)
         role = "assistant"
         answer = {'role': role, 'content': message_text}

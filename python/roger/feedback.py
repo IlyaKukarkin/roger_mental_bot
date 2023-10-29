@@ -20,7 +20,7 @@ async def rate_stata_handler_week2(callback_query: types.CallbackQuery):
 async def feedback_getting(chat_id: int, message_id: int):
     await delete_keyboard(chat_id, message_id)
     await bot.send_message(chat_id, 
-                          "Ты перешел в режим отправки фидбека. Ниже отправь любое сообщение (текст или фото) — и я перешлю его разработчикам.\n\nЕсли ты передумал, нажми на кнопку ниже — и я ничего не отправлю", parse_mode=ParseMode.MARKDOWN, reply_markup = feedback_finish_keyboard)
+                          "Ты перешел в режим отправки фидбека. Ниже отправь любое сообщение (текст или фото) — и я перешлю его разработчикам", parse_mode=ParseMode.MARKDOWN, reply_markup = feedback_finish_keyboard)
     await Recording.AwaitForAFeedback.set()
 
 @dp.callback_query_handler(lambda c: c.data == 'feedback_finish', state=Recording.AwaitForAFeedback)

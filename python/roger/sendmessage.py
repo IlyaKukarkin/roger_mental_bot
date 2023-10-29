@@ -21,6 +21,7 @@ from ratestata import send_rate_stata
 from mentalstrikes import mental_rates_strike_in_a_row
 from classes.chatgpt_arrays import ArrayOfChats
 from chatgpt import array_of_chats
+from friends import send_a_friend_message_about_bad_mood
 
 
 cart_cb = CallbackData("q", "id", "button_parameter")
@@ -60,8 +61,8 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     try:
         #добавил две строки ниже, чтобы по коллбеку стирать контекст общения с чатжпт, чтобы он не копился
-        # array_of_chats.delete_array(callback_query.from_user.id)
-        # array_of_chats.add_message (callback_query.from_user.id, {'role': 'assistant', 'content': 'Отвечай от имени Роджера. Это бот, который поддерживает людей с плохим настроением'})
+        array_of_chats.delete_array(callback_query.from_user.id)
+        array_of_chats.add_message (callback_query.from_user.id, {'role': 'assistant', 'content': 'Отвечай от имени Роджера. Это бот, который поддерживает людей с плохим настроением'})   
         collection_name = get_database()
         user = collection_name["users"].find_one( 
             {"telegram_id": str(callback_query.from_user.id)}, {'_id': 1, 'name': 0})
@@ -77,10 +78,12 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
                 await sunday_send_rate_stata(callback_query.from_user.id, rate_record['date'])
         #отключил чатжпт в колбеках
         #await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
+        if (color == 'red' or color == 'orange'):
+            await send_a_friend_message_about_bad_mood(callback_query.from_user.id, color)
         collection_name['users'].find().close()
         collection_name['mental_rate'].find().close()
     except (Exception):
-        await bot.send_message(callback_query.from_user.id, "Ой, кажется, что-то пошло не так 😞 \nПовтори отправку настроения через несколько минут или напиши разработчикам через команду /feedback")
+        await bot.send_message(callback_query.from_user.id, "Ой, кажется, что-то пошло не так 😞 \nНапиши разработчикам через команду /feedback, они помогут разобраться с проблемой 👌")
 
 
 async def create_message_with_support(chat_id: int, cursor: list, user_to_send: ObjectId):
