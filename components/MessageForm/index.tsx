@@ -9,17 +9,18 @@ import { imageValidator, linkValidator } from "./validators";
 import { AlertTypes } from "../Alert/types";
 import { FormDataType } from "../../lib/api/messages";
 import { ADMIN_USER } from "../../utils/constants";
+import { amplitude } from "../../utils/useAmplitudeInit";
+import { User } from "../../lib/api/types";
 
 const ERROR_INPUT_STYLES = "border-rose-500 dark:border-rose-500";
 
 type Props = {
-  form_id: string;
-  name: string;
+  user: User;
 };
 
-const MessageForm = ({ name, form_id }: Props) => {
+const MessageForm = ({ user }: Props) => {
   const [state, dispatch] = useReducer(reducer, initialState, (state) => {
-    if (name === ADMIN_USER) {
+    if (user.name === ADMIN_USER) {
       return { ...state, anonymous: true };
     }
     return state;
@@ -111,7 +112,7 @@ const MessageForm = ({ name, form_id }: Props) => {
     dispatch({ type: ActionType.SUBMIT_START });
 
     const form: FormDataType = {
-      form_id,
+      form_id: user.form_id.toString(),
       text: message,
       is_anonymous: anonymous,
       media_link: link || "",
@@ -135,6 +136,10 @@ const MessageForm = ({ name, form_id }: Props) => {
         });
 
         if (res.status === 403) {
+          amplitude.track("Form submit error", {
+            user,
+            error: { message: "Image upload error", code: 403 },
+          });
           router.push(`/${res.status}`);
           return;
         }
@@ -151,6 +156,10 @@ const MessageForm = ({ name, form_id }: Props) => {
           });
 
           if (formRes.status === 403) {
+            amplitude.track("Form submit error", {
+              user,
+              error: { message: "Message create error", code: 403 },
+            });
             router.push(`/${res.status}`);
             return;
           }
@@ -160,12 +169,19 @@ const MessageForm = ({ name, form_id }: Props) => {
               type: ActionType.SUBMIT_END,
               payload: SubmitResult.SUCCESS,
             });
+            amplitude.track("Form submit success", {
+              user,
+            });
             return;
           }
 
           dispatch({
             type: ActionType.SUBMIT_END,
             payload: SubmitResult.ERROR,
+          });
+          amplitude.track("Form submit error", {
+            user,
+            error: { message: "Generic error" },
           });
         }
 
@@ -263,21 +279,27 @@ const MessageForm = ({ name, form_id }: Props) => {
 
   const renderAlert = useMemo(() => {
     let messageText = "Мы всё сохранили, спасибо!";
+    let errorType = "";
 
     if (submitResult === SubmitResult.ERROR) {
       messageText = "Какие-то проблемы при сохранении, попробуй позже";
+      errorType = "Generic";
     }
     if (linkError) {
       messageText = "Ссылка не ссылка";
+      errorType = "Link";
     }
     if (imagesError === ImagesError.MORE_THAN_3) {
       messageText = "Только 3 картинки прикрепи";
+      errorType = "Image";
     }
     if (imagesError === ImagesError.LARGE_FILE) {
       messageText = "Одна или несколько картинок очень большие";
+      errorType = "Image";
     }
     if (!message) {
       messageText = "Куда, напиши слова поддержки";
+      errorType = "Text";
     }
 
     let alertType = AlertTypes.SUCCESS;
@@ -288,6 +310,12 @@ const MessageForm = ({ name, form_id }: Props) => {
       submitResult === SubmitResult.ERROR
     ) {
       alertType = AlertTypes.ERROR;
+      alert_visible &&
+        amplitude.track("Form submit error", {
+          user,
+          error: messageText,
+          error_type: errorType,
+        });
     }
 
     if (submitResult !== SubmitResult.SUCCESS) {
@@ -394,7 +422,11 @@ const MessageForm = ({ name, form_id }: Props) => {
                 name="name"
                 id="name"
                 disabled={true}
-                value={state.anonymous || name === ADMIN_USER ? "Аноним" : name}
+                value={
+                  state.anonymous || user.name === ADMIN_USER
+                    ? "Аноним"
+                    : user.name
+                }
                 className="w-full py-2 pl-10 text-sm rounded-md focus:outline-none dark:bg-gray-800 dark:text-gray-100 focus:dark:bg-gray-900 focus:border-violet-400"
               />
             </div>
@@ -404,7 +436,7 @@ const MessageForm = ({ name, form_id }: Props) => {
             name="anonymous"
             id="anonymous"
             aria-label="Заполнить анонимно?"
-            disabled={name === ADMIN_USER}
+            disabled={user.name === ADMIN_USER}
             defaultChecked={anonymous}
             onChange={() => dispatch({ type: ActionType.CHANGE_ANONYMOUS })}
             className="mr-1 rounded-sm focus:ring-violet-400 focus:border-violet-400 focus:ring-2 accent-violet-400"

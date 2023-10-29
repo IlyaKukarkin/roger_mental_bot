@@ -8,6 +8,7 @@ from pymongo import MongoClient
 import asyncio
 import certifi
 import contentful
+from amplitude import Amplitude
 
 from singleton import SingletonClass
 from handlers.start import start_handler
@@ -23,6 +24,7 @@ db_uri = os.getenv("MONGODB_URI")
 contenful_access_token = os.getenv("CONTENTFUL_ACCESS_TOKEN")
 contenful_space_id = os.getenv("CONTENTFUL_SPACE_ID")
 contentful_api_readonly_url = os.getenv("CONTENTFUL_API_READONLY_URL")
+amplitude_api_key = os.getenv("AMPLITUDE_API_KEY")
 
 singleton = SingletonClass()
 
@@ -35,16 +37,20 @@ database = MongoClient(db_uri, tlsCAFile=certifi.where())
 collection_name = database["roger-bot-db"]
 
 # Init contentful
-client = contentful.Client(
+contentfulClient = contentful.Client(
     contenful_space_id,
     contenful_access_token
 )
 
+# Init Amplitude
+amplitude = Amplitude(amplitude_api_key)
+
 singleton.bot = bot
 singleton.dispatcher = dispatcher
+singleton.amplitude = amplitude
 singleton.database = database
 singleton.collection_name = collection_name
-singleton.contentful = client
+singleton.contentful = contentfulClient
 
 
 @dispatcher.message_handler(commands=['start'])
@@ -82,7 +88,7 @@ async def send_messages():
 
 
 async def on_startup(x):
-    print('REMOVE')
+    print('Switch to GitHub cron')
     asyncio.create_task(send_messages())
 
 if __name__ == "__main__":

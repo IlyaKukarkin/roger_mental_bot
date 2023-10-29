@@ -2,9 +2,13 @@ import type { AppProps } from "next/app";
 
 import Head from "next/head";
 
+import useAmplitudeInit from "../utils/useAmplitudeInit";
+import Loading from "../components/Loading";
 import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const loading = useAmplitudeInit();
+
   return (
     <>
       <Head>
@@ -40,7 +44,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta name="msapplication-TileColor" content="#041347" />
         <meta name="theme-color" content="#ffffff" />
       </Head>
-      <Component {...pageProps} />
+      {loading ? <Loading /> : <Component {...pageProps} />}
     </>
   );
 }

@@ -20,3 +20,13 @@ class Bot(object):
 
     def get_dispatcher(self):
         return self.dispatcher
+
+
+class Amplitude(object):
+    def __init__(self):
+        amplitude = SingletonClass().amplitude
+
+        self.amplitude = amplitude
+
+    def get_amplitude(self):
+        return self.amplitude

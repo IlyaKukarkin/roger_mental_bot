@@ -11,8 +11,8 @@ class Messages(object):
         return self.messages.find()
 
     def update_message(self, id, media_link, original_media_link):
-        return  self.messages.update_one({'_id': id}, { "$set": { 'media_link': media_link, 'original_media_link': original_media_link } })
-    
+        return self.messages.update_one({'_id': id}, {"$set": {'media_link': media_link, 'original_media_link': original_media_link}})
+
     def get_unapproved_by_user(self, user_id):
         return self.messages.aggregate([
             {
@@ -49,10 +49,10 @@ class Messages(object):
                     'sent': '$sent.id_user',
                     'image_ids': 1,
                     'is_anonymous': 1,
-                    'created_date': 1, 
+                    'created_date': 1,
                     'rates_count': {
                         '$size': '$users'
-                }
+                    }
                 }
             }, {
                 '$match': {
@@ -71,5 +71,4 @@ class Messages(object):
                 '$limit': 1
 
             }
-])
-
+        ])

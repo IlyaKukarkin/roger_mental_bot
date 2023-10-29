@@ -1,13 +1,16 @@
 from aiogram import types
 import time
 from bson import ObjectId
+from amplitude import BaseEvent
 
 from singleton import Bot
+from singleton import Amplitude
 from db.users import Users
 from db.user_messages import User_Messages
 from db.messages import Messages
 from utils.message import send_message
 from utils.keyboards import delete_keyboard
+from utils.amplitude import message_to_string
 
 
 async def start_handler(message: types.Message):
@@ -20,8 +23,8 @@ async def start_handler(message: types.Message):
         return
 
     if (not user['is_volunteer']):
-            await bot.send_message(message.chat.id, "А ты не волонтёр!\nЖди приглашения в основном боте: @rogermentalbot", disable_web_page_preview=True)
-            return
+        await bot.send_message(message.chat.id, "А ты не волонтёр!\nЖди приглашения в основном боте: @rogermentalbot", disable_web_page_preview=True)
+        return
 
     await bot.send_message(message.chat.id, "Привет, волонтёр!")
     time.sleep(1)
@@ -42,6 +45,7 @@ async def get_message_and_send(user_id, chat_id):
     bot = Bot().get_bot()
     user_messages = User_Messages()
     messages = Messages()
+    amplitude = Amplitude().get_amplitude()
 
     message_to_rate = messages.get_unapproved_by_user(user_id)
 
@@ -60,6 +64,17 @@ async def get_message_and_send(user_id, chat_id):
         await bot.send_message(chat_id, "Оцени пожалуйста это сообщение от пользователя:")
 
         tg_message_id = await send_message(chat_id, message_to_send)
+
+        amplitude.track(
+            BaseEvent(
+                event_type="Sending message to rate",
+                user_id=str(user_id),
+                event_properties={
+                    "user": {"_id": user_id},
+                    "message": message_to_string(message_to_send)
+                }
+            )
+        )
 
         user_messages.insert_user_message(user_id, ObjectId(
             str(message_to_send['_id'])), tg_message_id)

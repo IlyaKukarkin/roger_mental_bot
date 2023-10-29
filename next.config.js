@@ -1,4 +1,4 @@
-const { withLogtail } = require('@logtail/next');
+const { withLogtail } = require("@logtail/next");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
