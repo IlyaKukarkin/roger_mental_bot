@@ -40,7 +40,7 @@ async def send_one_more_message_to_rate(chat_id: int):
                 }
             )
         )
-        await bot.send_message(chat_id, "А ты не волонтёр!\nЖди приглашения в основном боте:\nhttps://t.me/RogerMentalBot")
+        await bot.send_message(chat_id, "А ты не волонтёр!\nЖди приглашения в основном боте:\n@rogermentalbot")
         return
 
     if (user['is_banned_from_volunteering']):

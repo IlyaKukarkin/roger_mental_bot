@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { AMPLITUDE_API_KEY } from "./constants";
 
 export let amplitude: {
   init: any;
@@ -36,7 +35,7 @@ const useAmplitudeInit = () => {
   useEffect(() => {
     const initAmplitude = async () => {
       amplitude = await import("@amplitude/analytics-browser");
-      amplitude.init(AMPLITUDE_API_KEY, undefined, {
+      amplitude.init(process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY, undefined, {
         logLevel: amplitude.Types.LogLevel.Warn,
         defaultTracking: true,
       });
