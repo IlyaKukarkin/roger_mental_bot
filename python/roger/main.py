@@ -36,7 +36,7 @@ from aiogram.utils.callback_data import CallbackData
 
 
 #текущая версия бота
-version = "1.3.0"
+version = "1.4.0"
 
 # read texts from json file
 with open('texts.json') as t:
@@ -80,13 +80,13 @@ async def friends_command(message: types.Message):
     await get_menu_for_command(message.chat.id)
 
 @dp.callback_query_handler(lambda c: c.data == 'main', state='*')
-async def add_friends_handler(callback_query: types.CallbackQuery, state: FSMContext):
+async def any_state_main_handler(callback_query: types.CallbackQuery, state: FSMContext):
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await state.finish()
     await bot.answer_callback_query(callback_query.id, text = 'Ты вышел из прошлого режима, можешь выбрать другой 😌')
 
 @dp.callback_query_handler(lambda c: c.data == 'friends_menu')
-async def add_friends_handler(callback_query: types.CallbackQuery):
+async def show_menu(callback_query: types.CallbackQuery):
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await get_menu_for_command(callback_query.from_user.id)
 
@@ -121,7 +121,7 @@ async def process_callback_friend_request_decline_button(callback_query: types.C
     await delete_friends_message()
 
 @dp.message_handler(state=FriendsStates.AwaitForAFriendNicknameToAdd)
-async def process_callback_awaitforamessage_button(message: types.Message, state: FSMContext):
+async def process_callback_await_for_a_message_button(message: types.Message, state: FSMContext):
     await get_friend_nickname(message, state)
 
 @dp.callback_query_handler(lambda c: c.data == 'check_friend_list')
@@ -136,11 +136,11 @@ async def friends_info_handler(callback_query: types.CallbackQuery):
 async def delete_friends_handler(callback_query: types.CallbackQuery):
     await delete_friends(callback_query)
 
-@dp.callback_query_handler(lambda c: c.data == 'friends_internal_requests')
+@dp.callback_query_handler(lambda c: c.data == 'friends_requests')
 async def friends_info_handler(callback_query: types.CallbackQuery):
     await watch_friends_internal_requests(callback_query.from_user.id, callback_query.message.message_id, True)
 
-@dp.message_handler(commands=['friends_internal_requests'])
+@dp.message_handler(commands=['friends_requests'])
 async def friends_command(message: types.Message):
     await watch_friends_internal_requests(message.chat.id, message.message_id, False)
 

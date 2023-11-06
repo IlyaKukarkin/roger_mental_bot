@@ -30,7 +30,7 @@ async def feedback_finish_def(callback_query: types.CallbackQuery, state: FSMCon
     await state.finish()
 
 @dp.callback_query_handler(lambda c: c.data == 'feedback_finish')
-async def feedback_finish_def(callback_query: types.CallbackQuery, state: FSMContext):
+async def feedback_finish_def_without_message(callback_query: types.CallbackQuery, state: FSMContext):
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     return
 

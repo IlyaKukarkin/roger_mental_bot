@@ -80,7 +80,7 @@ async def send_request_to_a_friend(message: types.Message):
     user_got_request = await check_if_user_got_request(message.chat.id, friend['_id'])
     if (user_got_request != None): 
         if (user_got_request['status'] == 0):
-            await bot.send_message(message.chat.id, "Тебе этот друг уже отправлял заявку. Посмотри, кто уже отправил тебе заявки в друзья: /friends_internal_requests")
+            await bot.send_message(message.chat.id, "Тебе этот друг уже отправлял заявку. Посмотри, кто уже отправил тебе заявки в друзья: /friends_requests")
             return
         if (user_got_request['status'] == 1):
             await bot.send_message(message.chat.id, "Вы уже дружите 😄")
@@ -88,8 +88,8 @@ async def send_request_to_a_friend(message: types.Message):
         
 
     await send_friends_request(message.chat.id, friend)
-    if await check_if_user_has_username(friend['telegram_username']) == False:
-        friend["telegram_username"] = await change_empty_username_to_a_link(int(friend['telegram_id']), friend['name'])
+    if check_if_user_has_username(friend['telegram_username']) == False:
+        friend["telegram_username"] = change_empty_username_to_a_link(int(friend['telegram_id']), friend['name'])
     await bot.send_message(message.chat.id, "Отправил запрос дружбы пользователю " + friend["telegram_username"] + ". Когда твой друг примет запрос в друзья, ты будешь получать информацию о его настроении")
         
 
@@ -109,13 +109,14 @@ async def show_active_friends(callback_query: types.CallbackQuery):
     friends_list.extend(x['from'] for x in list(collection_name['friends'].find({"to": user['_id'], 'status': 1}, {"_id": 0, "from": 1})))
     if len(friends_list) == 0:
         await bot.send_message(callback_query.from_user.id, "У тебя пока нет друзей. Чтобы добавить первого друга, введи команду /friends и нажми кнопку Добавить нового друга")
+        collection_name['friends'].find().close() 
         return
     collection_name['friends'].find().close()
 
     friends_id_list = [await search_user_by_object_id(x) for x in friends_list]
     for x in friends_id_list:
-        if await check_if_user_has_username(x['telegram_username']) == False:
-            x["telegram_username"] = await change_empty_username_to_a_link(int(x['telegram_id']), x['name'])
+        if check_if_user_has_username(x['telegram_username']) == False:
+            x["telegram_username"] = change_empty_username_to_a_link(int(x['telegram_id']), x['name'])
 
     usernames = ['😸' + ' ' + x['telegram_username'] for x in friends_id_list]
     mes = 'Список друзей, которым доступна информация о твоем настроении:\n\n'
@@ -146,16 +147,17 @@ async def watch_friends_internal_requests(user_id: int, message_id: int, keyboar
     friends_list = list(friends_list)
     if (len(friends_list) == 0):
         await bot.send_message(user_id, "У тебя нет новых заявкок в друзья")
+        collection_name['friends'].find().close() 
         return
     for x in friends_list: 
         friend_request_kb = InlineKeyboardMarkup()
         friends_obj = collection_name['users'].find_one({"_id": x}, {"_id": 0, "name": 1, "telegram_username": 1, "telegram_id": 1})
-        f = friends_obj["telegram_id"]
-        friend_request_kb_approve = InlineKeyboardButton('✅', callback_data=call_back_approve.new(id='friend_approve', friend=f))
-        friend_request_kb_decline = InlineKeyboardButton('❌', callback_data=call_back_decline.new(id='friend_decline', friend=f))
+        friend_telegram_id = friends_obj["telegram_id"]
+        friend_request_kb_approve = InlineKeyboardButton('✅', callback_data=call_back_approve.new(id='friend_approve', friend=friend_telegram_id))
+        friend_request_kb_decline = InlineKeyboardButton('❌', callback_data=call_back_decline.new(id='friend_decline', friend=friend_telegram_id))
         friend_request_kb.add(friend_request_kb_approve, friend_request_kb_decline)
-        if await check_if_user_has_username(friends_obj['telegram_username']) == False:
-            friends_obj["telegram_username"] = await change_empty_username_to_a_link(int(friends_obj['telegram_id']), friends_obj['name'])
+        if check_if_user_has_username(friends_obj['telegram_username']) == False:
+            friends_obj["telegram_username"] = change_empty_username_to_a_link(int(friends_obj['telegram_id']), friends_obj['name'])
         await bot.send_message(user_id, f"Новый запрос в друзья от пользователя {friends_obj['telegram_username']}", reply_markup=friend_request_kb)
     collection_name['friends'].find().close()
     collection_name['user'].find().close()
@@ -164,19 +166,18 @@ async def watch_friends_internal_requests(user_id: int, message_id: int, keyboar
 async def friends_internal_request(callback_query: types.CallbackQuery, friend: str, approve: bool):
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     friend_obj = await accept_decline_friend_request(callback_query.from_user.id, friend, approve)
-    if await check_if_user_has_username(friend_obj['telegram_username']) == False:
-        friend_obj["telegram_username"] = await change_empty_username_to_a_link(int(friend_obj['telegram_id']), friend_obj['name'])
+    if check_if_user_has_username(friend_obj['telegram_username']) == False:
+        friend_obj["telegram_username"] = change_empty_username_to_a_link(int(friend_obj['telegram_id']), friend_obj['name'])
     if approve == True: 
         await bot.send_message(callback_query.from_user.id, f"Теперь ты дружишь с {friend_obj['telegram_username']} 🔥. Когда твой друг отметит 🔴 или 🟠 настроение, я скажу тебе об этом")
         friend_obj = await search_user_by_tg_id(int(friend))
         user_obj = await search_user_by_tg_id(callback_query.from_user.id)
-        if await check_if_user_has_username(user_obj['telegram_username']) == False:
-            user_obj["telegram_username"] = await change_empty_username_to_a_link(int(user_obj['telegram_id']), user_obj['name'])
+        if check_if_user_has_username(user_obj['telegram_username']) == False:
+            user_obj["telegram_username"] = change_empty_username_to_a_link(int(user_obj['telegram_id']), user_obj['name'])
         await bot.send_message(friend_obj["telegram_id"], f"Теперь ты дружишь с {user_obj['telegram_username']}. Когда твой друг отметит 🔴 или 🟠 настроение, я скажу тебе об этом")               
         return
-    if approve == False:
-        await bot.send_message(callback_query.from_user.id, f"Ты отклонил заявку в друзья от {friend_obj['telegram_username']} 🙌")
-        return
+    await bot.send_message(callback_query.from_user.id, f"Ты отклонил заявку в друзья от {friend_obj['telegram_username']} 🙌")
+    return
     
 
 async def send_a_friend_message_about_bad_mood(id_user: int, color: str):
@@ -185,10 +186,10 @@ async def send_a_friend_message_about_bad_mood(id_user: int, color: str):
     friends = await find_all_friends(user, id_user)
     if not friends:
         return
-    for x in friends: 
-        friend = await search_user_by_object_id(x)
-        if await check_if_user_has_username(user['telegram_username']) == False:
-            user["telegram_username"] = await change_empty_username_to_a_link(int(user['telegram_id']), user['name'])
+    for friend_user_id in friends:
+        friend = await search_user_by_object_id(friend_user_id  )
+        if check_if_user_has_username(user['telegram_username']) == False:
+            user["telegram_username"] = change_empty_username_to_a_link(int(user['telegram_id']), user['name'])
         await bot.send_message(friend["telegram_id"], f"Твой друг {user['telegram_username']} отметил, что сегодня у него {mood_dict[color]} настроение. Ты можешь написать ему напрямую", parse_mode="Markdown", disable_web_page_preview=True)
     return
 
@@ -204,10 +205,10 @@ async def delete_friends_message(id_user: int, friends_list: list, index_to_show
     friends_delete_message_kb = InlineKeyboardMarkup(one_time_keyboard=True)
     mes = "😻 Твой друг: /n/n"
     friend = await search_user_by_object_id(friends_list[index_to_show])
-    if (await check_if_user_has_username(friend['telegram_username'])) == True: 
+    if (check_if_user_has_username(friend['telegram_username'])) == True: 
         mes += friend['telegram_username']
     else:
-        await change_empty_username_to_a_link(friend['telegram_id'], friend['name'])
+        change_empty_username_to_a_link(friend['telegram_id'], friend['name'])
     friends_button_delete = InlineKeyboardButton('😿 Удалить друга', callback_data=call_back_decline.new(id='friend_delete', friend_to_delete=friend['_id']))
     
 

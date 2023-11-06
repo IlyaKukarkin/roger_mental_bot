@@ -51,8 +51,8 @@ async def send_friends_request(tg_id_friend_to: int, friend2: list):
         user = await search_user_by_tg_id(tg_id_friend_to)
         collection_name['friends'].insert_one({"from": user['_id'], "to": friend2['_id'], "request_sent_time": datetime.datetime.now(), "status": 0})
         collection_name['friends'].find().close()
-        if await check_if_user_has_username(user['telegram_username']) == False:
-            user['telegram_username'] = await change_empty_username_to_a_link(int(user['telegram_id']), user['name'])
+        if check_if_user_has_username(user['telegram_username']) == False:
+            user['telegram_username'] = change_empty_username_to_a_link(int(user['telegram_id']), user['name'])
         await notify_a_friend_about_friends_request(user['telegram_username'], user['name'], int(friend2['telegram_id']), user['telegram_id'])
     except (Exception):
         await bot.send_message(int(tg_id_friend_to), "Ой, кажется, что-то пошло не так 😞 \nПовтори регистрацию командой /start через несколько минут или напиши разработчикам через команду /feedback")
@@ -145,10 +145,8 @@ async def accept_decline_friend_request(user: int, friend: int, approve: bool):
     except (Exception):
         await bot.send_message(user, "Ой, кажется, что-то пошло не так 😞 \nПовтори регистрацию командой /start через несколько минут или напиши разработчикам через команду /feedback")
 
-async def check_if_user_has_username (username: str):
-    if (username == '@' or username == ' ' or username == ''):
-        return False
-    return True
+def check_if_user_has_username (username: str):
+    return (username != '@' and username != ' ' and username != '')
     
-async def change_empty_username_to_a_link (user_id: int, name: str):
+def change_empty_username_to_a_link (user_id: int, name: str):
     return link(name, f"tg://user?id={user_id}")

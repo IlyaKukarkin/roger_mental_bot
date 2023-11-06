@@ -81,7 +81,7 @@ async def add_button_for_friends_requests(requests: int, friends: int):
     friends_menu_kb = InlineKeyboardMarkup(row_width=1, one_time_keyboard=True)
 
     if requests > 0:
-         friends_requests_button = InlineKeyboardButton('(' + str(requests) + (') Входящие заявки'), callback_data='friends_internal_requests')
+         friends_requests_button = InlineKeyboardButton('(' + str(requests) + (') Входящие заявки'), callback_data='friends_requests')
          friends_menu_kb = friends_menu_kb.add(friends_requests_button)
 
     add_friends_button = InlineKeyboardButton('Добавить нового друга', callback_data='add_friends')
