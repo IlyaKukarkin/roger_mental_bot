@@ -61,9 +61,10 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     try:
         #добавил две строки ниже, чтобы по коллбеку стирать контекст общения с чатжпт, чтобы он не копился
-        if array_of_chats != None:
-            array_of_chats.delete_array(callback_query.from_user.id)
-            array_of_chats.add_message(callback_query.from_user.id, {'role': 'assistant', 'content': 'Отвечай от имени Роджера. Это бот, который поддерживает людей с плохим настроением'})   
+        #UPD: не добавил( надо написать чето, чтобы контекст общения с чатжпт не держался в памяти, а дропался по крону в полночь :( сорри пацаны
+        #if array_of_chats != None:
+        #    array_of_chats.delete_array(callback_query.from_user.id)
+        #    array_of_chats.add_message(callback_query.from_user.id, {'role': 'assistant', 'content': 'Отвечай от имени Роджера. Это бот, который поддерживает людей с плохим настроением'})   
         collection_name = get_database()
         user = collection_name["users"].find_one( 
             {"telegram_id": str(callback_query.from_user.id)}, {'_id': 1, 'name': 0})
