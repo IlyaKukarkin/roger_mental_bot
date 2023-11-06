@@ -6,6 +6,7 @@ class Recording(StatesGroup):
     AwaitForAMessageForAll = State()
     AwaitForAnAnswerToFeedback = State()
     AwaitForAProblem = State()
+    AwaitForAFriendContact = State()
 
 class FriendsStates(StatesGroup):    
     AwaitForAFriendNicknameToAdd = State()
