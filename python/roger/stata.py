@@ -1,20 +1,18 @@
-from aiogram import types
 from sqlite3 import Cursor
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.types import CallbackQuery
-from aiogram.utils.callback_data import CallbackData
-from common import delete_keyboard
-from bson import ObjectId
 import json
 import urllib.parse
+import datetime
 import requests
 import pytz
-import datetime
+from aiogram import types
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from aiogram.utils.callback_data import CallbackData
 from linkpreview import link_preview
-from common import get_pictures
-from config import bot, link_to_form, cuttly_api_key
-from volunteers import mental_rate_strike
 
+from common import delete_keyboard, get_pictures
+from bson import ObjectId
+from config import botClient, LINK_TO_FORM, CUTTLY_API_KEY
+from volunteers import mental_rate_strike
 from database import get_database
 
 cart_cb = CallbackData("q", "id", "button_parameter")
@@ -34,20 +32,20 @@ async def stata_show_mes(message: types.Message):
     user = collection_name["users"].find_one(
         {"telegram_id": str(message.chat.id)}, {'_id': 1, "form_id": 1})
     if (await mental_rate_strike(message.chat.id, 'stata')) == False:
-        await bot.send_message(message.chat.id, "Эта команда тебе пока недоступна. Замеряй свое настроение 7 дней — и она откроется!")
+        await botClient.send_message(message.chat.id, "Эта команда тебе пока недоступна. Замеряй свое настроение 7 дней — и она откроется!")
         return
-    await bot.send_message(message.chat.id, "Подгружаю твои сообщения")
+    await botClient.send_message(message.chat.id, "Подгружаю твои сообщения")
     messages = collection_name["messages"].find({"id_user": user["_id"]}, {
                                                 "_id": 1, "text": 1, "media_link": 1, "is_approved": 1, "image_ids": 1, "is_anonymous": 1, "created_at": 1})
     length = len(list(messages.clone()))
     if (length == 0):
-        await bot.send_message(message.chat.id, "У тебя нет созданных сообщений. Как насчет сделать первое?\n\n" + link_to_form + str(user['form_id']), disable_web_page_preview=True)
+        await botClient.send_message(message.chat.id, "У тебя нет созданных сообщений. Как насчет сделать первое?\n\n" + LINK_TO_FORM + str(user['form_id']), disable_web_page_preview=True)
         return
     elif (length == 1):
         await send_stata(str(messages[0]["_id"]))
         return
     elif (length > 1):
-        await bot.send_message(message.chat.id, "Выбери сообщение, по которому хочешь увидеть статистику", reply_markup=await kb_for_stata(messages))
+        await botClient.send_message(message.chat.id, "Выбери сообщение, по которому хочешь увидеть статистику", reply_markup=await kb_for_stata(messages))
     collection_name['users'].find().close()
     collection_name['messages'].find().close()
 
@@ -109,10 +107,11 @@ async def send_stata(id_message: str):
             if (not preview.image):
                 preview.image = 'https://images.ctfassets.net/n1wrmpzswxf2/5scp1TkHI7xSty5gSV2LfX/a2b733b18f51be6e2c1693fb7f85faa6/Mamba_UI__Error__Free_HTML_components_and_templates_built_with_Tailwind_CSS__2022-10-30_15-48-29.png'
         except (Exception):
-            preview = PreviewError("https://images.ctfassets.net/n1wrmpzswxf2/5scp1TkHI7xSty5gSV2LfX/a2b733b18f51be6e2c1693fb7f85faa6/Mamba_UI__Error__Free_HTML_components_and_templates_built_with_Tailwind_CSS__2022-10-30_15-48-29.png", "Ошибка получения заголовка ссылки")
+            preview = PreviewError(
+                "https://images.ctfassets.net/n1wrmpzswxf2/5scp1TkHI7xSty5gSV2LfX/a2b733b18f51be6e2c1693fb7f85faa6/Mamba_UI__Error__Free_HTML_components_and_templates_built_with_Tailwind_CSS__2022-10-30_15-48-29.png", "Ошибка получения заголовка ссылки")
 
         response = requests.get('http://cutt.ly/api/api.php?key=' +
-                                cuttly_api_key + '&stats=' + message['media_link'])
+                                CUTTLY_API_KEY + '&stats=' + message['media_link'], timeout=10)
         answer = json.loads(response.content)
         link_cliks = answer['stats']['clicks']
 
@@ -127,7 +126,7 @@ async def send_stata(id_message: str):
 
     result_image_url = 'https://rogerbot.tech/api/message-stats' + image_url
 
-    await bot.send_photo(int(user["telegram_id"]), result_image_url)
+    await botClient.send_photo(int(user["telegram_id"]), result_image_url)
 
     collection_name['messages'].find().close()
     collection_name['user_messages'].find().close()
@@ -136,6 +135,6 @@ async def send_stata(id_message: str):
 
 
 class PreviewError:
-  def __init__(self, image, title):
-    self.image = image
-    self.title = title
+    def __init__(self, image, title):
+        self.image = image
+        self.title = title

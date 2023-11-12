@@ -1,25 +1,24 @@
-import urllib.parse
-import pytz
 import datetime
-from config import bot
+import urllib.parse
+from typing import Callable
+import json
+import pytz
+from config import botClient
 from dateutil.relativedelta import relativedelta
 from aiogram import types
 from states import Recording
-from typing import Callable
-import json
 
 from database import get_database
 from keyboards import ask_for_rate_stata_kb
 from volunteers import mental_rate_strike
 
 
-
 async def get_rate_stata(message: types.Message):
     if (await mental_rate_strike(message.chat.id, 'mantalstata')) == False:
-        await bot.send_message(message.chat.id, "Эта команда тебе пока недоступна. Замеряй свое настроение 14 дней — и она откроется!")
+        await botClient.send_message(message.chat.id, "Эта команда тебе пока недоступна. Замеряй свое настроение 14 дней — и она откроется!")
         return
 
-    await bot.send_message(message.chat.id, "За какой период хочешь получить статистику?", reply_markup=ask_for_rate_stata_kb)
+    await botClient.send_message(message.chat.id, "За какой период хочешь получить статистику?", reply_markup=ask_for_rate_stata_kb)
     await Recording.AwaitForARateStata.set()
 
 
@@ -32,7 +31,7 @@ async def send_rate_stata(id_message: str, stata_type: str,
     :param datetime_factory: a factory method, that produces a date which will be used as the end of the period
     :return:
     """
-    await bot.send_message(id_message, "Подгружаю статистику, немного терпения")
+    await botClient.send_message(id_message, "Подгружаю статистику, немного терпения")
 
     collection_name = get_database()
 
@@ -41,7 +40,8 @@ async def send_rate_stata(id_message: str, stata_type: str,
         date_now.year, date_now.month, date_now.day, 0, 0, 0, 0, tzinfo=pytz.utc)
 
     if (stata_type == 'month'):
-        from_date_str = date_now_clear - relativedelta(months=1) + relativedelta(days=1)
+        from_date_str = date_now_clear - \
+            relativedelta(months=1) + relativedelta(days=1)
     elif (stata_type == 'week2'):
         from_date_str = date_now_clear - relativedelta(days=13)
     else:
@@ -132,7 +132,7 @@ async def send_rate_stata(id_message: str, stata_type: str,
 
     result_image_url = 'https://rogerbot.tech/api/user-stats' + image_url
 
-    await bot.send_photo(id_message, result_image_url)
+    await botClient.send_photo(id_message, result_image_url)
 
     collection_name['users'].find().close()
     collection_name['statistic'].find().close()

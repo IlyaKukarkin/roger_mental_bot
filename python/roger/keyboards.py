@@ -25,8 +25,10 @@ ask_for_rate_bad = InlineKeyboardButton('❌', callback_data='rate_bad')
 ask_for_rate_messages = InlineKeyboardMarkup().add(
     ask_for_rate_good, ask_for_rate_bad)
 
-ask_for_rate_good_support = InlineKeyboardButton('✅', callback_data='rate_good_support')
-ask_for_rate_bad_support = InlineKeyboardButton('❌', callback_data='rate_bad_support')
+ask_for_rate_good_support = InlineKeyboardButton(
+    '✅', callback_data='rate_good_support')
+ask_for_rate_bad_support = InlineKeyboardButton(
+    '❌', callback_data='rate_bad_support')
 back_button = InlineKeyboardButton('⬅️ Назад', callback_data='main')
 
 ask_for_rate_messages_support = InlineKeyboardMarkup(row_width=2).add(
@@ -72,30 +74,32 @@ support_start_keyboard = InlineKeyboardMarkup().add(
     support_start_button)
 
 
-
-approve_friends_request = InlineKeyboardButton('Добавить в друзья', сallback_data='approve_request')
-
+approve_friends_request = InlineKeyboardButton(
+    'Добавить в друзья', сallback_data='approve_request')
 
 
 async def add_button_for_friends_requests(requests: int, friends: int):
     friends_menu_kb = InlineKeyboardMarkup(row_width=1, one_time_keyboard=True)
 
     if requests > 0:
-         friends_requests_button = InlineKeyboardButton('(' + str(requests) + (') Входящие заявки'), callback_data='friends_requests')
-         friends_menu_kb = friends_menu_kb.add(friends_requests_button)
+        friends_requests_button = InlineKeyboardButton(
+            '(' + str(requests) + (') Входящие заявки'), callback_data='friends_requests')
+        friends_menu_kb = friends_menu_kb.add(friends_requests_button)
 
-    add_friends_button = InlineKeyboardButton('Добавить нового друга', callback_data='add_friends')
+    add_friends_button = InlineKeyboardButton(
+        'Добавить нового друга', callback_data='add_friends')
     friends_menu_kb = friends_menu_kb.add(add_friends_button)
 
     if friends > 0:
-        check_friends_list_button = InlineKeyboardButton('Посмотреть список друзей', callback_data='check_friend_list')
+        check_friends_list_button = InlineKeyboardButton(
+            'Посмотреть список друзей', callback_data='check_friend_list')
         friends_menu_kb = friends_menu_kb.add(check_friends_list_button)
 
-        #friends_delete_button = InlineKeyboardButton('Удалить друга', callback_data='delete_from_friends')
-        #friends_menu_kb = friends_menu_kb.add(friends_delete_button)
+        # friends_delete_button = InlineKeyboardButton('Удалить друга', callback_data='delete_from_friends')
+        # friends_menu_kb = friends_menu_kb.add(friends_delete_button)
 
     info_friends_button = InlineKeyboardButton(
-    'Инфо', callback_data='info_friend_list')
+        'Инфо', callback_data='info_friend_list')
 
     back_button = InlineKeyboardButton('⬅️ Назад', callback_data="main")
 
@@ -110,6 +114,7 @@ async def create_back_kb(callback_info: str):
     back_kb = back_kb.add(back_button)
     return back_kb
 
+
 async def add_back_button(kb: InlineKeyboardMarkup, callback_info: str):
     back_button = InlineKeyboardButton('⬅️ Назад', callback_data=callback_info)
     kb = kb.add(back_button)
@@ -122,5 +127,3 @@ async def add_back_button(kb: InlineKeyboardMarkup, callback_info: str):
 #     delete_button = InlineKeyboardButton('😿 Удалить из друзей', callback_data=callback_info)
 #     delete_friends_kb = delete_friends_kb.add(delete_button)
 #     return delete_friends_kb
-
-

@@ -1,33 +1,30 @@
-from aiogram.types import ParseMode
-from aiogram import types
-from aiogram.utils.callback_data import CallbackData
-from aiogram.utils.exceptions import BotBlocked
-from common import delete_keyboard, get_options, today_is_the_day, utc_date_is_the_day
-import datetime
-from keyboards import kb_for_mental_poll, support_start_keyboard
-from database import get_database
-from aiogram.dispatcher import FSMContext
-from bson import ObjectId
-from aiogram.utils.markdown import bold, text
-from common import get_pictures, rand_select_obj_texts, Weekdays, n_days_since_date, any_ratings_in_previous_n_days
-from keyboards import ask_for_rate_messages
-import requests
-from volunteers import mental_rate_strike, how_many_days_user_with_us
 import json
 import random
 import time
-from config import contentful_api_readonly_url, contenful_space_id, contenful_access_token, link_to_form, bot
+import datetime
+import requests
+from aiogram import types
+from aiogram.utils.callback_data import CallbackData
+from aiogram.utils.exceptions import BotBlocked
+from aiogram.utils.markdown import bold, text
+from aiogram.dispatcher import FSMContext
+
+from common import delete_keyboard, get_options, today_is_the_day, utc_date_is_the_day
+from common import get_pictures, rand_select_obj_texts, Weekdays, n_days_since_date, any_ratings_in_previous_n_days
+from keyboards import kb_for_mental_poll, support_start_keyboard
+from keyboards import ask_for_rate_messages
+from database import get_database
+from bson import ObjectId
+from volunteers import mental_rate_strike, how_many_days_user_with_us
+from config import CONTENTFUL_API_READONLY_URL, CONTENTFUL_SPACE_ID, CONTENTFUL_ACCESS_TOKEN, LINK_TO_FORM, botClient
 from ratestata import send_rate_stata
-from mentalstrikes import mental_rates_strike_in_a_row
-from classes.chatgpt_arrays import ArrayOfChats
-from chatgpt import array_of_chats
 from friends import send_a_friend_message_about_bad_mood
 
 
 cart_cb = CallbackData("q", "id", "button_parameter")
 
 # read texts from json file
-with open('texts.json') as t:
+with open('texts.json', encoding="utf-8") as t:
     texts = json.load(t)
 
 
@@ -40,8 +37,8 @@ async def sendmes(chat_id: int):
             {"rate": 0, "id_user": user['_id']}, {'id_tg_message': 1}, sort=[("date", -1)])
         if (id_previous_mes):
             await delete_keyboard(chat_id, id_previous_mes['id_tg_message'])
-        #await bot.send_message(chat_id, await get_options('greetings'), parse_mode=ParseMode.MARKDOWN)
-        id = await bot.send_message(chat_id, await get_options('polls_questions'), parse_mode=ParseMode.MARKDOWN, reply_markup=kb_for_mental_poll)
+        # await botClient.send_message(chat_id, await get_options('greetings'), parse_mode=types.ParseMode.MARKDOWN)
+        id = await botClient.send_message(chat_id, await get_options('polls_questions'), parse_mode=types.ParseMode.MARKDOWN, reply_markup=kb_for_mental_poll)
         collection_name['mental_rate'].insert_one(
             {"rate": 0, "id_user": user['_id'], "date": datetime.datetime.now(), "id_tg_message": id.message_id})
         collection_name['users'].find().close()
@@ -50,42 +47,42 @@ async def sendmes(chat_id: int):
         print(f"Юзер {chat_id} пидор, заблочил бота")
         collection_name = get_database()
         collection_name["users"].find_one_and_update(
-                {'_id': user['_id']}, {"$set": {'is_active': False}})
+            {'_id': user['_id']}, {"$set": {'is_active': False}})
         collection_name['users'].find().close()
     except (Exception):
-        await bot.send_message(chat_id, "Ой, кажется, что-то пошло не так 😞 \nПовтори отправку настроения через несколько минут или напиши разработчикам через команду /feedback")
+        await botClient.send_message(chat_id, "Ой, кажется, что-то пошло не так 😞 \nПовтори отправку настроения через несколько минут или напиши разработчикам через команду /feedback")
 
 
 async def callback_after_click_on_color_button(callback_query: types.CallbackQuery, state: FSMContext, rate: int, color: str):
-    await bot.answer_callback_query(callback_query.id)
+    await botClient.answer_callback_query(callback_query.id)
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     try:
-        #добавил две строки ниже, чтобы по коллбеку стирать контекст общения с чатжпт, чтобы он не копился
-        #UPD: не добавил( надо написать чето, чтобы контекст общения с чатжпт не держался в памяти, а дропался по крону в полночь :( сорри пацаны
-        #if array_of_chats != None:
+        # добавил две строки ниже, чтобы по коллбеку стирать контекст общения с чатжпт, чтобы он не копился
+        # UPD: не добавил( надо написать чето, чтобы контекст общения с чатжпт не держался в памяти, а дропался по крону в полночь :( сорри пацаны
+        # if array_of_chats != None:
         #    array_of_chats.delete_array(callback_query.from_user.id)
-        #    array_of_chats.add_message(callback_query.from_user.id, {'role': 'assistant', 'content': 'Отвечай от имени Роджера. Это бот, который поддерживает людей с плохим настроением'})   
+        #    array_of_chats.add_message(callback_query.from_user.id, {'role': 'assistant', 'content': 'Отвечай от имени Роджера. Это бот, который поддерживает людей с плохим настроением'})
         collection_name = get_database()
-        user = collection_name["users"].find_one( 
+        user = collection_name["users"].find_one(
             {"telegram_id": str(callback_query.from_user.id)}, {'_id': 1, 'name': 0})
         # find_one_and_update returns a record that is to be updated; in this case it is irrelevant whether
         # we receive the updated version of the record or not, since we're only interested in the date
         rate_record = collection_name['mental_rate'].find_one_and_update({"$and": [{"id_user": user["_id"]}, {
-                                                           "id_tg_message": callback_query.message.message_id}]}, {"$set": {"rate": rate}})
+            "id_tg_message": callback_query.message.message_id}]}, {"$set": {"rate": rate}})
         await get_options_color(color, callback_query.from_user.id)
         await row_message(callback_query.from_user.id)
         await (mental_rate_strike(callback_query.from_user.id, 'volunteer'))
-        if rate_record != None: 
+        if rate_record != None:
             if need_send_weekly_rate_stata(int(user['timezone']), user['created_at'], user['_id'], rate_record['date']):
                 await sunday_send_rate_stata(callback_query.from_user.id, rate_record['date'])
-        #отключил чатжпт в колбеках
-        #await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
+        # отключил чатжпт в колбеках
+        # await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
         if (color == 'red' or color == 'orange'):
             await send_a_friend_message_about_bad_mood(callback_query.from_user.id, color)
         collection_name['users'].find().close()
         collection_name['mental_rate'].find().close()
     except (Exception):
-        await bot.send_message(callback_query.from_user.id, "Ой, кажется, что-то пошло не так 😞 \nНапиши разработчикам через команду /feedback, они помогут разобраться с проблемой 👌")
+        await botClient.send_message(callback_query.from_user.id, "Ой, кажется, что-то пошло не так 😞 \nНапиши разработчикам через команду /feedback, они помогут разобраться с проблемой 👌")
 
 
 async def create_message_with_support(chat_id: int, cursor: list, user_to_send: ObjectId):
@@ -95,7 +92,7 @@ async def create_message_with_support(chat_id: int, cursor: list, user_to_send: 
         message = text(bold("Имя: ") + cursor["user"][0]["name"] + '\n')
     if len(cursor['image_ids']) > 0:
         message = message + '\n' + text(bold('Вложения:'))
-        await bot.send_message(chat_id, message, parse_mode=ParseMode.MARKDOWN)
+        await botClient.send_message(chat_id, message, parse_mode=types.ParseMode.MARKDOWN)
         message = ""
         media = types.MediaGroup()
         for i in cursor['image_ids']:
@@ -105,7 +102,7 @@ async def create_message_with_support(chat_id: int, cursor: list, user_to_send: 
                 media.attach_photo(picture_url)
             else:
                 media.attach_photo(picture_url + '?fm=jpg')
-        await bot.send_media_group(chat_id, media=media)
+        await botClient.send_media_group(chat_id, media=media)
     else:
         message = message + '\n'
 
@@ -131,21 +128,23 @@ async def create_message_with_support(chat_id: int, cursor: list, user_to_send: 
                 {"id_message": id_previous_mes['id_message'], 'id_user': id_previous_mes['id_user']})
             if (rate_previous_mes == None):
                 await delete_keyboard(chat_id, id_previous_mes['id_tg_message'])
-        id_message = await bot.send_message(chat_id, message, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True, reply_markup=ask_for_rate_messages)
+        id_message = await botClient.send_message(chat_id, message, parse_mode=types.ParseMode.MARKDOWN, disable_web_page_preview=True, reply_markup=ask_for_rate_messages)
 
         print("\n")
         print('USER_MESSAGES -> ты увидел сообщение')
-        print({"id_user": user_to_send, "id_message": cursor["_id"], "time_to_send": datetime.datetime.now(), "id_tg_message": id_message.message_id})
+        print({"id_user": user_to_send, "id_message": cursor["_id"], "time_to_send": datetime.datetime.now(
+        ), "id_tg_message": id_message.message_id})
 
-        collection_name['user_messages'].insert_one({"id_user": user_to_send, "id_message": cursor["_id"], "time_to_send": datetime.datetime.now(), "id_tg_message": id_message.message_id})
+        collection_name['user_messages'].insert_one(
+            {"id_user": user_to_send, "id_message": cursor["_id"], "time_to_send": datetime.datetime.now(), "id_tg_message": id_message.message_id})
         collection_name['user_messages'].find().close()
     except (Exception):
-        await bot.send_message(chat_id, "Ой, кажется, что-то пошло не так 😞 \nПовтори действие через несколько минут или напиши разработчикам через команду /feedback")
+        await botClient.send_message(chat_id, "Ой, кажется, что-то пошло не так 😞 \nПовтори действие через несколько минут или напиши разработчикам через команду /feedback")
 
 
 async def get_cat_gif():
-    response = requests.get(contentful_api_readonly_url + 'spaces/' + contenful_space_id +
-                            '/environments/master/assets?access_token=' + contenful_access_token + '&metadata.tags.sys.id[all]=catGifs')
+    response = requests.get(CONTENTFUL_API_READONLY_URL + 'spaces/' + CONTENTFUL_SPACE_ID +
+                            '/environments/master/assets?access_token=' + CONTENTFUL_ACCESS_TOKEN + '&metadata.tags.sys.id[all]=catGifs')
     answer = json.loads(response.content)
     answer = answer.get("items")
     answer = answer[random.randint(0, len(answer) - 1)]
@@ -156,8 +155,8 @@ async def get_cat_gif():
 
 
 async def get_video_when_no_messages():
-    response = requests.get(contentful_api_readonly_url + 'spaces/' + contenful_space_id + '/environments/master/assets?access_token=' +
-                            contenful_access_token + '&metadata.tags.sys.id[all]=videoToSendWhenNoMessages')
+    response = requests.get(CONTENTFUL_API_READONLY_URL + 'spaces/' + CONTENTFUL_SPACE_ID + '/environments/master/assets?access_token=' +
+                            CONTENTFUL_ACCESS_TOKEN + '&metadata.tags.sys.id[all]=videoToSendWhenNoMessages')
     answer = json.loads(response.content)
     answer = answer.get("items")
     answer = answer[random.randint(0, len(answer) - 1)]
@@ -179,7 +178,7 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
         collection_name = get_database()
         if (item[0] == '*' and arr.get("is_labelled") == 1):
             if item == '*gif*':
-                await bot.send_video(chat_id, await get_cat_gif())
+                await botClient.send_video(chat_id, await get_cat_gif())
             if item == '*support*':
                 user_id = collection_name["users"].find_one(
                     {"telegram_id": str(chat_id)}, {'_id': 1, 'name': 1})
@@ -200,7 +199,7 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
                         '$lookup': {
                             'from': 'user_messages',
                             'localField': 'id_message',
-                            'foreignField': '_id', 
+                            'foreignField': '_id',
                             'pipeline': [
                                 {
                                     '$match': {
@@ -241,8 +240,8 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
                 if (len(message_list) != 0):
                     await create_message_with_support(chat_id, message_list[0], user_id["_id"])
                 else:
-                    await bot.send_message(chat_id, "Извини, сообщения на сегодня закончились 😞 \nВот видео от меня, оно точно поможет:")
-                    await bot.send_video(chat_id, await get_video_when_no_messages())
+                    await botClient.send_message(chat_id, "Извини, сообщения на сегодня закончились 😞 \nВот видео от меня, оно точно поможет:")
+                    await botClient.send_video(chat_id, await get_video_when_no_messages())
             if item == '*waiting_day_feedback*':
                 i = 0
                 # поставить вызов функции
@@ -250,10 +249,10 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
                 s = await rand_select_obj_texts(texts.get('invite_to_form'))
                 user_id = collection_name["users"].find_one(
                     {"telegram_id": str(chat_id)})
-                await bot.send_message(chat_id, s.get('text') + '\n' + link_to_form + str(user_id['form_id']), disable_web_page_preview=True)
+                await botClient.send_message(chat_id, s.get('text') + '\n' + LINK_TO_FORM + str(user_id['form_id']), disable_web_page_preview=True)
         else:
             s = await rand_select_obj_texts(texts.get(item))
-            await bot.send_message(chat_id, s.get('text'))
+            await botClient.send_message(chat_id, s.get('text'))
             time.sleep(1)
     collection_name['users'].find().close()
     collection_name['user_messages'].find().close()
@@ -261,12 +260,12 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
 
 
 async def row_message(chat_id: int):
-    await bot.send_message(chat_id, "Ты уже замерил свое настроение " + str(await how_many_days_user_with_us(chat_id)) + " раз! Продолжай в том же духе 😎")
+    await botClient.send_message(chat_id, "Ты уже замерил свое настроение " + str(await how_many_days_user_with_us(chat_id)) + " раз! Продолжай в том же духе 😎")
 
 
 async def offer_to_chat_with_chatgpt(color: str, user_id: int):
     if (color in ['red', 'orange']):
-        await bot.send_message(user_id, "Как насчет поболтать со мной? Я могу поддержать диалог: умею распознавать проблемы и давать осмысленные ответы. Попробуем?", reply_markup = support_start_keyboard)
+        await botClient.send_message(user_id, "Как насчет поболтать со мной? Я могу поддержать диалог: умею распознавать проблемы и давать осмысленные ответы. Попробуем?", reply_markup=support_start_keyboard)
     return
 
 
@@ -282,8 +281,9 @@ def need_send_weekly_rate_stata(timezone_offset: int, created_at: datetime.datet
     """
     try:
         today_is_monday_or_sunday = today_is_the_day(Weekdays.Sunday, timezone_offset) or \
-                                    today_is_the_day(Weekdays.Monday, timezone_offset)
-        rate_date_is_sunday = utc_date_is_the_day(rate_date, Weekdays.Sunday, timezone_offset)
+            today_is_the_day(Weekdays.Monday, timezone_offset)
+        rate_date_is_sunday = utc_date_is_the_day(
+            rate_date, Weekdays.Sunday, timezone_offset)
         return \
             rate_date_is_sunday and \
             today_is_monday_or_sunday and \
@@ -307,7 +307,7 @@ async def sunday_send_rate_stata(chat_id: int, rate_date: datetime.datetime):
     """
 
     mes = await rand_select_obj_texts(texts.get('mental_week_stata'))
-    await bot.send_message(chat_id, mes['text'])
+    await botClient.send_message(chat_id, mes['text'])
     # as mentioned before, rate date is in UTC+00 timezone, but send_rate_stata expects a function that takes a
     # pytz.BaseTzInfo instance as its single parameter
     await send_rate_stata(str(chat_id), 'week', lambda ptz_utc: rate_date)

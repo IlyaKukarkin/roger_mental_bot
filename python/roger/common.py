@@ -6,7 +6,7 @@ from database import get_database
 from pymongo.cursor import Cursor
 import datetime
 import pytz
-from config import bot, contentful_api_readonly_url, contenful_access_token, contenful_space_id
+from config import botClient, CONTENTFUL_API_READONLY_URL, CONTENTFUL_ACCESS_TOKEN, CONTENTFUL_SPACE_ID
 from enum import IntEnum
 from logger import logger
 
@@ -19,17 +19,18 @@ with open('texts.json') as t:
 
 async def delete_keyboard(chat_id: int, message_id: int):
     try:
-        await bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id, reply_markup=None)
+        await botClient.edit_message_reply_markup(chat_id=chat_id, message_id=message_id, reply_markup=None)
     except (Exception):
-        logger.exception(f"failed to delete keyboard, user: {chat_id}, message_id: {message_id}, exception:")
+        logger.exception(
+            f"failed to delete keyboard, user: {chat_id}, message_id: {message_id}, exception:")
         return
 
 # получить картинку из хранилища по id
 
 
 async def get_pictures(picture_id: str):
-    response = requests.get(contentful_api_readonly_url + 'spaces/' + contenful_space_id +
-                            '/environments/master/assets/' + picture_id + '?access_token=' + contenful_access_token)
+    response = requests.get(CONTENTFUL_API_READONLY_URL + 'spaces/' + CONTENTFUL_SPACE_ID +
+                            '/environments/master/assets/' + picture_id + '?access_token=' + CONTENTFUL_ACCESS_TOKEN)
     answer = json.loads(response.content)
     answer = answer.get("fields").get("file").get("url")
     return str(answer[2:])
@@ -150,13 +151,13 @@ async def check_if_delete_mental_keyboard(user_id: ObjectId):
         ]
     )
     mental_hours_clone = list(mental_hours)
-    print (mental_hours_clone)
+    print(mental_hours_clone)
     if (mental_hours_clone):
         if (mental_hours_clone[0]['date_diff']):
             if (mental_hours_clone[0]['date_diff'] == 3):
                 user = collection_name["users"].find_one(
                     {"_id": user_id}, {'telegram_id': 1})
-                await bot.send_message(int(user['telegram_id']), await get_options('hurry_up_message'))
+                await botClient.send_message(int(user['telegram_id']), await get_options('hurry_up_message'))
                 collection_name['users'].find().close()
 
             if (mental_hours_clone[0]['date_diff'] == 12):
@@ -212,7 +213,8 @@ def any_ratings_in_previous_n_days(id_user: ObjectId, n: int = 6) -> bool:
     collection_name = get_database()
 
     today = datetime.datetime.utcnow()
-    period_end = datetime.datetime(today.year, today.month, today.day-1, hour=23, minute=59)
+    period_end = datetime.datetime(
+        today.year, today.month, today.day-1, hour=23, minute=59)
     period_start = period_end - datetime.timedelta(days=n)
 
     past_week_ratings: Cursor = collection_name['mental_rate'].find({
@@ -222,4 +224,3 @@ def any_ratings_in_previous_n_days(id_user: ObjectId, n: int = 6) -> bool:
     past_week_ratings_lst = list(past_week_ratings)
     past_week_ratings.close()
     return bool(past_week_ratings_lst)
-
