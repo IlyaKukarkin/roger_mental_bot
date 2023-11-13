@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.types import ParseMode
 
 
-from config import LINK_TO_FORM, botClient
+from variables import LINK_TO_FORM, botClient
 from database import get_database
 from common import get_options
 

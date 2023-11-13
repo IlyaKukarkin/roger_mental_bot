@@ -1,6 +1,6 @@
 from aiogram import types
 
-from config import botClient
+from variables import botClient
 
 
 async def version_command(message: types.Message, version: str):

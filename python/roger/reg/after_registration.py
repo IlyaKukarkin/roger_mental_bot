@@ -2,7 +2,7 @@ import time
 from bson import ObjectId
 from aiogram.types import ParseMode
 
-from config import botClient, LINK_TO_FORM
+from variables import botClient, LINK_TO_FORM
 
 
 async def create_new_message_after_registration(telegram_id: str, name: str, form_id: ObjectId):

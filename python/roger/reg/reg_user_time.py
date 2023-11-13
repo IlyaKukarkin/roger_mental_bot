@@ -3,7 +3,7 @@ from aiogram import types, dispatcher
 from states import Registration
 from common import delete_keyboard
 from keyboards import ask_for_time_to_send_kb
-from config import botClient
+from variables import botClient
 
 # получить время, когда отправлять пользователю сообщения с замером настроения
 

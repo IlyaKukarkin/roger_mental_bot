@@ -16,7 +16,7 @@ from keyboards import ask_for_rate_messages
 from database import get_database
 from bson import ObjectId
 from volunteers import mental_rate_strike, how_many_days_user_with_us
-from config import CONTENTFUL_API_READONLY_URL, CONTENTFUL_SPACE_ID, CONTENTFUL_ACCESS_TOKEN, LINK_TO_FORM, botClient
+from variables import CONTENTFUL_API_READONLY_URL, CONTENTFUL_SPACE_ID, CONTENTFUL_ACCESS_TOKEN, LINK_TO_FORM, botClient
 from ratestata import send_rate_stata
 from friends import send_a_friend_message_about_bad_mood
 
@@ -37,7 +37,8 @@ async def sendmes(chat_id: int):
             {"rate": 0, "id_user": user['_id']}, {'id_tg_message': 1}, sort=[("date", -1)])
         if (id_previous_mes):
             await delete_keyboard(chat_id, id_previous_mes['id_tg_message'])
-        # await botClient.send_message(chat_id, await get_options('greetings'), parse_mode=types.ParseMode.MARKDOWN)
+        # await botClient.send_message(chat_id, await get_options('greetings'),
+        # parse_mode=types.ParseMode.MARKDOWN)
         id = await botClient.send_message(chat_id, await get_options('polls_questions'), parse_mode=types.ParseMode.MARKDOWN, reply_markup=kb_for_mental_poll)
         collection_name['mental_rate'].insert_one(
             {"rate": 0, "id_user": user['_id'], "date": datetime.datetime.now(), "id_tg_message": id.message_id})
@@ -66,14 +67,16 @@ async def callback_after_click_on_color_button(callback_query: types.CallbackQue
         user = collection_name["users"].find_one(
             {"telegram_id": str(callback_query.from_user.id)}, {'_id': 1, 'name': 0})
         # find_one_and_update returns a record that is to be updated; in this case it is irrelevant whether
-        # we receive the updated version of the record or not, since we're only interested in the date
+        # we receive the updated version of the record or not, since we're only
+        # interested in the date
         rate_record = collection_name['mental_rate'].find_one_and_update({"$and": [{"id_user": user["_id"]}, {
             "id_tg_message": callback_query.message.message_id}]}, {"$set": {"rate": rate}})
         await get_options_color(color, callback_query.from_user.id)
         await row_message(callback_query.from_user.id)
         await (mental_rate_strike(callback_query.from_user.id, 'volunteer'))
-        if rate_record != None:
-            if need_send_weekly_rate_stata(int(user['timezone']), user['created_at'], user['_id'], rate_record['date']):
+        if rate_record is not None:
+            if need_send_weekly_rate_stata(
+                    int(user['timezone']), user['created_at'], user['_id'], rate_record['date']):
                 await sunday_send_rate_stata(callback_query.from_user.id, rate_record['date'])
         # отключил чатжпт в колбеках
         # await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
@@ -106,11 +109,12 @@ async def create_message_with_support(chat_id: int, cursor: list, user_to_send: 
     else:
         message = message + '\n'
 
-    # телега не пускает сообщения с этими символами, сделали экранирование вместе 🤝
-    cursor['text'] = cursor['text'].replace("_", "\_")
-    cursor['text'] = cursor['text'].replace("*", "\*")
-    cursor['text'] = cursor['text'].replace("`", "\`")
-    cursor['text'] = cursor['text'].replace("[", "\[")
+    # телега не пускает сообщения с этими символами, сделали экранирование
+    # вместе 🤝
+    cursor['text'] = cursor['text'].replace("_", "\\_")
+    cursor['text'] = cursor['text'].replace("*", "\\*")
+    cursor['text'] = cursor['text'].replace("`", "\\`")
+    cursor['text'] = cursor['text'].replace("[", "\\[")
 
     message = message + text(bold("Сообщение: ") +
                              '\n' + cursor['text'] + '\n')
@@ -123,10 +127,10 @@ async def create_message_with_support(chat_id: int, cursor: list, user_to_send: 
 
         id_previous_mes = collection_name['user_messages'].find_one({"id_user": user_to_send}, {
                                                                     "id_user": 1, "id_message": 1, "id_tg_message": 1}, sort=[("time_to_send", -1)])
-        if (id_previous_mes != None):
+        if (id_previous_mes is not None):
             rate_previous_mes = collection_name['rate'].find_one(
                 {"id_message": id_previous_mes['id_message'], 'id_user': id_previous_mes['id_user']})
-            if (rate_previous_mes == None):
+            if (rate_previous_mes is None):
                 await delete_keyboard(chat_id, id_previous_mes['id_tg_message'])
         id_message = await botClient.send_message(chat_id, message, parse_mode=types.ParseMode.MARKDOWN, disable_web_page_preview=True, reply_markup=ask_for_rate_messages)
 
@@ -186,7 +190,8 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
                 print("\n")
                 print("Пользователь, кому отправляем сообщение")
                 print(user_id["_id"])
-# поменял местами localField и foreignField, потому что мне отправлялись сообщения, которые я уже видел
+# поменял местами localField и foreignField, потому что мне отправлялись
+# сообщения, которые я уже видел
                 message = collection_name["messages"].aggregate([
                     {
                         '$match': {

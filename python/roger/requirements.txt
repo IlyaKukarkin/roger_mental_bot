@@ -6,6 +6,7 @@ astroid==3.0.1
 async-timeout==4.0.2
 asyncio==3.4.3
 attrs==22.1.0
+autopep8==2.0.4
 Babel==2.9.1
 beautifulsoup4==4.11.1
 certifi==2022.9.24
@@ -26,6 +27,7 @@ mccabe==0.7.0
 multidict==6.0.2
 openai==0.27.0
 platformdirs==4.0.0
+pycodestyle==2.11.1
 pylint==3.0.2
 pymongo==4.3.2
 pyTelegramBotAPI==4.7.0

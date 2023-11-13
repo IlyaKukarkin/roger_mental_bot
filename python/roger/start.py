@@ -4,7 +4,7 @@ from aiogram import types
 from states import Registration
 from database import get_database
 from keyboards import ask_for_name_kb
-from config import botClient
+from variables import botClient
 
 
 async def start_command(message: types.Message):

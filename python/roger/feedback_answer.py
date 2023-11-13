@@ -1,5 +1,5 @@
 from aiogram import types
-from config import botClient
+from variables import botClient
 from database import get_database
 from states import Recording
 from aiogram.types import ParseMode
@@ -21,7 +21,7 @@ async def feedback_answer_start(message: types.Message):
 async def feedback_send_text_to_user(message: types.Message, state: FSMContext):
     try:
         await state.update_data(AwaitForAnAnswerToFeedback=message.text)
-        if type(message.reply_to_message.text) == type(None):
+        if isinstance(message.reply_to_message.text, type(None)):
             mes_str = message.reply_to_message.caption
         else:
             mes_str = message.reply_to_message.text
@@ -31,6 +31,6 @@ async def feedback_send_text_to_user(message: types.Message, state: FSMContext):
         await botClient.send_message(int(feedback_chat_id), text(bold("Разработчик прислал ответ на твой фидбек: \n\n")) + message.text, reply_to_message_id=int(feedback_message_id), parse_mode=ParseMode.MARKDOWN)
 
         await botClient.send_message(message.chat.id, "Ответ на фидбек отправлен")
-    except:
+    except BaseException:
         await botClient.send_message(message.chat.id, "Не получилось отправить. Сделай все заново")
     await state.finish()

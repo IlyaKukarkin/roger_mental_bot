@@ -1,7 +1,7 @@
 import datetime
 from aiogram import types, dispatcher
 from database import get_database
-from config import botClient
+from variables import botClient
 import pytz
 from common import delete_keyboard
 

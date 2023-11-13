@@ -19,7 +19,7 @@ from reg.reg_user_timezone import get_user_timezone, customer_timezone
 from stata import stata_show_mes, delete_from_cart_handler1
 from ratestata import send_rate_stata, get_rate_stata
 from sendmessage import sendmes, callback_after_click_on_color_button
-from config import botClient, botDispatcher
+from variables import botClient, botDispatcher
 from handlers import rate_message
 from fillform import fillform_command
 from feedback_answer import feedback_answer_start, feedback_send_text_to_user
@@ -96,14 +96,16 @@ async def add_friends_handler(callback_query: types.CallbackQuery):
     await Recording.AwaitForAFriendContact.set()
 
 
-@botDispatcher.message_handler(content_types=types.ContentType.USER_SHARED, state=Recording.AwaitForAFriendContact)
+@botDispatcher.message_handler(content_types=types.ContentType.USER_SHARED,
+                               state=Recording.AwaitForAFriendContact)
 async def contacts(msg: types.Message, state: dispatcher.FSMContext):
     await msg.answer("Вычисляю, знаком ли я с твоим другом...", reply_markup=types.ReplyKeyboardRemove())
     await send_request_to_a_friend(msg)
     await state.finish()
 
 
-@botDispatcher.callback_query_handler(call_back_approve.filter(id='friend_approve'))
+@botDispatcher.callback_query_handler(
+    call_back_approve.filter(id='friend_approve'))
 async def process_callback_friend_request_approve_button(callback_query: types.CallbackQuery, callback_data: dict):
     friend = callback_data.get("friend")
     await friends_internal_request(callback_query, friend, True)
@@ -121,7 +123,8 @@ async def process_callback_friend_request_delete_button(callback_query: types.Ca
     await delete_friends_message(1, [], 1, 1)
 
 
-@botDispatcher.message_handler(state=FriendsStates.AwaitForAFriendNicknameToAdd)
+@botDispatcher.message_handler(
+    state=FriendsStates.AwaitForAFriendNicknameToAdd)
 async def process_callback_await_for_a_message_button(message: types.Message, state: dispatcher.FSMContext):
     await get_friend_nickname(message, state)
 
@@ -136,7 +139,8 @@ async def friends_info_handler(callback_query: types.CallbackQuery):
     await show_info(callback_query)
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'delete_from_friends')
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'delete_from_friends')
 async def delete_friends_handler(callback_query: types.CallbackQuery):
     await delete_friends(callback_query)
 
@@ -165,7 +169,8 @@ async def process_stata_command(message: types.Message):
     await stata_show_mes(message)
 
 
-@botDispatcher.callback_query_handler(cart_cb.filter(button_parameter=["kb_mes"]))
+@botDispatcher.callback_query_handler(
+    cart_cb.filter(button_parameter=["kb_mes"]))
 async def delete_from_cart_handler(call: types.CallbackQuery, callback_data: dict):
     await botClient.send_message(call.from_user.id, "Подгружаю статистику, немного терпения")
     await delete_from_cart_handler1(call, callback_data)
@@ -181,21 +186,24 @@ async def process_rate_stata_command(message: types.Message):
     await get_rate_stata(message)
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'month', state=Recording.AwaitForARateStata)
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'month', state=Recording.AwaitForARateStata)
 async def rate_stata_handler_month(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
     await state.finish()
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await send_rate_stata(callback_query.from_user.id, 'month')
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'week2', state=Recording.AwaitForARateStata)
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'week2', state=Recording.AwaitForARateStata)
 async def rate_stata_handler_week2(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
     await state.finish()
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await send_rate_stata(callback_query.from_user.id, 'week2')
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'week', state=Recording.AwaitForARateStata)
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'week', state=Recording.AwaitForARateStata)
 async def rate_stata_handler_week(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
     await state.finish()
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
@@ -208,7 +216,8 @@ async def rate_stata_handler_week(callback_query: types.CallbackQuery, state: di
 async def process_fillform_command(message: types.Message):
     await fillform_command(message)
 
-# отправляем сообщение всем пользователям от имени бота, доступно только админам
+# отправляем сообщение всем пользователям от имени бота, доступно только
+# админам
 
 
 @botDispatcher.message_handler(commands=['sendmestoall'])
@@ -233,7 +242,8 @@ async def send_to_admin_text(message: types.Message, state: dispatcher.FSMContex
     await feedback_get_text_from_user(message, state)
 
 
-@botDispatcher.message_handler(content_types=types.ContentTypes.PHOTO, state=Recording.AwaitForAFeedback)
+@botDispatcher.message_handler(content_types=types.ContentTypes.PHOTO,
+                               state=Recording.AwaitForAFeedback)
 async def send_to_admin_photo(message: types.Message, state: dispatcher.FSMContext):
     await feedback_get_photo_from_user(message, state)
 
@@ -284,14 +294,16 @@ async def donate_handler(message: types.Message):
 # получаем имя пользователя
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'name_button_yes', state=Registration.Name)
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'name_button_yes', state=Registration.Name)
 async def process_callback_yesname_button1(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
     global user_name
     user_name = await get_user_name(callback_query, state)
     await get_user_time_to_send(callback_query.from_user.id)
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'name_button_no', state=Registration.Name)
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'name_button_no', state=Registration.Name)
 async def process_callback_noname_button1(callback_query: types.CallbackQuery):
     await get_printed_user_name(callback_query)
 
@@ -300,7 +312,7 @@ async def process_callback_noname_button1(callback_query: types.CallbackQuery):
 async def customer_name(message: types.Message, state: dispatcher.FSMContext):
     global user_name
     user_name = await get_customer_name(message, state)
-    if user_name == None:
+    if user_name is None:
         return
     await get_user_time_to_send(message.chat.id)
 
@@ -310,28 +322,32 @@ async def get_user_time_to_send(chat_id: int):
     await get_user_time_to_send_messages(chat_id)
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'ask_for_time_20', state=Registration.AwaitForATimeToSend)
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'ask_for_time_20', state=Registration.AwaitForATimeToSend)
 async def process_callback_askfortime20_button(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
     global user_time
     user_time = await user_time_20(callback_query, state)
     await get_user_time_zone(callback_query.from_user.id)
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'ask_for_time_21', state=Registration.AwaitForATimeToSend)
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'ask_for_time_21', state=Registration.AwaitForATimeToSend)
 async def process_callback_askfortime21_button(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
     global user_time
     user_time = await user_time_21(callback_query, state)
     await get_user_time_zone(callback_query.from_user.id)
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'ask_for_time_22', state=Registration.AwaitForATimeToSend)
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'ask_for_time_22', state=Registration.AwaitForATimeToSend)
 async def process_callback_askfortime22_button(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
     global user_time
     user_time = await user_time_22(callback_query, state)
     await get_user_time_zone(callback_query.from_user.id)
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'ask_for_time_23', state=Registration.AwaitForATimeToSend)
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'ask_for_time_23', state=Registration.AwaitForATimeToSend)
 async def process_callback_askfortime23_button1(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
     global user_time
     user_time = await user_time_23(callback_query, state)
@@ -347,7 +363,7 @@ async def get_user_time_zone(chat_id: int):
 async def customer(message: types.Message, state: dispatcher.FSMContext):
     global time_zone
     time_zone = await customer_timezone(message, state)
-    if time_zone != None:
+    if time_zone is not None:
         await create_user(message)
 
 
@@ -358,46 +374,54 @@ async def create_user(message: types.Message):
 # получаем оценку сообщения от пользователя
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'rate_good', state='*')
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'rate_good', state='*')
 async def process_callback_rategood_button(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
     await rate_message(callback_query, state, True)
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'rate_bad', state='*')
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'rate_bad', state='*')
 async def process_callback_ratebad_button(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
     await rate_message(callback_query, state, False)
 
 # получаем оценку ChatGPT от пользователя
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'rate_good_support', state='*')
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'rate_good_support', state='*')
 async def process_support_callback_rategood_button(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
     await callback_after_click_on_button_support(callback_query, state, True)
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'rate_bad_support', state='*')
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'rate_bad_support', state='*')
 async def process_support_callback_ratebad_button(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
     await callback_after_click_on_button_support(callback_query, state, False)
 
 # оценка настроения за день
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'green_button_answer', state='*')
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'green_button_answer', state='*')
 async def process_callback_greenbutton_button4(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
     await callback_after_click_on_color_button(callback_query, state, 4, 'green')
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'yellow_button_answer', state='*')
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'yellow_button_answer', state='*')
 async def process_callback_yellowbutton_button3(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
     await callback_after_click_on_color_button(callback_query, state, 3, 'yellow')
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'orange_button_answer', state='*')
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'orange_button_answer', state='*')
 async def process_callback_orangebutton_button2(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
     await callback_after_click_on_color_button(callback_query, state, 2, 'orange')
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'red_button_answer', state='*')
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'red_button_answer', state='*')
 async def process_callback_redbutton_button1(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
     await callback_after_click_on_color_button(callback_query, state, 1, 'red')
 

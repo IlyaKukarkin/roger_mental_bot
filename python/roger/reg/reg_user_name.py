@@ -3,7 +3,7 @@ from aiogram import types, dispatcher
 from states import Registration
 
 from common import delete_keyboard
-from config import botClient
+from variables import botClient
 
 # получить дефолтное имя пользователя
 

@@ -11,7 +11,7 @@ from linkpreview import link_preview
 
 from common import delete_keyboard, get_pictures
 from bson import ObjectId
-from config import botClient, LINK_TO_FORM, CUTTLY_API_KEY
+from variables import botClient, LINK_TO_FORM, CUTTLY_API_KEY
 from volunteers import mental_rate_strike
 from database import get_database
 

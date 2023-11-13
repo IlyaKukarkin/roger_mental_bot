@@ -1,5 +1,6 @@
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
+
 class Recording(StatesGroup):
     AwaitForARateStata = State()
     AwaitForAFeedback = State()
@@ -8,8 +9,10 @@ class Recording(StatesGroup):
     AwaitForAProblem = State()
     AwaitForAFriendContact = State()
 
-class FriendsStates(StatesGroup):    
+
+class FriendsStates(StatesGroup):
     AwaitForAFriendNicknameToAdd = State()
+
 
 class Registration(StatesGroup):
     Name = State()
@@ -18,4 +21,3 @@ class Registration(StatesGroup):
     AwaitForATimeZoneToSend = State()
     TimeToSend = State()
     AwaitForATimeToSend = State()
-

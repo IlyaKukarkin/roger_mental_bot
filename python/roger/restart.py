@@ -1,7 +1,7 @@
 from aiogram import types
 import requests
 
-from config import botClient, ROGER_GITHUB_RESTART_TOKEN
+from variables import botClient, ROGER_GITHUB_RESTART_TOKEN
 from database import get_database
 
 

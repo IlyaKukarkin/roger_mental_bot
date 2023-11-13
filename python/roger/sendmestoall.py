@@ -4,7 +4,7 @@ from aiogram.utils.exceptions import BotBlocked, ChatNotFound
 
 from states import Recording
 from database import get_database
-from config import botClient
+from variables import botClient
 
 
 async def get_message_to_all(message: types.Message):

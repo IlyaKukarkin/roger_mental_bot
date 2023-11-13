@@ -1,5 +1,5 @@
 from database import get_database
-from config import botClient
+from variables import botClient
 
 
 async def mental_rate_strike(chat_id: int, action: str):

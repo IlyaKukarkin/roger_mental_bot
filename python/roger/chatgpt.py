@@ -1,5 +1,5 @@
 from aiogram import types
-from config import botClient
+from variables import botClient
 from database import get_database
 from states import Recording
 from aiogram.dispatcher import FSMContext
@@ -9,7 +9,7 @@ from keyboards import ask_for_rate_messages_support
 from database import get_database
 import datetime
 from common import delete_keyboard
-from config import CHATGPT_TOKEN
+from variables import CHATGPT_TOKEN
 
 from classes.chatgpt_arrays import ArrayOfChats
 

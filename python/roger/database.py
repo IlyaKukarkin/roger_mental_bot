@@ -3,7 +3,7 @@ from bson import ObjectId
 import datetime
 import certifi
 from reg.after_registration import create_new_message_after_registration
-from config import botClient, MONGODB_URI
+from variables import botClient, MONGODB_URI
 from aiogram.types import InlineKeyboardButton
 from keyboards import friend_request_kb
 from aiogram.utils.markdown import link
@@ -175,5 +175,7 @@ def check_if_user_has_username(username: str):
     return (username != '@' and username != ' ' and username != '')
 
 # убрать из файла "БД", это просто утилита
+
+
 def change_empty_username_to_a_link(user_id: int, name: str):
     return link(name, f"tg://user?id={user_id}")

@@ -2,7 +2,7 @@ from aiogram.types import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup,
 from aiogram.dispatcher import FSMContext
 from aiogram.utils.callback_data import CallbackData
 
-from config import botClient
+from variables import botClient
 from database import get_database, search_user_by_nickname, send_friends_request, search_user_by_tg_id, search_user_by_object_id, check_if_user_sent_request, check_if_user_got_request, find_all_friends, accept_decline_friend_request, check_if_user_has_username, change_empty_username_to_a_link
 from common import delete_keyboard
 
@@ -132,7 +132,7 @@ async def show_active_friends(callback_query: CallbackQuery):
 async def show_info(callback_query: CallbackQuery):
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     mes = """Рассказываю подробнее о режиме «Друзья»
-    
+
 Друзья — это пользователи, которым доступна информация о твоем настроении. Список друзей определяешь только ты.
 
 Как только ты отмечаешь 🔴 или 🟠 настроение, твои друзья получают сообщение об этом —  они смогут написать и поддержать тебя
@@ -168,13 +168,13 @@ async def watch_friends_internal_requests(user_id: int, message_id: int, keyboar
             '❌', callback_data=call_back_decline.new(id='friend_decline', friend=friend_telegram_id))
         friend_request_kb.add(friend_request_kb_approve,
                               friend_request_kb_decline)
-        
+
         if not check_if_user_has_username(friends_obj['telegram_username']):
             friends_obj["telegram_username"] = change_empty_username_to_a_link(
                 int(friends_obj['telegram_id']), friends_obj['name'])
-        
+
         await botClient.send_message(user_id, f"Новый запрос в друзья от пользователя {friends_obj['telegram_username']}", reply_markup=friend_request_kb)
-    
+
     collection_name['friends'].find().close()
     collection_name['user'].find().close()
     return
@@ -234,7 +234,7 @@ async def delete_friends_message(id_user: int, friends_list: list, index_to_show
     else:
         change_empty_username_to_a_link(friend['telegram_id'], friend['name'])
     friends_button_delete = InlineKeyboardButton('😿 Удалить друга', callback_data=call_back_decline.new
-        (id='friend_delete', friend_to_delete=friend['_id']))
+                                                 (id='friend_delete', friend_to_delete=friend['_id']))
 
 
 # ебануть навигацию везде

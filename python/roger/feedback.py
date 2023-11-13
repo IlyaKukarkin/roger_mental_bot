@@ -6,7 +6,7 @@ from aiogram.types import ParseMode
 from database import get_database
 from states import Recording
 from common import delete_keyboard
-from config import botClient, botDispatcher
+from variables import botClient, botDispatcher
 
 
 async def feedback_start(message: types.Message):
@@ -27,7 +27,8 @@ async def feedback_getting(chat_id: int, message_id: int):
     await Recording.AwaitForAFeedback.set()
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'feedback_finish', state=Recording.AwaitForAFeedback)
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'feedback_finish', state=Recording.AwaitForAFeedback)
 async def feedback_finish_def(callback_query: types.CallbackQuery, state: FSMContext):
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await botClient.send_message(callback_query.from_user.id, "Ты вышел из режима отправки фидбека. Если захочешь вернуться и написать фидбек разработчикам, вызови команду /feedback")
@@ -76,7 +77,7 @@ async def feedback_get_photo_from_user(message: types.Message, state: FSMContext
         await botClient.send_message(id['telegram_id'],
                                      "Новое фото от пользователя " + user['telegram_username'] + '. Вот оно:')
         message_caption = message.caption
-        if (message_caption == None):
+        if (message_caption is None):
             message_caption = "Отправлено без подписи"
         await botClient.send_photo(id['telegram_id'], photo=message.photo[-1].file_id, caption='chat_id: ' + str(message.chat.id) + '.\nmessage_id: ' + str(message.message_id) + '.\n\nТекст сообщения: "' + message_caption + '"')
     await botClient.send_message(message.chat.id, "Сообщение улетело разработчикам. Спасибо! 😍")

@@ -38,6 +38,12 @@ Run roger bot
 doppler run -- python3 main.py
 ```
 
+For linting run from the root (ex. from `python/roger`)
+
+```bash
+autopep8 --exclude='*/roger-venv/*' --in-place --recursive --aggressive . && pylint **.py
+```
+
 After development finished, stop environment
 
 ```bash

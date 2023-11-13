@@ -24,7 +24,8 @@ async def mental_rates_strike_in_a_row(chat_id: int):
     for rate in mental_rates_list:
         print(rate['date'].strftime("%d.%m.%Y"))
         print(date_now)
-        if ((rate['date'].strftime("%d.%m.%Y")) == date_now and rate['rate'] != 0):
+        if ((rate['date'].strftime("%d.%m.%Y"))
+                == date_now and rate['rate'] != 0):
             strike = strike + 1
             date_now = datetime.strptime(date_now, "%d.%m.%Y")
             date_now = date_now - timedelta(days=1)

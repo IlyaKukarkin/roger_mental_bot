@@ -2,8 +2,6 @@ import os
 from aiogram import Bot
 from aiogram.dispatcher import Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from pymongo import MongoClient
-import certifi
 
 # ENV variables
 ROGER_TOKEN_BOT = os.getenv("ROGER_TOKEN_BOT")
@@ -22,6 +20,3 @@ botClient = Bot(token=ROGER_TOKEN_BOT)
 
 # Dispatcher for telegram Bot
 botDispatcher = Dispatcher(botClient, storage=MemoryStorage())
-
-# Database creation
-dbClient = MongoClient(MONGODB_URI, tlsCAFile=certifi.where())["roger-bot-db"]

@@ -3,7 +3,7 @@ import urllib.parse
 from typing import Callable
 import json
 import pytz
-from config import botClient
+from variables import botClient
 from dateutil.relativedelta import relativedelta
 from aiogram import types
 from states import Recording
@@ -139,5 +139,5 @@ async def send_rate_stata(id_message: str, stata_type: str,
 
 
 def daterange(date1, date2):
-    for n in range(int((date2 - date1).days)+1):
+    for n in range(int((date2 - date1).days) + 1):
         yield date1 + datetime.timedelta(n)

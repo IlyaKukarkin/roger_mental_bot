@@ -6,7 +6,7 @@ from database import get_database
 from pymongo.cursor import Cursor
 import datetime
 import pytz
-from config import botClient, CONTENTFUL_API_READONLY_URL, CONTENTFUL_ACCESS_TOKEN, CONTENTFUL_SPACE_ID
+from variables import botClient, CONTENTFUL_API_READONLY_URL, CONTENTFUL_ACCESS_TOKEN, CONTENTFUL_SPACE_ID
 from enum import IntEnum
 from logger import logger
 
@@ -57,11 +57,12 @@ async def rand_select_obj_texts(arr: list):
         j += 1
     return arr[rand_id_array[random.randint(0, len(rand_id_array) - 1)]]
 
-# проверить валидность имени пользователя перед добавлением его в базу (исключаем вариант, когда username в телеграме не задан)
+# проверить валидность имени пользователя перед добавлением его в базу
+# (исключаем вариант, когда username в телеграме не задан)
 
 
 async def check_id_username_is_valid_before_save(username: str):
-    if (username == None):
+    if (username is None):
         return ""
     return username
 
@@ -184,7 +185,8 @@ def today_is_the_day(day: Weekdays, timezone_offset: int) -> bool:
     return utc_date_is_the_day(datetime.datetime.now(), day, timezone_offset)
 
 
-def utc_date_is_the_day(date: datetime.datetime, day: Weekdays, timezone_offset: int):
+def utc_date_is_the_day(date: datetime.datetime,
+                        day: Weekdays, timezone_offset: int):
     """A function that checks whether the supplied date is a particular weekday (specified by day parameter)
     considering the timezone; date parameter should be a UTC+00 date"""
     delta = datetime.timedelta(hours=timezone_offset)
@@ -214,7 +216,7 @@ def any_ratings_in_previous_n_days(id_user: ObjectId, n: int = 6) -> bool:
 
     today = datetime.datetime.utcnow()
     period_end = datetime.datetime(
-        today.year, today.month, today.day-1, hour=23, minute=59)
+        today.year, today.month, today.day - 1, hour=23, minute=59)
     period_start = period_end - datetime.timedelta(days=n)
 
     past_week_ratings: Cursor = collection_name['mental_rate'].find({
