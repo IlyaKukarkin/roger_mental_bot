@@ -5,7 +5,7 @@ from bson import ObjectId
 from setup import dbClient
 
 
-def db_insert_new_user(
+def insert_new_user(
     tg_username: str,
     telegram_id: str,
     username: str,
@@ -42,10 +42,8 @@ def db_insert_new_user(
         "time_to_send_messages": user_time
     })
 
-    dbClient['users'].find().close()
 
-
-def db_get_user_by_tg_username(
+def get_user_by_tg_username(
     tg_username: str,
 ):
     """
@@ -60,12 +58,10 @@ def db_get_user_by_tg_username(
 
     user = dbClient['users'].find_one({"telegram_username": tg_username})
 
-    dbClient['users'].find().close()
-
     return user
 
 
-def db_get_user_by_id(
+def get_user_by_id(
     _id: ObjectId,
 ):
     """
@@ -79,7 +75,5 @@ def db_get_user_by_id(
     """
 
     user = dbClient['users'].find_one({"_id": _id})
-
-    dbClient['users'].find().close()
 
     return user
