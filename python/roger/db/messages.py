@@ -2,7 +2,7 @@
 
 from bson import ObjectId
 
-from setup import dbClient
+from db.setup import dbClient
 
 
 def get_message_by_id(

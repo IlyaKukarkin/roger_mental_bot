@@ -1,9 +1,9 @@
 """Module providing functions for accessing Users table from DB."""
 
-import datetime
+from datetime import datetime
 from bson import ObjectId
 
-from setup import dbClient
+from db.setup import dbClient
 
 
 def insert_new_user(
@@ -39,7 +39,7 @@ def insert_new_user(
         "telegram_id": telegram_id,
         "is_admin": False,
         "is_active": True,
-        "created_at": datetime.datetime.now(),
+        "created_at": datetime.now(),
         "time_to_send_messages": user_time
     })
 

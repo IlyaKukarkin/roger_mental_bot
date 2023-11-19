@@ -1,3 +1,5 @@
+"""Module providing DB singleton client."""
+
 from pymongo import MongoClient
 import certifi
 
