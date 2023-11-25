@@ -115,10 +115,10 @@ def get_incoming_requests(
     user_id: ObjectId,
 ):
     """
-    Returns a list of friends requests from the DataBase table "Users" by User "_id"
+    Returns a list of friends requests to this user from the DataBase table "Users" by User "_id"
 
     Parameters:
-    user_id (ObjectId): ID of user to find all requests
+    user_id (ObjectId): ID of user to find all incoming requests
 
     Returns:
     list: ObjectId
@@ -132,5 +132,30 @@ def get_incoming_requests(
 
     for friend in friends_to_user:
         friends_requests_id.append(friend['from'])
+
+    return friends_requests_id
+
+
+def get_outcoming_requests(
+    user_id: ObjectId,
+):
+    """
+    Returns a list of friends requests from this user from the DataBase table "Users" by User "_id"
+
+    Parameters:
+    user_id (ObjectId): ID of user to find all outcoming requests
+
+    Returns:
+    list: ObjectId
+    """
+
+    friends_requests_id = []
+
+    friends_from_user = dbClient['friends'].find(
+        {"from": user_id, "status": 0}
+    )
+
+    for friend in friends_from_user:
+        friends_requests_id.append(friend['to'])
 
     return friends_requests_id
