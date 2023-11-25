@@ -391,13 +391,13 @@ async def process_callback_ratebad_button(callback_query: types.CallbackQuery, s
 @botDispatcher.callback_query_handler(lambda c: c.data ==
                                       'rate_good_support', state='*')
 async def process_support_callback_rategood_button(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
-    await callback_after_click_on_button_support(callback_query, state, True)
+    await callback_after_click_on_button_support(callback_query, True)
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
                                       'rate_bad_support', state='*')
 async def process_support_callback_ratebad_button(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
-    await callback_after_click_on_button_support(callback_query, state, False)
+    await callback_after_click_on_button_support(callback_query, False)
 
 # оценка настроения за день
 
