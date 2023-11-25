@@ -34,7 +34,6 @@ from chatgpt import support_message, await_for_a_problem, callback_after_click_o
 from friends import await_for_a_friend_nickname, get_friend_nickname, get_menu_for_command, show_active_friends, show_info, watch_friends_internal_requests, send_request_to_a_friend, friends_internal_request, call_back_approve, call_back_decline, delete_friends, delete_friends_message
 from aiogram.utils.callback_data import CallbackData
 
-
 #текущая версия бота
 version = "1.4.0"
 
@@ -45,6 +44,7 @@ with open('texts.json') as t:
 #команда старт при первом запуске бота
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
+    args = message.get_args()
     await start_command(message)
 
 #команда по отслеживанию, является ли пользак активным
