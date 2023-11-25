@@ -187,7 +187,7 @@ async def send_a_friend_message_about_bad_mood(id_user: int, color: str):
     if not friends:
         return
     for friend_user_id in friends:
-        friend = await search_user_by_object_id(friend_user_id)
+        friend = await search_user_by_object_id(friend_user_id )
         if check_if_user_has_username(user['telegram_username']) == False:
             user["telegram_username"] = change_empty_username_to_a_link(int(user['telegram_id']), user['name'])
         await bot.send_message(friend["telegram_id"], f"Твой друг {user['telegram_username']} отметил, что сегодня у него {mood_dict[color]} настроение. Ты можешь написать ему напрямую", parse_mode="Markdown", disable_web_page_preview=True)
