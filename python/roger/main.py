@@ -44,7 +44,7 @@ with open('texts.json') as t:
 #команда старт при первом запуске бота
 @dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
-    args = message.get_args()
+    #args = message.get_args()
     await start_command(message)
 
 #команда по отслеживанию, является ли пользак активным
