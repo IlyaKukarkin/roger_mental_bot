@@ -55,7 +55,7 @@ def update_friend_status(
     )
 
 
-def get_frinds_record(
+def get_friends_record(
     from_user_id: ObjectId,
     to_user_id: ObjectId,
 ):

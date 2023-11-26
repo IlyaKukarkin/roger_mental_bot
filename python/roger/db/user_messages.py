@@ -89,3 +89,22 @@ def get_message_by_message_id(
         {"id_message": id_message})
 
     return user_message
+
+
+def get_all_messages_by_message_id(
+    id_message: ObjectId,
+):
+    """
+    Returns all user message records from the DataBase table "User messages" by message "_id"
+
+    Parameters:
+    id_message (ObjectId): ID of message that was sent to user
+
+    Returns:
+    list: User message
+    """
+
+    user_messages = dbClient['user_messages'].find(
+        {"id_message": id_message})
+
+    return list(user_messages)

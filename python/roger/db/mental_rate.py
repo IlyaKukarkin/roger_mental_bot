@@ -110,6 +110,32 @@ def get_all_mental_rates(
     return list(mental_rates)
 
 
+def get_mental_rates_period(
+    id_user: ObjectId,
+    period_start: datetime,
+    period_end: datetime,
+):
+    """
+    Gets all mental rates record with rate "1" or higher for the user
+
+    Parameters:
+    id_user (ObjectId): ID of an User to get mental rates
+    period_start (datetime): start of period
+    period_end (datetime): end of period
+
+    Returns:
+    list: Mental Rate
+    """
+
+    mental_rates = dbClient["mental_rate"].find({
+        'id_user': id_user,
+        'date': {'$gt': period_start, '$lt': period_end},
+        'rate': {'$gt': 0}
+    })
+
+    return list(mental_rates)
+
+
 def update_mental_rate_value(
     _id: ObjectId,
     rate: int,

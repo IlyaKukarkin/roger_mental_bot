@@ -1,7 +1,6 @@
+"""Module with keyboards and functions to generate keyboards."""
+
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.types import ReplyKeyboardRemove, \
-    ReplyKeyboardMarkup, KeyboardButton, \
-    InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButtonRequestUser
 
 green_button_answer = InlineKeyboardButton(
     '🟢', callback_data='green_button_answer')
@@ -46,7 +45,11 @@ ask_for_time_to_send_22 = InlineKeyboardButton(
 ask_for_time_to_send_23 = InlineKeyboardButton(
     '23:00-00:00', callback_data='ask_for_time_23')
 ask_for_time_to_send_kb = InlineKeyboardMarkup(row_width=2).add(
-    ask_for_time_to_send_20, ask_for_time_to_send_21, ask_for_time_to_send_22, ask_for_time_to_send_23)
+    ask_for_time_to_send_20,
+    ask_for_time_to_send_21,
+    ask_for_time_to_send_22,
+    ask_for_time_to_send_23
+)
 
 
 rate_stata_month = InlineKeyboardButton(
@@ -75,10 +78,21 @@ support_start_keyboard = InlineKeyboardMarkup().add(
 
 
 approve_friends_request = InlineKeyboardButton(
-    'Добавить в друзья', сallback_data='approve_request')
+    'Добавить в друзья', callback_data='approve_request')
 
 
-async def add_button_for_friends_requests(requests: int, friends: int):
+def create_friends_keyboard(requests: int, friends: int):
+    """
+    Function to create /friends keyboard
+
+    Parameters:
+    requests (int): number of friends requests
+    friends (int): number of friends
+
+    Returns:
+    TG InlineKeyboardMarkup
+    """
+
     friends_menu_kb = InlineKeyboardMarkup(row_width=1, one_time_keyboard=True)
 
     if requests > 0:
@@ -95,29 +109,51 @@ async def add_button_for_friends_requests(requests: int, friends: int):
             'Посмотреть список друзей', callback_data='check_friend_list')
         friends_menu_kb = friends_menu_kb.add(check_friends_list_button)
 
-        # friends_delete_button = InlineKeyboardButton('Удалить друга', callback_data='delete_from_friends')
+        # friends_delete_button = InlineKeyboardButton(
+        #     'Удалить друга',
+        #     callback_data='delete_from_friends'
+        # )
         # friends_menu_kb = friends_menu_kb.add(friends_delete_button)
 
     info_friends_button = InlineKeyboardButton(
         'Инфо', callback_data='info_friend_list')
-
-    back_button = InlineKeyboardButton('⬅️ Назад', callback_data="main")
 
     friends_menu_kb = friends_menu_kb.add(info_friends_button, back_button)
 
     return friends_menu_kb
 
 
-async def create_back_kb(callback_info: str):
+def create_back_kb(callback_info: str):
+    """
+    Function to create back keyboard for /friends
+
+    Parameters:
+    callback_info (str): callback to return to
+
+    Returns:
+    TG InlineKeyboardMarkup
+    """
+
     back_kb = InlineKeyboardMarkup(row_width=1, one_time_keyboard=True)
-    back_button = InlineKeyboardButton('⬅️ Назад', callback_data=callback_info)
-    back_kb = back_kb.add(back_button)
-    return back_kb
+    return add_back_button(back_kb, callback_info)
 
 
-async def add_back_button(kb: InlineKeyboardMarkup, callback_info: str):
-    back_button = InlineKeyboardButton('⬅️ Назад', callback_data=callback_info)
-    kb = kb.add(back_button)
+def add_back_button(kb: InlineKeyboardMarkup, callback_info: str):
+    """
+    Function to add "Back" button for /friends
+
+    Parameters:
+    kb (TG InlineKeyboardMarkup): keyboard to add "Back" button
+    callback_info (str): callback to return to
+
+    Returns:
+    TG InlineKeyboardMarkup
+    """
+
+    dymamic_back_button = InlineKeyboardButton(
+        '⬅️ Назад', callback_data=callback_info)
+    kb = kb.add(dymamic_back_button)
+
     return kb
 
 # ask_for_rate_messages_support = add_back_button(ask_for_rate_messages_support, 'main')

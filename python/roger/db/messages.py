@@ -34,12 +34,12 @@ def get_all_messages_by_user(
     id_user (ObjectId): ID of user to find all messages
 
     Returns:
-    array: Messages
+    list: Messages
     """
 
     messages = dbClient['messages'].find({"id_user": id_user})
 
-    return messages
+    return list(messages)
 
 
 def get_message_to_send_to_user(
@@ -103,4 +103,4 @@ def get_message_to_send_to_user(
         }
     ])
 
-    return message
+    return list(message)

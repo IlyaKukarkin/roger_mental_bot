@@ -1,3 +1,5 @@
+"""Module with environment variables and global Bot variable."""
+
 import os
 from aiogram import Bot
 from aiogram.dispatcher import Dispatcher

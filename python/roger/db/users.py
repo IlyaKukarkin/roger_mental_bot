@@ -63,6 +63,25 @@ def update_user_is_active(
         {'_id': _id}, {"$set": {'is_active': is_active}})
 
 
+def update_user_is_volunteer(
+    _id: ObjectId,
+    is_volunteer: bool
+):
+    """
+    Updates the "is_volunteer" field for user by his "_id"
+
+    Parameters:
+    _id (ObjectId): ID for the user to update
+    is_volunteer (bool): value for "is_volunteer" to set
+
+    Returns:
+    None
+    """
+
+    dbClient['users'].find_one_and_update(
+        {'_id': _id}, {"$set": {'is_volunteer': is_volunteer}})
+
+
 def get_user_by_tg_username(
     tg_username: str,
 ):
@@ -112,7 +131,7 @@ def get_user_by_telegram_id(
     dict: User
     """
 
-    user = dbClient['users'].find_one({"telegram_id": str(telegram_id)})
+    user = dbClient['users'].find_one({"telegram_id": telegram_id})
 
     return user
 
@@ -191,4 +210,4 @@ def get_user_with_mental_rate(
         ]
     )
 
-    return user
+    return list(user)[0]
