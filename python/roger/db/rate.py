@@ -104,7 +104,10 @@ def count_rates_for_message(
         ]
     )
 
-    result = {}
+    result = {
+        "rate_good": 0,
+        "rate_bad": 0
+    }
 
     for rate in db_aggregation:
         if rate['_id']:

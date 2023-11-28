@@ -51,8 +51,8 @@ async def get_menu_for_command(chat_id: int):
     Returns:
     None
     """
-
-    user = get_user_by_telegram_id(chat_id)
+    
+    user = get_user_by_telegram_id(str(chat_id))
 
     friends_requests_count = len(get_incoming_requests(user['_id']))
 
@@ -138,7 +138,7 @@ async def send_request_to_a_friend(message: Message):
     None
     """
 
-    friend = get_user_by_telegram_id(message.user_shared.user_id)
+    friend = get_user_by_telegram_id(str(message.user_shared.user_id))
 
     if friend is None:
         await botClient.send_message(
@@ -151,13 +151,11 @@ async def send_request_to_a_friend(message: Message):
         )
         return
 
-    user_request_sent = await check_if_user_sent_request(message.chat.id, friend['_id'])
-
-    user_from = get_user_by_telegram_id(message.chat.id)
+    user_from = get_user_by_telegram_id(str(message.chat.id))
 
     user_request_sent = get_friends_record(user_from['_id'], friend['_id'])
 
-    if user_request_sent is None:
+    if user_request_sent is not None:
         if user_request_sent['status'] == 0:
             await botClient.send_message(
                 message.chat.id,
@@ -171,7 +169,7 @@ async def send_request_to_a_friend(message: Message):
             await botClient.send_message(message.chat.id, "Вы уже дружите 😄")
             return
 
-    user_to = get_user_by_telegram_id(message.chat.id)
+    user_to = get_user_by_telegram_id(str(message.chat.id))
 
     user_got_request = get_friends_record(friend['_id'], user_to['_id'])
 
@@ -189,7 +187,7 @@ async def send_request_to_a_friend(message: Message):
             await botClient.send_message(message.chat.id, "Вы уже дружите 😄")
             return
 
-    user = get_user_by_telegram_id(message.chat.id)
+    user = get_user_by_telegram_id(str(message.chat.id))
     insert_new_friends(
         user['_id'],
         friend['_id'],
@@ -243,7 +241,7 @@ async def show_active_friends(callback_query: CallbackQuery):
 
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
 
-    user = get_user_by_telegram_id(callback_query.from_user.id)
+    user = get_user_by_telegram_id(str(callback_query.from_user.id))
 
     friends_id_list = get_all_friends(user['_id'])
 
@@ -323,7 +321,7 @@ async def watch_friends_internal_requests(
     if keyboard_delete_need:
         await delete_keyboard(user_tg_id, message_id)
 
-    user = get_user_by_telegram_id(user_tg_id)
+    user = get_user_by_telegram_id(str(user_tg_id))
 
     incoming_requests = get_incoming_requests(user['_id'])
 
@@ -380,7 +378,7 @@ async def friends_internal_request(callback_query: CallbackQuery, friend: str, a
     else:
         status = 2
 
-    user_to = get_user_by_telegram_id(callback_query.from_user.id)
+    user_to = get_user_by_telegram_id(str(callback_query.from_user.id))
     user_from = get_user_by_telegram_id(friend)
 
     friends_record = get_friends_record(user_from["_id"], user_to['_id'])
@@ -399,8 +397,8 @@ async def friends_internal_request(callback_query: CallbackQuery, friend: str, a
             )
         )
 
-        friend_obj = get_user_by_telegram_id(int(friend))
-        user_obj = get_user_by_telegram_id(callback_query.from_user.id)
+        friend_obj = get_user_by_telegram_id(friend)
+        user_obj = get_user_by_telegram_id(str(callback_query.from_user.id))
 
         if not check_if_user_has_username(user_obj['telegram_username']):
             user_obj["telegram_username"] = change_empty_username_to_a_link(

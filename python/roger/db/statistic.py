@@ -14,6 +14,6 @@ def get_statistic():
     dict: Statistic
     """
 
-    statistic = dbClient['rate'].find_one()
+    statistic = dbClient['statistic'].find_one()
 
     return statistic

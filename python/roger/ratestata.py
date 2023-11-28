@@ -1,6 +1,6 @@
 """Module providing functions for getting statistic for mental rates."""
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import urllib.parse
 from typing import Callable
 import json
@@ -87,7 +87,7 @@ async def send_rate_stata(
         )
 
     for dt in daterange(date_from.date(), date_to.date()):
-        for index, rate in rates:
+        for index, rate in enumerate(rates):
             if rate['date'].date() == dt:
                 if rate["rate"] != 0:
                     count_rates += 1
@@ -97,7 +97,7 @@ async def send_rate_stata(
                 )
                 break
 
-            if index == len(user['rates']) - 1:
+            if index == len(rates) - 1:
                 data.append(
                     {"date": dt.day, "mood": 0, "disabled": dt <
                         user['created_at'].date()}
@@ -105,7 +105,7 @@ async def send_rate_stata(
 
     image_url_params = (
         "?username=" + urllib.parse.quote(user['name']) +
-        "&compare_to_others=" + get_statistic_data(stata_type, count_rates) +
+        "&compare_to_others=" + str(get_statistic_data(stata_type, count_rates)) +
         "&title=" + urllib.parse.quote(
             f"с {date_from.strftime('%d.%m.%Y')} по {date_to.strftime('%d.%m.%Y')}"
         ) +
@@ -212,4 +212,4 @@ def daterange(
     """
 
     for n in range(int((date_end - date_start).days) + 1):
-        yield date_start + datetime.timedelta(n)
+        yield date_start + timedelta(n)

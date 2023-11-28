@@ -24,12 +24,12 @@ async def is_mental_rate_threashhold_reached(chat_id: int, action: str):
     amount = how_many_days_user_with_us(chat_id)
 
     if action == 'returnvolunteer' and amount >= 7:
-        user = get_user_by_telegram_id(chat_id)
+        user = get_user_by_telegram_id(str(chat_id))
         update_user_is_volunteer(user['_id'], True)
         return True
 
     if action == 'volunteer' and amount == 7:
-        user = get_user_by_telegram_id(chat_id)
+        user = get_user_by_telegram_id(str(chat_id))
         await botClient.send_message(
             chat_id,
             (

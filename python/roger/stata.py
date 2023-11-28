@@ -102,7 +102,7 @@ async def delete_from_cart_handler1(call: CallbackQuery, callback_data: dict):
     None
     """
 
-    id_message = callback_data.get("id")
+    id_message = ObjectId(callback_data.get("id"))
     await delete_keyboard(call.from_user.id, call.message.message_id)
     await send_stata(id_message, call.from_user.id)
 
@@ -121,8 +121,9 @@ async def send_stata(
     Returns:
     None
     """
-
+    
     message = get_message_by_id(id_message)
+
     count_times = get_all_messages_by_message_id(message["_id"])
 
     is_approved = 'true' if message["is_approved"] else 'false'
@@ -133,9 +134,9 @@ async def send_stata(
 
     image_url = (
         "?show=" + str(len(count_times)) +
-        "&likes=" + count_rates["rate_good"] +
-        "&dislikes=" + count_rates["rate_bad"] +
-        "&approved=" + is_approved +
+        "&likes=" + str(count_rates["rate_good"]) +
+        "&dislikes=" + str(count_rates["rate_bad"]) +
+        "&approved=" + str(is_approved) +
         "&current_date=" + curr_date +
         "&text=" + urllib.parse.quote(message['text']) +
         "&created_date=" + message['created_date'].isoformat()
@@ -170,7 +171,7 @@ async def send_stata(
         link_cliks = answer['stats']['clicks']
 
         image_url = (
-            image_url + "&link_clicks=" + link_cliks +
+            image_url + "&link_clicks=" + str(link_cliks) +
             "&link=" + urllib.parse.quote(message['original_media_link']) +
             "&link_image=" + urllib.parse.quote(preview.image) +
             "&link_title=" + urllib.parse.quote(preview.title)
