@@ -121,7 +121,7 @@ async def send_stata(
     Returns:
     None
     """
-    
+
     message = get_message_by_id(id_message)
 
     count_times = get_all_messages_by_message_id(message["_id"])

@@ -505,7 +505,7 @@ async def create_user(message: types.Message):
     form_id = ObjectId()
 
     tg_username = message.from_user.username
-    
+
     if tg_username != "":
         tg_username = "@" + tg_username
     else:

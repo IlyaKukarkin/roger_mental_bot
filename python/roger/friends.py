@@ -32,9 +32,11 @@ call_back_approve = CallbackData("Approve", "id", "friend")
 call_back_decline = CallbackData("Decline", "id", "friend")
 call_back_delete = CallbackData("Delete", "id", "friend_to_delete")
 
+
 def check_if_user_has_username(username: str):
     """ Validate username """
     return username not in ('@', ' ', '')
+
 
 def change_empty_username_to_a_link(user_id: int, name: str):
     """ Change empty username to a link """
@@ -51,7 +53,7 @@ async def get_menu_for_command(chat_id: int):
     Returns:
     None
     """
-    
+
     user = get_user_by_telegram_id(str(chat_id))
 
     friends_requests_count = len(get_incoming_requests(user['_id']))

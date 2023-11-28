@@ -41,7 +41,7 @@ doppler run -- python3 main.py
 For linting run from the root (ex. from `python/roger`)
 
 ```bash
-autopep8 --exclude='*/roger-venv/*' --in-place --recursive --aggressive . && pylint **.py
+autopep8 --exclude='*/roger-venv/*' --in-place --recursive --aggressive . && pylint --ignore=roger-venv **.py
 ```
 
 After development finished, stop environment
