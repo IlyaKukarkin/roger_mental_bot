@@ -48,7 +48,7 @@ async def is_mental_rate_threashhold_reached(chat_id: int, action: str):
         return amount >= 14
 
 
-async def how_many_days_user_with_us(chat_id: int):
+def how_many_days_user_with_us(chat_id: int):
     """
     Function to get number of mental rates by User
 

@@ -125,22 +125,6 @@ def rand_select_obj_texts(arr: list):
     return arr[rand_id_array[random.randint(0, len(rand_id_array) - 1)]]
 
 
-async def check_id_username_is_valid_before_save(username: str | None):
-    """
-    Function to validate "Username" from Telegram
-    (checks for empty username)
-
-    Parameters:
-    username (str | None): username to validate
-
-    Returns:
-    None
-    """
-
-    # trenary operator
-    return username if username else ""
-
-
 async def check_if_delete_mental_keyboard(user_id: ObjectId):
     """
     Function to check if weneed to delete mental keyboard

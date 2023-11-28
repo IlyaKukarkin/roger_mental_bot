@@ -12,15 +12,12 @@ from aiogram.utils.callback_data import CallbackData
 from aiogram.utils.markdown import link
 
 from variables import botClient
-from database import (
-    send_friends_request,
-    check_if_user_sent_request,
-    check_if_user_got_request,
-    accept_decline_friend_request,
-)
 from db.friends import (
     get_all_friends,
-    get_incoming_requests
+    get_incoming_requests,
+    insert_new_friends,
+    get_friends_record,
+    update_friend_status
 )
 from db.users import (
     get_user_by_id,
@@ -28,7 +25,7 @@ from db.users import (
 )
 from common import delete_keyboard
 from states import FriendsStates
-from keyboards import create_friends_keyboard, create_back_kb
+from keyboards import create_friends_keyboard, create_back_kb, friend_request_kb
 
 
 call_back_approve = CallbackData("Approve", "id", "friend")
@@ -156,6 +153,10 @@ async def send_request_to_a_friend(message: Message):
 
     user_request_sent = await check_if_user_sent_request(message.chat.id, friend['_id'])
 
+    user_from = get_user_by_telegram_id(message.chat.id)
+
+    user_request_sent = get_friends_record(user_from['_id'], friend['_id'])
+
     if user_request_sent is None:
         if user_request_sent['status'] == 0:
             await botClient.send_message(
@@ -170,7 +171,9 @@ async def send_request_to_a_friend(message: Message):
             await botClient.send_message(message.chat.id, "Вы уже дружите 😄")
             return
 
-    user_got_request = await check_if_user_got_request(message.chat.id, friend['_id'])
+    user_to = get_user_by_telegram_id(message.chat.id)
+
+    user_got_request = get_friends_record(friend['_id'], user_to['_id'])
 
     if user_got_request is not None:
         if user_got_request['status'] == 0:
@@ -186,7 +189,32 @@ async def send_request_to_a_friend(message: Message):
             await botClient.send_message(message.chat.id, "Вы уже дружите 😄")
             return
 
-    await send_friends_request(message.chat.id, friend)
+    user = get_user_by_telegram_id(message.chat.id)
+    insert_new_friends(
+        user['_id'],
+        friend['_id'],
+        0
+    )
+
+    if not check_if_user_has_username(user['telegram_username']):
+        user['telegram_username'] = change_empty_username_to_a_link(
+            int(user['telegram_id']), user['name'])
+
+    friend_request_kb_approve = InlineKeyboardButton(
+        '✅', callback_data=call_back_approve.new(id='friend_approve', friend=user['telegram_id']))
+    friend_request_kb_decline = InlineKeyboardButton(
+        '❌', callback_data=call_back_decline.new(id='friend_decline', friend=user['telegram_id']))
+
+    friend_request_kb.add(friend_request_kb_approve, friend_request_kb_decline)
+
+    await botClient.send_message(
+        int(friend['telegram_id']),
+        (
+            "Тебе пришел запрос на дружбу от пользователя " + user['name'] +
+            " (" + user['telegram_username'] + ")"
+        ),
+        reply_markup=friend_request_kb
+    )
 
     if not check_if_user_has_username(friend['telegram_username']):
         friend["telegram_username"] = change_empty_username_to_a_link(
@@ -347,7 +375,16 @@ async def friends_internal_request(callback_query: CallbackQuery, friend: str, a
 
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
 
-    friend_obj = await accept_decline_friend_request(callback_query.from_user.id, friend, approve)
+    if approve:
+        status = 1
+    else:
+        status = 2
+
+    user_to = get_user_by_telegram_id(callback_query.from_user.id)
+    user_from = get_user_by_telegram_id(friend)
+
+    friends_record = get_friends_record(user_from["_id"], user_to['_id'])
+    friend_obj = update_friend_status(friends_record['_id'], status)
 
     if not check_if_user_has_username(friend_obj['telegram_username']):
         friend_obj["telegram_username"] = change_empty_username_to_a_link(

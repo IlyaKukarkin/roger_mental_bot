@@ -1,14 +1,15 @@
 """Main module with all BOT handlers."""
 
 import json
+from bson import ObjectId
 from aiogram.utils import executor
 from aiogram import types, dispatcher
 from aiogram.utils.callback_data import CallbackData
 
 from logger import logger
 from states import Recording, FriendsStates, Registration
-from common import check_id_username_is_valid_before_save, delete_keyboard
-from database import create_new_user
+from db.users import insert_new_user
+from common import delete_keyboard
 from feedback import feedback_start, feedback_get_text_from_user, feedback_get_photo_from_user
 from version import version_command
 from restart import restart_command
@@ -23,6 +24,7 @@ from reg.reg_user_time import (
     user_time_23
 )
 from reg.reg_user_timezone import get_user_timezone, customer_timezone
+from reg.after_registration import create_new_message_after_registration
 from stata import stata_show_mes, delete_from_cart_handler1
 from ratestata import send_rate_stata, get_rate_stata
 from sendmessage import sendmes, callback_after_click_on_color_button
@@ -500,13 +502,25 @@ async def customer(message: types.Message, state: dispatcher.FSMContext):
 
 async def create_user(message: types.Message):
     """регистрируем нового пользователя"""
-    await create_new_user(
-        check_id_username_is_valid_before_save(message.from_user.username),
+    form_id = ObjectId()
+
+    tg_username = message.from_user.username
+    
+    if tg_username != "":
+        tg_username = "@" + tg_username
+    else:
+        tg_username = " "
+
+    insert_new_user(
+        tg_username,
+        str(message.chat.id),
         USER_NAME,
         TIME_ZONE,
-        str(message.chat.id),
         USER_TIME
     )
+
+    await botClient.send_message(message.chat.id, "Отлично! 😍")
+    await create_new_message_after_registration(message.chat.id, USER_NAME, form_id)
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
