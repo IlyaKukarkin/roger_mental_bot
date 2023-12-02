@@ -121,7 +121,6 @@ def rand_select_obj_texts(arr: list):
     for item in arr:
         for _ in range(item.get("frequency")):
             rand_id_array.append(item.get("id"))
-
     return arr[rand_id_array[random.randint(0, len(rand_id_array) - 1)]]
 
 

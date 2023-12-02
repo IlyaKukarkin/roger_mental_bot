@@ -10,7 +10,7 @@ from db.setup import dbClient
 def insert_new_mental_rate(
     id_user: ObjectId,
     rate: int,
-    id_tg_message: ObjectId,
+    id_tg_message: int,
 ):
     """
     Adds a new mental rate record to the DataBase table "mental_rate"

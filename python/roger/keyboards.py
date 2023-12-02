@@ -34,8 +34,6 @@ ask_for_rate_messages_support = InlineKeyboardMarkup(row_width=2).add(
     ask_for_rate_good_support, ask_for_rate_bad_support, back_button)
 
 
-friend_request_kb = InlineKeyboardMarkup()
-
 ask_for_time_to_send_20 = InlineKeyboardButton(
     '20:00-21:00', callback_data='ask_for_time_20')
 ask_for_time_to_send_21 = InlineKeyboardButton(

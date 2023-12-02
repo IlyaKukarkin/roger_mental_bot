@@ -117,17 +117,16 @@ async def sendmes(chat_id: int):
         if prev_unrated_message:
             await delete_keyboard(chat_id, prev_unrated_message['id_tg_message'])
 
-        message_id = await botClient.send_message(
+        message = await botClient.send_message(
             chat_id,
             get_options('polls_questions'),
             parse_mode=types.ParseMode.MARKDOWN,
             reply_markup=kb_for_mental_poll
         )
-
         insert_new_mental_rate(
             user['_id'],
             0,
-            message_id
+            message.message_id
         )
 
     except BotBlocked:
@@ -198,6 +197,7 @@ async def callback_after_click_on_color_button(
         #   in this case it is irrelevant whether
         # we receive the updated version of the record or not, since we're only
         # interested in the date
+
         rate_record = get_mental_rate_by_user_and_tg_message(
             user["_id"],
             callback_query.message.message_id
