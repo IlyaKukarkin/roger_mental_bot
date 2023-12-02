@@ -37,6 +37,7 @@ export type TgResponse =
 export enum APILogStage {
   ASK_MOOD = "Ask mood",
   RATE = "Rate",
+  STATISTIC = "Statistic",
 }
 
 export enum APILogErrorName {

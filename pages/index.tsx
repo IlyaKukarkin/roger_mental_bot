@@ -1,11 +1,11 @@
 import type { NextPage } from "next";
+import type { User } from "../lib/api/types";
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
-import { MessageForm, PageLayout } from "../components";
+import { MessageForm } from "../components";
 import { amplitude } from "../utils/useAmplitudeInit";
-import type { User } from "../lib/api/types";
 import Loading from "../components/Loading";
 
 const Home: NextPage = () => {

@@ -12,14 +12,17 @@ import {
   APILogErrorName,
 } from "./types";
 
-type RateToday = {
-  current_date: string;
-  dateComp: number;
+type MentalRate = {
   _id: ObjectId;
   rate: number;
   id_user: ObjectId;
   date: string;
   id_tg_message: number;
+};
+
+type MentalRateToday = MentalRate & {
+  current_date: string;
+  dateComp: number;
 };
 
 const logData: APILog = {
@@ -174,4 +177,16 @@ const checkAlreadySendToday = async (userId: ObjectId) => {
   const rates = await cursorRates.toArray();
 
   return rates.length !== 0;
+};
+
+export const getAllMoodRatesByUserId = async (userId: ObjectId) => {
+  const client = await clientPromise;
+  const rateCol = client.db("roger-bot-db").collection("mental_rate");
+
+  const mentalRatesCursor: FindCursor<MentalRate> = await rateCol.find({
+    id_user: userId,
+  });
+  const mentalRates = await mentalRatesCursor.toArray();
+
+  return mentalRates;
 };
