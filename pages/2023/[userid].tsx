@@ -235,7 +235,7 @@ const Results2023: NextPage = () => {
         <br />
 
         <p>Как тебе запомнился каждый месяц</p>
-        <div className="grid grid-cols-4 grid-rows-3">
+        <div className="grid grid-cols-4 grid-rows-3 gap-6">
           {Object.entries(statistic.months).map(([month, data]) => {
             return (
               <div key={month} className="flex flex-col items-center">
@@ -247,6 +247,7 @@ const Results2023: NextPage = () => {
                 <p>
                   <b>{mapMonthToText(Number(month))}</b>
                 </p>
+                <p className="text-xs">На основе {Object.values(data).reduce((acc, currValue) => acc + currValue, 0)} оценок</p>
               </div>
             );
           })}
