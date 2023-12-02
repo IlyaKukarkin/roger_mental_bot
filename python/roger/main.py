@@ -505,6 +505,9 @@ async def create_user(message: types.Message):
     form_id = ObjectId()
 
     tg_username = message.from_user.username
+    
+    if tg_username is None: 
+        tg_username = ""
 
     if tg_username != "":
         tg_username = "@" + tg_username
@@ -516,7 +519,8 @@ async def create_user(message: types.Message):
         str(message.chat.id),
         USER_NAME,
         TIME_ZONE,
-        USER_TIME
+        USER_TIME,
+        form_id
     )
 
     await botClient.send_message(message.chat.id, "Отлично! 😍")

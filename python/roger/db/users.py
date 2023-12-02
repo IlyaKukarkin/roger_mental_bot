@@ -11,7 +11,8 @@ def insert_new_user(
     telegram_id: str,
     username: str,
     time_zone: str,
-    user_time: str
+    user_time: str,
+    form_id: ObjectId
 ):
     """
     Adds a new user record to the DataBase table "Users"
@@ -26,8 +27,6 @@ def insert_new_user(
     Returns:
     None
     """
-
-    form_id = ObjectId()
 
     dbClient['users'].insert_one({
         "telegram_username": tg_username,
