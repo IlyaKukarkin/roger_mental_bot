@@ -1,3 +1,3 @@
-// export type ResultsPage = {
-//     user: any;
-// }
+export type ChangeLater = {
+    user: string;
+}

@@ -134,7 +134,7 @@ const checkAlreadySendToday = async (userId: ObjectId) => {
   const client = await clientPromise;
   const mentalRateCol = client.db("roger-bot-db").collection("mental_rate");
 
-  const cursorRates: FindCursor<RateToday> = await mentalRateCol.aggregate([
+  const cursorRates: FindCursor<MentalRateToday> = await mentalRateCol.aggregate([
     {
       $match: {
         id_user: new ObjectId(userId),

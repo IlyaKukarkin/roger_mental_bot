@@ -6,7 +6,7 @@ type Props = {
   user: User;
 };
 
-const Alert = () => {
+const Alert = (props: Props) => {
   return <p>asd</p>;
 };
 
