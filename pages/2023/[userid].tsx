@@ -1,6 +1,6 @@
 import type { NextPage, GetStaticPropsContext } from "next";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 
 import { amplitude } from "../../utils/useAmplitudeInit";
@@ -20,21 +20,6 @@ const Results2023: NextPage<Props> = ({ statistic }) => {
   useEffect(() => {
     amplitude.setUserId(trackingId);
     router.replace({ query: { userid: userId } }, undefined, { shallow: true });
-
-    // fetch(`/api/statistic?user_id=${userId}`)
-    //   .then((res) => {
-    //     if (res.ok) {
-    //       return res.json();
-    //     }
-
-    //     throw new Error("Error");
-    //   })
-    //   .then((userStatistic) => setStatistic(userStatistic))
-    //   .catch((error) => {
-    //     // Add amplitude error
-    //     console.log(error);
-    //   })
-    //   .finally(() => setFetching(false));
   }, []);
 
   const percentageOfRates = useMemo(() => {
