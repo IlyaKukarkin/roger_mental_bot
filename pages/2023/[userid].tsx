@@ -292,7 +292,7 @@ export async function getStaticProps(
 
   // ToDo: replace for prod value
   const res = await fetch(
-    `http://localhost:3000/api/statistic?user_id=${userId}`
+    `https://roger-mental-bot-git-create2023landingpage-ilyakukarkin.vercel.app/api/statistic?user_id=${userId}`
   );
   const statistic = await res.json();
 
