@@ -15,8 +15,6 @@ const Results2023: NextPage = () => {
   const { t: trackingId } = router.query;
   const userId = router.query.userid;
 
-  console.log(statistic);
-
   useEffect(() => {
     amplitude.setUserId(trackingId);
     router.replace({ query: { userid: userId } }, undefined, { shallow: true });
@@ -185,6 +183,11 @@ const Results2023: NextPage = () => {
     return rates.indexOf(max);
   };
 
+  const startDate = (createdAt: Date) => {
+    const baseDate = new Date("2023/01/01");
+    return createdAt > baseDate ? createdAt : baseDate;
+  };
+
   if (fetching || !statistic) {
     return (
       <section className="flex items-center h-full min-h-screen p-16 dark:bg-gray-900 dark:text-gray-100">
@@ -197,8 +200,9 @@ const Results2023: NextPage = () => {
     <section className="flex items-center h-full min-h-screen p-16 dark:bg-gray-900 dark:text-gray-100">
       <div className="flex flex-col justify-center w-full text-center">
         <p>
-          Твоя стата за год от t.me/rogermentalbot за ДАТА РЕГИСТРАЦИИ -
-          СЕГОДНЯШНЯЯ ДАТА (должна быть меньше 1 января 2024)
+          Твоя стата за год от t.me/rogermentalbot за{" "}
+          {startDate(new Date(statistic.user.created_at)).toLocaleDateString()}{" "}
+          - {new Date().toLocaleDateString()}
         </p>
 
         <br />

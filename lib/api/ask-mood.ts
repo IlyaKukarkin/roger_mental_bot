@@ -5,7 +5,7 @@ import clientPromise from "../mongodb";
 import { sendMoodMessage } from "./users";
 import { checkAndDeleteMoodKeyboard } from "./utils";
 import {
-  User,
+  UserSendMessage,
   APILog,
   APILogStage,
   APILogError,
@@ -36,7 +36,7 @@ export const askMood = async (): Promise<Boolean> => {
   const usersCol = client.db("roger-bot-db").collection("users");
   const mentalRateCl = client.db("roger-bot-db").collection("mental_rate");
 
-  const cursorUsers: FindCursor<User> = await usersCol.aggregate([
+  const cursorUsers: FindCursor<UserSendMessage> = await usersCol.aggregate([
     {
       $match: {
         is_active: true,

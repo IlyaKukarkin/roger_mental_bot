@@ -44,6 +44,7 @@ export type User2023Stata = {
       rates: number;
     };
   };
+  user: User;
 };
 
 export const getTelegramId = async (userId: ObjectId): Promise<string> => {
@@ -57,6 +58,14 @@ export const getTelegramId = async (userId: ObjectId): Promise<string> => {
   );
 
   return user.telegram_id;
+};
+
+export const getUserById = async (userId: ObjectId): Promise<User> => {
+  const client = await clientPromise;
+  const collection = client.db("roger-bot-db").collection("users");
+  const user = await collection.findOne({ _id: userId });
+
+  return user;
 };
 
 export const getUserByTelegramId = async (
@@ -262,10 +271,11 @@ export const sendMoodMessage = async (
 };
 
 export const getUser2023Stata = async (userId: ObjectId) => {
-  const [messages, rates, statistic] = await Promise.all([
+  const [messages, rates, statistic, user] = await Promise.all([
     getAllMessagesWithRatesByUser(userId),
     getAllMoodRates2023(userId),
     getStatistic(),
+    getUserById(userId),
   ]);
 
   const result: User2023Stata = {
@@ -290,6 +300,7 @@ export const getUser2023Stata = async (userId: ObjectId) => {
       {}
     ),
     messages: {},
+    user,
   };
 
   result.messages = messages.reduce((accum, currValue) => {
