@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import type { NextPage, GetStaticPropsContext } from "next";
 
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/router";
@@ -8,10 +8,12 @@ import { User2023Stata } from "../../lib/api/users";
 import Loading from "../../components/Loading";
 import { MOOD, getRateBgColor } from "../../components/Calendar/utils";
 
-const Results2023: NextPage = () => {
+type Props = {
+  statistic: User2023Stata;
+};
+
+const Results2023: NextPage<Props> = ({ statistic }) => {
   const router = useRouter();
-  const [fetching, setFetching] = useState(false);
-  const [statistic, setStatistic] = useState<User2023Stata | null>(null);
   const { t: trackingId } = router.query;
   const userId = router.query.userid;
 
@@ -19,20 +21,20 @@ const Results2023: NextPage = () => {
     amplitude.setUserId(trackingId);
     router.replace({ query: { userid: userId } }, undefined, { shallow: true });
 
-    fetch(`/api/statistic?user_id=${userId}`)
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        }
+    // fetch(`/api/statistic?user_id=${userId}`)
+    //   .then((res) => {
+    //     if (res.ok) {
+    //       return res.json();
+    //     }
 
-        throw new Error("Error");
-      })
-      .then((userStatistic) => setStatistic(userStatistic))
-      .catch((error) => {
-        // Add amplitude error
-        console.log(error);
-      })
-      .finally(() => setFetching(false));
+    //     throw new Error("Error");
+    //   })
+    //   .then((userStatistic) => setStatistic(userStatistic))
+    //   .catch((error) => {
+    //     // Add amplitude error
+    //     console.log(error);
+    //   })
+    //   .finally(() => setFetching(false));
   }, []);
 
   const percentageOfRates = useMemo(() => {
@@ -188,7 +190,7 @@ const Results2023: NextPage = () => {
     return createdAt > baseDate ? createdAt : baseDate;
   };
 
-  if (fetching || !statistic) {
+  if (!statistic) {
     return (
       <section className="flex items-center h-full min-h-screen p-16 dark:bg-gray-900 dark:text-gray-100">
         <Loading />
@@ -201,8 +203,8 @@ const Results2023: NextPage = () => {
       <div className="flex flex-col justify-center w-full text-center">
         <p>
           Твоя стата за год от t.me/rogermentalbot за{" "}
-          {startDate(new Date(statistic.user.created_at)).toLocaleDateString()}{" "}
-          - {new Date().toLocaleDateString()}
+          {startDate(new Date(statistic.userCreatedAt)).toLocaleDateString()} -{" "}
+          {new Date().toLocaleDateString()}
         </p>
 
         <br />
@@ -291,5 +293,29 @@ const Results2023: NextPage = () => {
     </section>
   );
 };
+
+export async function getStaticProps(
+  context: GetStaticPropsContext<{ userid: string }, string>
+) {
+  const { params } = context;
+  const userId = params && params.userid;
+
+  // ToDo: replace for prod value
+  const res = await fetch(
+    `https://roger-mental-bot-git-create2023landingpage-ilyakukarkin.vercel.app/api/statistic?user_id=${userId}`
+  );
+  const statistic = await res.json();
+
+  return {
+    props: {
+      statistic,
+    },
+    revalidate: 86400, // Day in seconds
+  };
+}
+
+export async function getStaticPaths() {
+  return { paths: [], fallback: "blocking" };
+}
 
 export default Results2023;

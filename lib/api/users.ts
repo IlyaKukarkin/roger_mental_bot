@@ -44,7 +44,7 @@ export type User2023Stata = {
       rates: number;
     };
   };
-  user: User;
+  userCreatedAt: Date;
 };
 
 export const getTelegramId = async (userId: ObjectId): Promise<string> => {
@@ -300,7 +300,7 @@ export const getUser2023Stata = async (userId: ObjectId) => {
       {}
     ),
     messages: {},
-    user,
+    userCreatedAt: new Date(user.created_at),
   };
 
   result.messages = messages.reduce((accum, currValue) => {
