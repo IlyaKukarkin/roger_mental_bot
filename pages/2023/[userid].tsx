@@ -15,6 +15,8 @@ const Results2023: NextPage = () => {
   const { t: trackingId } = router.query;
   const userId = router.query.userid;
 
+  console.log(statistic);
+
   useEffect(() => {
     amplitude.setUserId(trackingId);
     router.replace({ query: { userid: userId } }, undefined, { shallow: true });
@@ -169,12 +171,16 @@ const Results2023: NextPage = () => {
   const getMoodForMonth = (data: { [mood: number]: number }): MOOD => {
     const rates = Object.values(data);
 
-    const max = rates.reduce((acc, currValue) => {
+    const max = rates.reduce((acc, currValue, index) => {
+      if (index === 0) {
+        return acc;
+      }
+
       if (acc < currValue) {
         return currValue;
       }
       return acc;
-    });
+    }, 0);
 
     return rates.indexOf(max);
   };
@@ -247,7 +253,14 @@ const Results2023: NextPage = () => {
                 <p>
                   <b>{mapMonthToText(Number(month))}</b>
                 </p>
-                <p className="text-xs">На основе {Object.values(data).reduce((acc, currValue) => acc + currValue, 0)} оценок</p>
+                <p className="text-xs">
+                  На основе{" "}
+                  {Object.values(data).reduce(
+                    (acc, currValue) => acc + currValue,
+                    0
+                  )}{" "}
+                  оценок
+                </p>
               </div>
             );
           })}
@@ -267,7 +280,9 @@ const Results2023: NextPage = () => {
         <p>За год ты поддержал {countMessageShows} человека.</p>
 
         <br />
-        <p>Ты в топ-&quot;пока без понятия&quot; по всему боту по поддержке! </p>
+        <p>
+          Ты в топ-&quot;пока без понятия&quot; по всему боту по поддержке!{" "}
+        </p>
       </div>
     </section>
   );

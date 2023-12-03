@@ -18,7 +18,7 @@ import {
   APILogErrorName,
 } from "./types";
 import { getAllMessagesWithRatesByUser } from "./messages";
-import { getAllMoodRatesByUserId } from "./ask-mood";
+import { getAllMoodRates2023 } from "./ask-mood";
 import { getStatistic } from "./stata";
 
 export type User2023Stata = {
@@ -264,7 +264,7 @@ export const sendMoodMessage = async (
 export const getUser2023Stata = async (userId: ObjectId) => {
   const [messages, rates, statistic] = await Promise.all([
     getAllMessagesWithRatesByUser(userId),
-    getAllMoodRatesByUserId(userId),
+    getAllMoodRates2023(userId),
     getStatistic(),
   ]);
 

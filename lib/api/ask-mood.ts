@@ -134,58 +134,73 @@ const checkAlreadySendToday = async (userId: ObjectId) => {
   const client = await clientPromise;
   const mentalRateCol = client.db("roger-bot-db").collection("mental_rate");
 
-  const cursorRates: FindCursor<MentalRateToday> = await mentalRateCol.aggregate([
-    {
-      $match: {
-        id_user: new ObjectId(userId),
+  const cursorRates: FindCursor<MentalRateToday> =
+    await mentalRateCol.aggregate([
+      {
+        $match: {
+          id_user: new ObjectId(userId),
+        },
       },
-    },
-    {
-      $addFields: {
-        current_date: {
-          $dateToParts: {
-            date: new Date(),
+      {
+        $addFields: {
+          current_date: {
+            $dateToParts: {
+              date: new Date(),
+            },
           },
         },
       },
-    },
-    {
-      $addFields: {
-        current_date: {
-          $dateFromParts: {
-            year: "$current_date.year",
-            month: "$current_date.month",
-            day: "$current_date.day",
+      {
+        $addFields: {
+          current_date: {
+            $dateFromParts: {
+              year: "$current_date.year",
+              month: "$current_date.month",
+              day: "$current_date.day",
+            },
           },
         },
       },
-    },
-    {
-      $addFields: {
-        dateComp: {
-          $cmp: ["$current_date", "$date"],
+      {
+        $addFields: {
+          dateComp: {
+            $cmp: ["$current_date", "$date"],
+          },
         },
       },
-    },
-    {
-      $match: {
-        dateComp: -1,
+      {
+        $match: {
+          dateComp: -1,
+        },
       },
-    },
-  ]);
+    ]);
 
   const rates = await cursorRates.toArray();
 
   return rates.length !== 0;
 };
 
-export const getAllMoodRatesByUserId = async (userId: ObjectId) => {
+export const getAllMoodRates2023 = async (userId: ObjectId) => {
   const client = await clientPromise;
   const rateCol = client.db("roger-bot-db").collection("mental_rate");
 
-  const mentalRatesCursor: FindCursor<MentalRate> = await rateCol.find({
-    id_user: userId,
-  });
+  const mentalRatesCursor: FindCursor<MentalRate> = await rateCol.aggregate([
+    {
+      $match: {
+        $and: [
+          {
+            date: {
+              $gte: new Date("2023-01-01T00:00:00.000+00:00"),
+              $lte: new Date("2023-12-31T00:00:00.000+00:00"),
+            },
+          },
+          {
+            id_user: userId,
+          },
+        ],
+      },
+    },
+  ]);
   const mentalRates = await mentalRatesCursor.toArray();
 
   return mentalRates;

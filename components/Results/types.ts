@@ -1,3 +1,3 @@
 export type ChangeLater = {
-    user: string;
-}
+  user: string;
+};
