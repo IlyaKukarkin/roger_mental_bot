@@ -1,4 +1,4 @@
-import { ObjectId } from "mongodb";
+import { FindCursor, ObjectId } from "mongodb";
 import { log } from "@logtail/next";
 
 import clientPromise from "../mongodb";
@@ -27,8 +27,12 @@ type UserStata = User & {
 };
 
 type User2023 = User & {
-  rates: Rate[];
-  rate_2023: number;
+  mental_rate_2023: number;
+};
+
+type Rates2023 = {
+  totalRates: number;
+  _id: ObjectId;
 };
 
 type Rate = {
@@ -44,7 +48,8 @@ export type Statistics = {
   users_rate_month: number[];
   users_rate_2week: number[];
   users_rate_week: number[];
-  rate_2023: number[];
+  users_rate_2023: number[];
+  support_rates_2023: number[];
 };
 
 const logData: APILog = {
@@ -148,12 +153,13 @@ export const updateUserRateStatistics = async (): Promise<void> => {
 export const update2023Statistics = async (): Promise<void> => {
   const client = await clientPromise;
   const usersCol = client.db("roger-bot-db").collection("users");
+  const messagesCol = client.db("roger-bot-db").collection("messages");
   const statisticCol = client.db("roger-bot-db").collection("statistic");
 
-  const startDate = new Date("1/1/2023");
-  const endDate = new Date("31/12/2023");
+  const startDate = new Date("2023-01-01T00:00:00.000+00:00");
+  const endDate = new Date("2024-01-01T00:00:00.000+00:00");
 
-  const users: User2023[] = await usersCol.aggregate([
+  const prepareUsers = usersCol.aggregate([
     {
       $match: {
         is_active: true,
@@ -170,7 +176,7 @@ export const update2023Statistics = async (): Promise<void> => {
     },
     {
       $addFields: {
-        rate_2023: {
+        mental_rate_2023: {
           $size: {
             $filter: {
               input: "$rates",
@@ -190,10 +196,65 @@ export const update2023Statistics = async (): Promise<void> => {
         },
       },
     },
+    {
+      $unset: ["rates"],
+    },
+  ]);
+
+  const prepareMessages = messagesCol.aggregate([
+    {
+      $lookup: {
+        from: "rate",
+        localField: "_id",
+        foreignField: "id_message",
+        pipeline: [
+          {
+            $match: {
+              time_to_send: {
+                $gte: new Date("2023-01-01T00:00:00.000+00:00"),
+                $lte: new Date("2024-01-01T00:00:00.000+00:00"),
+              },
+            },
+          },
+        ],
+        as: "rates",
+      },
+    },
+    {
+      $addFields: {
+        total_rates: {
+          $size: "$rates",
+        },
+      },
+    },
+    {
+      $group: {
+        _id: "$id_user",
+        totalRates: {
+          $sum: "$total_rates",
+        },
+      },
+    },
+  ]);
+
+  const [cursorUsers, cursorMessages]: [
+    FindCursor<User2023>,
+    FindCursor<Rates2023>
+  ] = await Promise.all([prepareUsers, prepareMessages]);
+
+  const [users, rates] = await Promise.all([
+    cursorUsers.toArray(),
+    cursorMessages.toArray(),
   ]);
 
   log.info(
-    `Retrieved ${users.length} messages from the database to update 2023 statistic`,
+    `Retrieved ${users.length} users from the database to update 2023 statistic`,
+    {
+      ...logData,
+    }
+  );
+  log.info(
+    `Retrieved ${rates.length} rates from the database to update 2023 statistic`,
     {
       ...logData,
     }
@@ -201,11 +262,15 @@ export const update2023Statistics = async (): Promise<void> => {
 
   const statistic: Statistics = await statisticCol.findOne();
 
-  const update2023: number[] = [];
+  const users_rate_2023: number[] = users.map((user) =>
+    Number(user.mental_rate_2023)
+  );
+  const support_rates_2023: number[] = rates.map((rate) =>
+    Number(rate.totalRates)
+  );
 
-  for await (const user of users) {
-    update2023.push(user.rate_2023);
-  }
+  users_rate_2023.sort((a, b) => b - a);
+  support_rates_2023.sort((a, b) => b - a);
 
   statisticCol.update(
     {
@@ -213,7 +278,8 @@ export const update2023Statistics = async (): Promise<void> => {
     },
     {
       $set: {
-        users_rate_2023: update2023,
+        users_rate_2023,
+        support_rates_2023,
       },
     }
   );
@@ -242,3 +308,106 @@ const subtractWeeks = (numOfWeeks: number, date = new Date()) => {
 
   return dateCopy;
 };
+
+/*
+
+[
+  {
+    $match: {
+      is_active: true,
+    },
+  },
+  {
+    $lookup: {
+      from: "mental_rate",
+      localField: "_id",
+      foreignField: "id_user",
+      pipeline: [
+        {
+          $match: {
+            rate: {
+              $ne: 0,
+            },
+          },
+        },
+      ],
+      as: "mental_rates",
+    },
+  },
+  {
+    $lookup: {
+      from: "messages",
+      localField: "_id",
+      foreignField: "id_user",
+      as: "messages",
+    },
+  },
+  {
+    $addFields: {
+      mental_rate_2023: {
+        $size: {
+          $filter: {
+            input: "$mental_rates",
+            cond: {
+              $and: [
+                {
+                  $gte: [
+                    "$$mental_rate.date",
+                    new Date(
+                      "2023-01-01T00:00:00.000+00:00"
+                    ),
+                  ],
+                },
+                {
+                  $lte: [
+                    "$$mental_rate.date",
+                    new Date(
+                      "2024-01-01T00:00:00.000+00:00"
+                    ),
+                  ],
+                },
+              ],
+            },
+            as: "mental_rate",
+          },
+        },
+      },
+      message_ids: {
+        $map: {
+          input: "$messages",
+          as: "item",
+          in: "$$item._id",
+        },
+      },
+    },
+  },
+  {
+    $lookup:
+      {
+        from: "rates",
+        let: {
+          ids: "$message_ids",
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $in: ["$id_message", "$$ids"],
+              },
+            },
+          },
+        ],
+        as: "rates",
+      },
+  },
+  {
+    $unset: [
+      "messages",
+      "rates",
+      "mental_rates",
+      "message_ids",
+    ],
+  },
+]
+
+*/

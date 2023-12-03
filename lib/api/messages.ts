@@ -232,7 +232,7 @@ export const submitForm = async ({
   }
 };
 
-export const getAllMessagesWithRatesByUser = async (userId: ObjectId) => {
+export const getAllMessagesWithRatesByUser2023 = async (userId: ObjectId) => {
   const client = await clientPromise;
   const collection = client.db("roger-bot-db").collection("messages");
 
@@ -248,6 +248,16 @@ export const getAllMessagesWithRatesByUser = async (userId: ObjectId) => {
           from: "rate",
           localField: "_id",
           foreignField: "id_message",
+          pipeline: [
+            {
+              $match: {
+                time_to_send: {
+                  $gte: new Date("2023-01-01T00:00:00.000+00:00"),
+                  $lte: new Date("2024-01-01T00:00:00.000+00:00"),
+                },
+              },
+            },
+          ],
           as: "rates",
         },
       },

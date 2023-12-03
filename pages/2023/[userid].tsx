@@ -171,7 +171,7 @@ const Results2023: NextPage<Props> = ({ statistic }) => {
   };
 
   const startDate = (createdAt: Date) => {
-    const baseDate = new Date("2023/01/01");
+    const baseDate = new Date("2023-01-01T00:00:00.000+00:00");
     return createdAt > baseDate ? createdAt : baseDate;
   };
 
@@ -272,7 +272,12 @@ const Results2023: NextPage<Props> = ({ statistic }) => {
 
         <br />
         <p>
-          Ты в топ-&quot;пока без понятия&quot; по всему боту по поддержке!{" "}
+          Ты в топ-{statistic.general.userMentalRating} по всему боту замеру
+          настроения!
+        </p>
+        <p>
+          Ты в топ-{statistic.general.userSupportRating} по всему боту по
+          поддержке других пользователей!
         </p>
       </div>
     </section>
@@ -287,7 +292,7 @@ export async function getStaticProps(
 
   // ToDo: replace for prod value
   const res = await fetch(
-    `https://roger-mental-bot-git-create2023landingpage-ilyakukarkin.vercel.app/api/statistic?user_id=${userId}`
+    `http://localhost:3000/api/statistic?user_id=${userId}`
   );
   const statistic = await res.json();
 

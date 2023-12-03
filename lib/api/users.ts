@@ -17,7 +17,7 @@ import {
   APILogError,
   APILogErrorName,
 } from "./types";
-import { getAllMessagesWithRatesByUser } from "./messages";
+import { getAllMessagesWithRatesByUser2023 } from "./messages";
 import { getAllMoodRates2023 } from "./ask-mood";
 import { getStatistic } from "./stata";
 
@@ -26,6 +26,8 @@ export type User2023Stata = {
     totalRates: number;
     totalRatesWithMood: number;
     averageUserTotalRates: number;
+    userMentalRating: number;
+    userSupportRating: number;
   };
   months: {
     [month: number]: {
@@ -272,7 +274,7 @@ export const sendMoodMessage = async (
 
 export const getUser2023Stata = async (userId: ObjectId) => {
   const [messages, rates, statistic, user] = await Promise.all([
-    getAllMessagesWithRatesByUser(userId),
+    getAllMessagesWithRatesByUser2023(userId),
     getAllMoodRates2023(userId),
     getStatistic(),
     getUserById(userId),
@@ -283,6 +285,8 @@ export const getUser2023Stata = async (userId: ObjectId) => {
       totalRates: 0,
       totalRatesWithMood: 0,
       averageUserTotalRates: 0,
+      userMentalRating: 0,
+      userSupportRating: 0,
     },
     months: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].reduce(
       (accum, currValue) => {
@@ -326,10 +330,25 @@ export const getUser2023Stata = async (userId: ObjectId) => {
     }
   });
 
-  if (statistic.rate_2023) {
+  if (statistic.users_rate_2023) {
     result.general.averageUserTotalRates =
-      statistic.rate_2023.reduce((accum, currValue) => accum + currValue, 0) /
-      statistic.rate_2023.length;
+      statistic.users_rate_2023.reduce(
+        (accum, currValue) => accum + currValue,
+        0
+      ) / statistic.users_rate_2023.length;
+
+    result.general.userMentalRating =
+      statistic.users_rate_2023.lastIndexOf(result.general.totalRatesWithMood) +
+      1;
+
+    result.general.userSupportRating =
+      statistic.support_rates_2023.lastIndexOf(
+        Object.values(messages).reduce(
+          (acc, currValue) =>
+            acc + currValue.total_dislike + currValue.total_like,
+          0
+        )
+      ) + 1;
   }
 
   return {

@@ -191,7 +191,7 @@ export const getAllMoodRates2023 = async (userId: ObjectId) => {
           {
             date: {
               $gte: new Date("2023-01-01T00:00:00.000+00:00"),
-              $lte: new Date("2023-12-31T00:00:00.000+00:00"),
+              $lte: new Date("2024-01-01T00:00:00.000+00:00"),
             },
           },
           {
