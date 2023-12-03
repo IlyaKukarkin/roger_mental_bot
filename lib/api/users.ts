@@ -360,6 +360,7 @@ export const getUser2023Stata = async (userId: ObjectId) => {
     ];
     result.general.userMentalRating = getValidIndex(mentalFallbacks) + 1;
 
+    // Fallback values
     const rates = Object.values(messages).reduce(
       (acc, currValue) => acc + currValue.total_dislike + currValue.total_like,
       0

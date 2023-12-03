@@ -17,8 +17,6 @@ const Results2023: NextPage<Props> = ({ statistic }) => {
   const { t: trackingId } = router.query;
   const userId = router.query.userid;
 
-  console.log(statistic);
-
   useEffect(() => {
     amplitude.setUserId(trackingId);
     router.replace({ query: { userid: userId } }, undefined, { shallow: true });
