@@ -3,7 +3,7 @@
 import json
 import random
 from enum import IntEnum
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import requests
 from aiogram.utils.exceptions import MessageError
 from bson import ObjectId
@@ -121,7 +121,8 @@ def rand_select_obj_texts(arr: list):
     for item in arr:
         for _ in range(item.get("frequency")):
             rand_id_array.append(item.get("id"))
-    return arr[rand_id_array[random.randint(0, len(rand_id_array) - 1)]]
+    rand = random.randint(0, len(rand_id_array) - 1)
+    return arr[rand_id_array[rand] - 1]
 
 
 async def check_if_delete_mental_keyboard(user_id: ObjectId):
@@ -201,8 +202,8 @@ def utc_date_is_the_day(
     bool
     """
 
-    delta = datetime.timedelta(hours=timezone_offset)
-    tz = datetime.timezone(delta)
+    delta = timedelta(hours=timezone_offset)
+    tz = timezone(delta)
     date_in_tz = datetime.fromtimestamp(date.timestamp(), tz)
     return date_in_tz.weekday() == day
 
@@ -220,7 +221,7 @@ def n_days_since_date(number_of_days: int, date: datetime) -> bool:
     """
 
     now = datetime.utcnow()
-    diff: datetime.timedelta = now - date
+    diff: timedelta = now - date
     return diff.days > number_of_days
 
 
@@ -245,7 +246,7 @@ def any_ratings_in_previous_n_days(id_user: ObjectId, n: int = 6) -> bool:
     today = datetime.utcnow()
     period_end = datetime(
         today.year, today.month, today.day - 1, hour=23, minute=59)
-    period_start = period_end - datetime.timedelta(days=n)
+    period_start = period_end - timedelta(days=n)
 
     past_week_ratings = get_mental_rates_period(
         id_user,

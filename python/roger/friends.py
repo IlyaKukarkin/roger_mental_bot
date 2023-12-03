@@ -433,8 +433,7 @@ async def send_a_friend_message_about_bad_mood(tg_id_user: int, color: str):
     """
 
     mood_dict = {'green': "🟢", 'yellow': "🟡", 'orange': "🟠", 'red': "🔴"}
-
-    user = get_user_by_telegram_id(tg_id_user)
+    user = get_user_by_telegram_id(str(tg_id_user))
     friends = get_all_friends(user['_id'])
 
     if len(friends) == 0:
@@ -446,7 +445,7 @@ async def send_a_friend_message_about_bad_mood(tg_id_user: int, color: str):
         if check_if_user_has_username(user) == False:
             user["telegram_username"] = change_empty_username_to_a_link(
                 int(user['telegram_id']), user['name'])
-
+    try:
         await botClient.send_message(
             friend["telegram_id"],
             (
@@ -457,6 +456,8 @@ async def send_a_friend_message_about_bad_mood(tg_id_user: int, color: str):
             parse_mode="Markdown",
             disable_web_page_preview=True
         )
+    except: 
+        print ("Не удалось отправить сообщение пользователю " + user['telegram_username'])
 
 
 async def delete_friends(callback_query: CallbackQuery):

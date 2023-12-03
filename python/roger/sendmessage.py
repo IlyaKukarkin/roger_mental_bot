@@ -406,9 +406,9 @@ async def get_options_color(color: str, chat_id: int):
 
     arr = []
     for item in texts.get("polls_answers"):
-        if item.get("color") == color:
-            arr.append(item)
-    await get_texts_to_send_mood(rand_select_obj_texts(arr), chat_id)
+        if item["color"] == color:
+            arr = item["answers_arrays"]
+    await get_texts_to_send_mood(arr, chat_id)
 
 
 async def get_texts_to_send_mood(arr: list, chat_id: int):
@@ -423,8 +423,8 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
     None
     """
 
-    for item in arr.get("answers_arrays"):
-        if (item[0] == '*' and arr.get("is_labelled") == 1):
+    for item in arr:
+        if (item[0] == '*'):
             if item == '*gif*':
                 await botClient.send_video(chat_id, await get_cat_gif())
 
@@ -456,9 +456,9 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
             if item == '*waiting_day_feedback*':
                 print("поставить вызов функции")
                 # поставить вызов функции <- Что должно быть тут??!
-
+                # пока ниче) 
             if item == "*wait_for_answer_to_form*":
-                s = await rand_select_obj_texts(texts.get('invite_to_form'))
+                s = rand_select_obj_texts(texts.get('invite_to_form'))
                 user = get_user_by_telegram_id(str(chat_id))
                 await botClient.send_message(
                     chat_id,
@@ -466,7 +466,7 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
                     disable_web_page_preview=True
                 )
         else:
-            s = await rand_select_obj_texts(texts.get(item))
+            s = rand_select_obj_texts(texts.get(item))
             await botClient.send_message(chat_id, s.get('text'))
             time.sleep(1)
 
@@ -569,7 +569,7 @@ async def sunday_send_rate_stata(chat_id: int, rate_date: datetime):
     None
     """
 
-    mes = await rand_select_obj_texts(texts.get('mental_week_stata'))
+    mes = rand_select_obj_texts(texts.get('mental_week_stata'))
     await botClient.send_message(chat_id, mes['text'])
     # as mentioned before, rate date is in UTC+00 timezone,
     # but send_rate_stata expects a function that takes a
