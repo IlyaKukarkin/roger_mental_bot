@@ -17,6 +17,8 @@ const Results2023: NextPage<Props> = ({ statistic }) => {
   const { t: trackingId } = router.query;
   const userId = router.query.userid;
 
+  console.log(statistic);
+
   useEffect(() => {
     amplitude.setUserId(trackingId);
     router.replace({ query: { userid: userId } }, undefined, { shallow: true });
@@ -212,8 +214,11 @@ const Results2023: NextPage<Props> = ({ statistic }) => {
         </p>
         <p>
           Ты поставил{" "}
-          {statistic.months[bestMonth][3] + statistic.months[bestMonth][4]}{" "}
-          оценки -- из них {statistic.months[bestMonth][4]} зелёных и{" "}
+          {Object.values(statistic.months[bestMonth]).reduce(
+            (accum, currValue, index) => accum + (index ? currValue : 0),
+            0
+          )}{" "}
+          оценки — из них {statistic.months[bestMonth][4]} зелёных и{" "}
           {statistic.months[bestMonth][3]} желтых
         </p>
         <br />
@@ -223,8 +228,11 @@ const Results2023: NextPage<Props> = ({ statistic }) => {
         </p>
         <p>
           Ты поставил{" "}
-          {statistic.months[worthMonth][1] + statistic.months[worthMonth][2]}{" "}
-          оценки -- из них {statistic.months[worthMonth][1]} красных и{" "}
+          {Object.values(statistic.months[worthMonth]).reduce(
+            (accum, currValue, index) => accum + (index ? currValue : 0),
+            0
+          )}{" "}
+          оценки — из них {statistic.months[worthMonth][1]} красных и{" "}
           {statistic.months[worthMonth][2]} оранжевых
         </p>
 
@@ -247,7 +255,7 @@ const Results2023: NextPage<Props> = ({ statistic }) => {
                 <p className="text-xs">
                   На основе{" "}
                   {Object.values(data).reduce(
-                    (acc, currValue) => acc + currValue,
+                    (acc, currValue, index) => acc + (!index ? 0 : currValue),
                     0
                   )}{" "}
                   оценок
@@ -292,7 +300,7 @@ export async function getStaticProps(
 
   // ToDo: replace for prod value
   const res = await fetch(
-    `https://roger-mental-bot-git-create2023landingpage-ilyakukarkin.vercel.app/api/statistic?user_id=${userId}`
+    `http://localhost:3000/api/statistic?user_id=${userId}`
   );
   const statistic = await res.json();
 

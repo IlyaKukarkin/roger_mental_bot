@@ -337,18 +337,39 @@ export const getUser2023Stata = async (userId: ObjectId) => {
         0
       ) / statistic.users_rate_2023.length;
 
-    result.general.userMentalRating =
-      statistic.users_rate_2023.lastIndexOf(result.general.totalRatesWithMood) +
-      1;
+    const getValidIndex = ([left, curr, right]: [number, number, number]) => {
+      if (curr !== -1) {
+        return curr;
+      }
+      if (left !== -1) {
+        return left;
+      }
 
-    result.general.userSupportRating =
-      statistic.support_rates_2023.lastIndexOf(
-        Object.values(messages).reduce(
-          (acc, currValue) =>
-            acc + currValue.total_dislike + currValue.total_like,
-          0
-        )
-      ) + 1;
+      return right;
+    };
+
+    // Fallback values
+    const mentalFallbacks: [number, number, number] = [
+      statistic.users_rate_2023.lastIndexOf(
+        result.general.totalRatesWithMood - 1
+      ),
+      statistic.users_rate_2023.lastIndexOf(result.general.totalRatesWithMood),
+      statistic.users_rate_2023.lastIndexOf(
+        result.general.totalRatesWithMood + 1
+      ),
+    ];
+    result.general.userMentalRating = getValidIndex(mentalFallbacks) + 1;
+
+    const rates = Object.values(messages).reduce(
+      (acc, currValue) => acc + currValue.total_dislike + currValue.total_like,
+      0
+    );
+    const ratesFallbacks: [number, number, number] = [
+      statistic.support_rates_2023.lastIndexOf(rates - 1),
+      statistic.support_rates_2023.lastIndexOf(rates),
+      statistic.support_rates_2023.lastIndexOf(rates + 1),
+    ];
+    result.general.userSupportRating = getValidIndex(ratesFallbacks) + 1;
   }
 
   return {
