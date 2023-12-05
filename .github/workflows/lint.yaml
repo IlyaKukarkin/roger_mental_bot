@@ -1,0 +1,22 @@
+name: lint
+on:
+  pull_request:
+    types: [synchronize]
+jobs:
+  lint-roger:
+    name: Lint Roger
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10.8"
+      - name: Pylint check
+        run: |
+          cd python/roger
+          python3 -m venv roger-venv
+          source roger-venv/bin/activate
+          echo "VIRTUAL ENV:" $VIRTUAL_ENV
+          pip3 install -r requirements.txt
+          pylint --ignore=roger-venv **.py

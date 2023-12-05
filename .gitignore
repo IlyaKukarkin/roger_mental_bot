@@ -18,7 +18,8 @@
 # misc
 .DS_Store
 *.pem
-.idea
+.idea/
+.vscode/
 
 # debug
 npm-debug.log*
@@ -37,12 +38,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Python
-.idea/
 
 # virtualenv
 .venv
 venv/
+python/*/*-venv/
 ENV/
 
 # Installer logs

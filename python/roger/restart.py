@@ -1,28 +1,48 @@
+"""Module providing handlers for "Restart Bots" command."""
+
 from aiogram import types
 import requests
+from requests.exceptions import RequestException
 
-from config import bot, github_restart_token
-from database import get_database
+from variables import botClient, ROGER_GITHUB_RESTART_TOKEN
+from db.users import get_user_by_telegram_id
 
 
 async def restart_command(message: types.Message):
-    collection_name = get_database()
-    user = collection_name["users"].find_one({"telegram_id": str(message.chat.id)}, {
-                                             '_id': 1, "form_id": 1, "is_admin": 1})
+    """
+    Message handler for /restart command
 
-    if (user["is_admin"] == False):
-        await bot.send_message(message.chat.id, "Сорри, ты не админ этого бота. Не расстраивайся, ты же клиент!")
+    Parameters:
+    message (TG Message): message to handle
+
+    Returns:
+    None
+    """
+
+    # pylint: disable=duplicate-code
+    user = get_user_by_telegram_id(str(message.chat.id))
+
+    if not user["is_admin"]:
+        await botClient.send_message(
+            message.chat.id,
+            "Сорри, ты не админ этого бота. Не расстраивайся, ты же клиент!"
+        )
         return
 
-    await bot.send_message(message.chat.id, "Рестартую ботов, не писяй!")
+    await botClient.send_message(message.chat.id, "Рестартую ботов, не писяй!")
 
     try:
-        res = requests.post("https://api.github.com/repos/IlyaKukarkin/roger_mental_bot/actions/workflows/restart.yaml/dispatches",
-                      json={'ref': 'main'}, headers={'Authorization': f"Bearer {github_restart_token}"})
-        
-        if (res.status_code != 204):
-            await bot.send_message(message.chat.id, "Писяй!! Что-то пошло не так")
-    except (Exception):
-        await bot.send_message(message.chat.id, "Писяй!! Что-то пошло не так")
+        res = requests.post(
+            (
+                "https://api.github.com/repos/IlyaKukarkin/roger_mental_bot" +
+                "/actions/workflows/restart.yaml/dispatches"
+            ),
+            json={'ref': 'main'},
+            headers={'Authorization': f"Bearer {ROGER_GITHUB_RESTART_TOKEN}"},
+            timeout=10
+        )
 
-    collection_name['users'].find().close()
+        if res.status_code != 204:
+            await botClient.send_message(message.chat.id, "Писяй!! Что-то пошло не так")
+    except RequestException:
+        await botClient.send_message(message.chat.id, "Писяй!! Что-то пошло не так")
