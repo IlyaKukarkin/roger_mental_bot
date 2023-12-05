@@ -53,7 +53,7 @@ from friends import (
 
 
 # текущая версия бота
-VERSION = "1.4.0"
+VERSION = "2.0.0"
 USER_NAME = ""
 USER_TIME = ""
 TIME_ZONE = ""
