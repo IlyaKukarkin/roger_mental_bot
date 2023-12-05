@@ -1,4 +1,5 @@
 """Main module with all BOT handlers."""
+# pylint: disable=global-statement
 
 import json
 from bson import ObjectId
@@ -505,8 +506,8 @@ async def create_user(message: types.Message):
     form_id = ObjectId()
 
     tg_username = message.from_user.username
-    
-    if tg_username is None: 
+
+    if tg_username is None:
         tg_username = ""
 
     if tg_username != "":

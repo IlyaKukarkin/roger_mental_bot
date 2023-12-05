@@ -10,6 +10,7 @@ from aiogram.types import (
 from aiogram.dispatcher import FSMContext
 from aiogram.utils.callback_data import CallbackData
 from aiogram.utils.markdown import link
+from aiogram.utils.exceptions import MessageError
 
 from variables import botClient
 from db.friends import (
@@ -35,7 +36,7 @@ call_back_delete = CallbackData("Delete", "id", "friend_to_delete")
 
 def check_if_user_has_username(user: dict):
     """Check if username exists and validate username"""
-    if user['telegram_username'] in ('@', ' ', ''): 
+    if user['telegram_username'] in ('@', ' ', ''):
         return False
     return True
 
@@ -198,10 +199,10 @@ async def send_request_to_a_friend(message: Message):
         0
     )
 
-    if check_if_user_has_username(user) == False:
+    if not check_if_user_has_username(user):
         user['telegram_username'] = change_empty_username_to_a_link(
             int(user['telegram_id']), user['name'])
-    
+
     friend_request_kb = InlineKeyboardMarkup()
     friend_request_kb_approve = InlineKeyboardButton(
         '✅', callback_data=call_back_approve.new(id='friend_approve', friend=user['telegram_id']))
@@ -219,7 +220,7 @@ async def send_request_to_a_friend(message: Message):
         reply_markup=friend_request_kb, parse_mode=ParseMode.MARKDOWN_V2
     )
 
-    if check_if_user_has_username(friend) == False:
+    if not check_if_user_has_username(user):
         friend["telegram_username"] = change_empty_username_to_a_link(
             int(friend['telegram_id']), friend['name'])
 
@@ -227,7 +228,7 @@ async def send_request_to_a_friend(message: Message):
         message.chat.id,
         (
             "Отправил запрос дружбы пользователю " + friend["telegram_username"] +
-            "\. Когда твой друг примет запрос в друзья, "
+            "\\. Когда твой друг примет запрос в друзья, "
             "ты будешь получать информацию о его настроении"
         ), parse_mode=ParseMode.MARKDOWN_V2
     )
@@ -265,7 +266,7 @@ async def show_active_friends(callback_query: CallbackQuery):
     for friend_id in friends_id_list:
         friend = get_user_by_id(friend_id)
 
-        if check_if_user_has_username(friend) == False:
+        if not check_if_user_has_username(friend):
             friend["telegram_username"] = change_empty_username_to_a_link(
                 int(friend['telegram_id']), friend['name'])
 
@@ -353,7 +354,7 @@ async def watch_friends_internal_requests(
         friend_request_kb.add(friend_request_kb_approve,
                               friend_request_kb_decline)
 
-        if check_if_user_has_username(friend_user) == False:
+        if not check_if_user_has_username(friend_user):
             friend_user["telegram_username"] = change_empty_username_to_a_link(
                 int(friend_user['telegram_id']), friend_user['name'])
 
@@ -386,9 +387,9 @@ async def friends_internal_request(callback_query: CallbackQuery, friend: str, a
     user_from = get_user_by_telegram_id(friend)
 
     friends_record = get_friends_record(user_from["_id"], user_to['_id'])
-    friend_obj = update_friend_status(friends_record['_id'], status)
+    update_friend_status(friends_record['_id'], status)
 
-    if check_if_user_has_username(user_from) == False:
+    if not check_if_user_has_username(user_from):
         user_from["telegram_username"] = change_empty_username_to_a_link(
             int(user_from['telegram_id']), user_from['name'])
 
@@ -396,19 +397,19 @@ async def friends_internal_request(callback_query: CallbackQuery, friend: str, a
         await botClient.send_message(
             callback_query.from_user.id,
             (
-                "Теперь ты дружишь с " + user_from['telegram_username'] + "\. " +
+                "Теперь ты дружишь с " + user_from['telegram_username'] + "\\. " +
                 "Когда твой друг отметит 🔴 или 🟠 настроение, я скажу тебе об этом"
             ), parse_mode=ParseMode.MARKDOWN_V2
         )
 
-        if check_if_user_has_username(user_to) == False:
+        if not check_if_user_has_username(user_to):
             user_to["telegram_username"] = change_empty_username_to_a_link(
                 int(user_to['telegram_id']), user_to['name'])
 
         await botClient.send_message(
             user_from["telegram_id"],
             (
-                "Теперь ты дружишь с " + user_to['telegram_username'] + "\. " +
+                "Теперь ты дружишь с " + user_to['telegram_username'] + "\\. " +
                 "Когда твой друг отметит 🔴 или 🟠 настроение, я скажу тебе об этом"
             ), parse_mode=ParseMode.MARKDOWN_V2
         )
@@ -442,7 +443,7 @@ async def send_a_friend_message_about_bad_mood(tg_id_user: int, color: str):
     for friend_user_id in friends:
         friend = get_user_by_id(friend_user_id)
 
-        if check_if_user_has_username(user) == False:
+        if not check_if_user_has_username(user):
             user["telegram_username"] = change_empty_username_to_a_link(
                 int(user['telegram_id']), user['name'])
     try:
@@ -456,8 +457,10 @@ async def send_a_friend_message_about_bad_mood(tg_id_user: int, color: str):
             parse_mode="Markdown",
             disable_web_page_preview=True
         )
-    except: 
-        print ("Не удалось отправить сообщение пользователю " + user['telegram_username'])
+    except MessageError:
+        print(
+            "Не удалось отправить сообщение пользователю " +
+            user['telegram_username'])
 
 
 async def delete_friends(callback_query: CallbackQuery):

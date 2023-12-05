@@ -424,7 +424,7 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
     """
 
     for item in arr:
-        if (item[0] == '*'):
+        if item[0] == '*':
             if item == '*gif*':
                 await botClient.send_video(chat_id, await get_cat_gif())
 
@@ -456,7 +456,7 @@ async def get_texts_to_send_mood(arr: list, chat_id: int):
             if item == '*waiting_day_feedback*':
                 print("поставить вызов функции")
                 # поставить вызов функции <- Что должно быть тут??!
-                # пока ниче) 
+                # пока ниче)
             if item == "*wait_for_answer_to_form*":
                 s = rand_select_obj_texts(texts.get('invite_to_form'))
                 user = get_user_by_telegram_id(str(chat_id))

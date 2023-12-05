@@ -19,6 +19,7 @@ async def restart_command(message: types.Message):
     None
     """
 
+    # pylint: disable=duplicate-code
     user = get_user_by_telegram_id(str(message.chat.id))
 
     if not user["is_admin"]:
