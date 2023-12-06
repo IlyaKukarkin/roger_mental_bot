@@ -12,6 +12,7 @@
   "dependencies": {
     "@amplitude/analytics-browser": "^2.3.3",
     "@logtail/next": "^0.1.0",
+    "@react-spring/web": "^9.7.3",
     "@vercel/og": "^0.0.20",
     "contentful-management": "^10.18.1",
     "mongodb": "^4.10.0",

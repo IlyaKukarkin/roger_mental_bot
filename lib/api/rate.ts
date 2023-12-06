@@ -1,19 +1,14 @@
+import { type Rate } from "./dislike";
+import { type Message } from "./messages";
+
 import { FindCursor, ObjectId } from "mongodb";
 import { log } from "@logtail/next";
 
 import clientPromise from "../mongodb";
-import { sendMessageToAdmins, sendMessageToUser } from "./users";
+import { sendMessageToUser } from "./users";
 import { APILog, APILogStage } from "./types";
 
-type MessageToRate = {
-  _id: ObjectId;
-  text: string;
-  is_anonymous: boolean;
-  is_approved: boolean;
-  media_link: string;
-  image_ids: string[];
-  created_date: string;
-  id_user: string;
+type MessageToRate = Message & {
   rates: unknown[];
   admin_good_rates: number;
   admin_bad_rates: number;
