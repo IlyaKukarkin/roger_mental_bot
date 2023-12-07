@@ -33,7 +33,7 @@ from variables import botClient, botDispatcher
 from handlers import rate_message
 from fillform import fillform_command
 from feedback_answer import feedback_answer_start, feedback_send_text_to_user
-from settings import settings_main
+from settings import settings_main, check_to_send_mes
 from chatgpt import (
     support_message,
     await_for_a_problem,
@@ -406,12 +406,15 @@ async def process_callback_yesname_button1(
     data = await state.get_data()
     await get_user_name(data["user_id"], callback_query)
     await state.finish()
-    await get_user_time_to_send(data["user_id"], callback_query.from_user.id)
+    await get_user_time_to_send(data["user_id"], callback_query.from_user.id, data["source"])
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
                                       'name_button_no', state=Registration.Name)
-async def process_callback_noname_button1(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
+async def process_callback_noname_button1(
+    callback_query: types.CallbackQuery,
+    state: dispatcher.FSMContext
+):
     """регистрация пользователя, имя верно - НЕТ"""
     data = await state.get_data()
     await get_printed_user_name(data["user_id"], callback_query, data["source"])
@@ -444,6 +447,8 @@ async def process_callback_askfortime20_button(
     await user_time_20(data["user_id"], callback_query, state)
     if data["source"] == "reg":
         await get_user_time_zone(data["user_id"], callback_query.from_user.id)
+    if data["source"] == "settings":
+        await check_to_send_mes(callback_query.from_user.id)
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
@@ -457,6 +462,8 @@ async def process_callback_askfortime21_button(
     await user_time_21(data["user_id"], callback_query, state)
     if data["source"] == "reg":
         await get_user_time_zone(data["user_id"], callback_query.from_user.id)
+    if data["source"] == "settings":
+        await check_to_send_mes(callback_query.from_user.id)
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
@@ -470,6 +477,8 @@ async def process_callback_askfortime22_button(
     await user_time_22(data["user_id"], callback_query, state)
     if data["source"] == "reg":
         await get_user_time_zone(data["user_id"], callback_query.from_user.id)
+    if data["source"] == "settings":
+        await check_to_send_mes(callback_query.from_user.id)
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
@@ -483,6 +492,8 @@ async def process_callback_askfortime23_button1(
     await user_time_23(data["user_id"], callback_query, state)
     if data["source"] == "reg":
         await get_user_time_zone(data["user_id"], callback_query.from_user.id)
+    if data["source"] == "settings":
+        await check_to_send_mes(callback_query.from_user.id)
 
 
 async def get_user_time_zone(user_id: ObjectId, chat_id: int):
@@ -498,10 +509,13 @@ async def customer(message: types.Message, state: dispatcher.FSMContext):
     if time_zone is not None and data["source"] == "reg":
         await state.finish()
         update_user_is_active(data["user_id"], True)
-        await botClient.send_message(message.chat.id, "Отлично! 😍")
+        await botClient.send_message(message.chat.id,
+                                     "Отлично! 😍")
         await create_new_message_after_registration(data["user_id"], message.chat.id)
     if data["source"] == "settings":
-        await botClient.send_message(message.chat.id, "Обновил твой часовой пояс на UTC" + time_zone)
+        await botClient.send_message(message.chat.id,
+                                     "Обновил твой часовой пояс на UTC" + time_zone)
+        await check_to_send_mes(message.chat.id)
         await state.finish()
 
 
@@ -561,11 +575,11 @@ async def process_callback_redbutton_button1(callback_query: types.CallbackQuery
     await callback_after_click_on_color_button(callback_query, 1, 'red')
 
 
-
 @botDispatcher.message_handler(commands=['settings'])
-async def process_stata_command(message: types.Message):
+async def settings_main_command(message: types.Message):
     """update user settings by themselves"""
     await settings_main(message.chat.id)
+
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
                                       'settings_name')
@@ -574,17 +588,19 @@ async def settings_change_name_callback(callback_query: types.CallbackQuery):
     user = get_user_by_telegram_id(str(callback_query.from_user.id))
     await get_printed_user_name(user["_id"], callback_query, "settings")
 
+
 @botDispatcher.callback_query_handler(lambda c: c.data ==
                                       'settings_timezone')
-async def settings_change_name_callback(callback_query: types.CallbackQuery):
+async def settings_change_timezone_callback(callback_query: types.CallbackQuery):
     """update user name by themselves"""
     user = get_user_by_telegram_id(str(callback_query.from_user.id))
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await get_user_timezone(user["_id"], callback_query.from_user.id, "settings")
 
+
 @botDispatcher.callback_query_handler(lambda c: c.data ==
                                       'settings_time_to_send_messages_button')
-async def settings_change_name_callback(callback_query: types.CallbackQuery):
+async def settings_change_time_to_send_messages_callback(callback_query: types.CallbackQuery):
     """update user name by themselves"""
     user = get_user_by_telegram_id(str(callback_query.from_user.id))
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)

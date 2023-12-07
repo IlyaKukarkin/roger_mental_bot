@@ -1,19 +1,32 @@
-from variables import botClient
+"""Main handler of /settings command"""
+import datetime
 
-from db.users import (
-    update_user_name,
-    update_user_timezone,
-    update_user_time_to_send_messages
-)
-from aiogram import types
-from keyboards import settings_keyboard, ask_for_name_kb
-from states import Registration
-from common import delete_keyboard
+from variables import botClient
+from keyboards import settings_keyboard
+from sendmessage import sendmes
+from db.users import get_user_by_telegram_id
 
 
 async def settings_main(
-      tg_user_id: int  
+    tg_user_id: int
 ):
-    await botClient.send_message(tg_user_id,
-                                    "Что хочешь изменить в своем профиле?", reply_markup = settings_keyboard)
+    """
+    Fuck you python linter
+    This function prints message to user
+    """
 
+    await botClient.send_message(tg_user_id,
+                                 "Что хочешь изменить в своем профиле?",
+                                 reply_markup=settings_keyboard)
+
+
+async def check_to_send_mes(tg_id: int):
+    """
+    This function checks if it is needed to send message to rate user's mood
+    due to changing the timezone
+    """
+
+    user = get_user_by_telegram_id(str(tg_id))
+    now = datetime.datetime.now()
+    if int(user["timezone"]) + now.hour >= int(user["time_to_send_messages"]):
+        await sendmes(tg_id)

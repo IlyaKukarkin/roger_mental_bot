@@ -11,7 +11,7 @@ from db.users import update_user_timezone
 async def get_user_timezone(user_id: ObjectId, chat_id: int, source: str):
     if source == "reg":
         await botClient.send_message(chat_id, "Еще мне нужно знать твой часовой пояс, чтобы присылать сообщения, когда тебе удобно \nНапиши, сколько у тебя сейчас времени в формате ЧАСЫ:МИНУТЫ")
-    else: 
+    else:
         await botClient.send_message(chat_id, "Напиши, сколько у тебя сейчас времени в формате ЧАСЫ:МИНУТЫ")
     await Registration.AwaitForATimeZoneToSend.set()
     state = botDispatcher.get_current().current_state()

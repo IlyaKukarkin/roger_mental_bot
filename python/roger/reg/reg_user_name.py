@@ -34,7 +34,7 @@ async def get_customer_name(user_id: ObjectId, message: types.Message, state: di
     if (user_name.isalpha()):
         if source == "reg":
             await botClient.send_message(message.chat.id, "Приятно познакомиться, " + user_name + "!")
-        else: 
+        else:
             await botClient.send_message(message.chat.id, "Записал твое новое имя, " + user_name)
         await state.finish()
         update_user_name(user_id, user_name)

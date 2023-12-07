@@ -32,7 +32,7 @@ async def user_time_21(user_id: ObjectId, callback_query: types.CallbackQuery, s
     update_user_time_to_send_messages(user_id, user_time)
     await botClient.send_message(callback_query.from_user.id, "Принято! Буду приходить к тебе примерно в " + str(user_time) + " час каждый день")
     await state.finish()
-    return 
+    return
 
 
 async def user_time_22(user_id: ObjectId, callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
@@ -41,7 +41,7 @@ async def user_time_22(user_id: ObjectId, callback_query: types.CallbackQuery, s
     update_user_time_to_send_messages(user_id, user_time)
     await botClient.send_message(callback_query.from_user.id, "Принято! Буду приходить к тебе примерно в " + str(user_time) + " часа каждый день")
     await state.finish()
-    return 
+    return
 
 
 async def user_time_23(user_id: ObjectId, callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
@@ -50,4 +50,4 @@ async def user_time_23(user_id: ObjectId, callback_query: types.CallbackQuery, s
     update_user_time_to_send_messages(user_id, user_time)
     await botClient.send_message(callback_query.from_user.id, "Принято! Буду приходить к тебе примерно в " + str(user_time) + " чаcа каждый день")
     await state.finish()
-    return 
+    return

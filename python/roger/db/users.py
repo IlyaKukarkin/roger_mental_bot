@@ -9,7 +9,7 @@ from db.setup import dbClient
 def insert_new_empty_user(
     tg_username: str,
     telegram_id: str,
-    form_id: ObjectId      
+    form_id: ObjectId
 ):
     """
     Adds a new empty user record to the DataBase table "Users"
@@ -238,6 +238,7 @@ def get_user_with_mental_rate(
 
     return list(user)[0]
 
+
 def update_user_name(
     _id: ObjectId,
     name: str
@@ -255,7 +256,7 @@ def update_user_name(
 
     dbClient['users'].find_one_and_update(
         {'_id': _id}, {"$set": {'name': name}})
-    
+
 
 def update_user_timezone(
     _id: ObjectId,
@@ -274,7 +275,7 @@ def update_user_timezone(
 
     dbClient['users'].find_one_and_update(
         {'_id': _id}, {"$set": {'timezone': timezone}})
-    
+
 
 def update_user_time_to_send_messages(
     _id: ObjectId,
