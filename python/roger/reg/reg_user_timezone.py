@@ -2,17 +2,23 @@ import datetime
 from aiogram import types, dispatcher
 
 from states import Registration
-from variables import botClient
-
+from variables import botClient, botDispatcher
+from bson import ObjectId
+from db.users import update_user_timezone
 # получить таймзону пользователя
 
 
-async def get_user_timezone(chat_id: int):
-    await botClient.send_message(chat_id, "Еще мне нужно знать твой часовой пояс, чтобы присылать сообщения, когда тебе удобно \nНапиши, сколько у тебя сейчас времени в формате ЧАСЫ:МИНУТЫ")
+async def get_user_timezone(user_id: ObjectId, chat_id: int, source: str):
+    if source == "reg":
+        await botClient.send_message(chat_id, "Еще мне нужно знать твой часовой пояс, чтобы присылать сообщения, когда тебе удобно \nНапиши, сколько у тебя сейчас времени в формате ЧАСЫ:МИНУТЫ")
+    else: 
+        await botClient.send_message(chat_id, "Напиши, сколько у тебя сейчас времени в формате ЧАСЫ:МИНУТЫ")
     await Registration.AwaitForATimeZoneToSend.set()
+    state = botDispatcher.get_current().current_state()
+    await state.update_data(user_id=user_id, source=source)
 
 
-async def customer_timezone(message: types.Message, state: dispatcher.FSMContext):
+async def customer_timezone(user_id: ObjectId, message: types.Message, state: dispatcher.FSMContext, source: str):
     await state.update_data(name=message.text)
     user_current_time = message.text
     try:
@@ -25,6 +31,8 @@ async def customer_timezone(message: types.Message, state: dispatcher.FSMContext
     except BaseException:
         await botClient.send_message(message.chat.id, "Кажется, ты ввел что-то не то 🙃 \nНапиши, сколько у тебя сейчас времени в формате ЧАСЫ:МИНУТЫ")
         await Registration.AwaitForATimeZoneToSend.set()
+        state = botDispatcher.get_current().current_state()
+        await state.update_data(user_id=user_id)
         return
 
     time_now_utc = datetime.datetime.now(datetime.timezone.utc)
@@ -40,5 +48,5 @@ async def customer_timezone(message: types.Message, state: dispatcher.FSMContext
         time_zone = "-0" + str(abs(time_zone2))
     else:
         time_zone = "-" + str(abs(time_zone2))
-    await state.finish()
+    update_user_timezone(user_id, time_zone)
     return time_zone

@@ -3,10 +3,11 @@
 import time
 from aiogram import types
 
-from db.users import get_user_by_telegram_id, update_user_is_active
+from db.users import get_user_by_telegram_id, update_user_is_active, insert_new_empty_user
 from states import Registration
 from keyboards import ask_for_name_kb
-from variables import botClient
+from variables import botClient, botDispatcher
+from bson import ObjectId
 
 
 async def start_command(message: types.Message):
@@ -21,8 +22,12 @@ async def start_command(message: types.Message):
     """
 
     user = get_user_by_telegram_id(str(message.chat.id))
-
+    
     if user is None:
+        form_id = ObjectId()
+        if message.from_user.username is None:
+            message.from_user.username = ""
+        user_id = insert_new_empty_user(message.from_user.username, str(message.chat.id), form_id)
         await botClient.send_message(
             message.chat.id,
             "Привет 👋 \n \nЯ Роджер — бот для твоей кукухи."
@@ -75,7 +80,8 @@ async def start_command(message: types.Message):
             )
         )
         time.sleep(2)
-
+        
+        
         await botClient.send_message(
             message.chat.id,
             (
@@ -86,6 +92,8 @@ async def start_command(message: types.Message):
         )
 
         await Registration.Name.set()
+        state = botDispatcher.get_current().current_state()
+        await state.update_data(user_id=user_id, source="reg")
         return
 
     if user["is_active"]:
@@ -94,9 +102,17 @@ async def start_command(message: types.Message):
             "Кажется, мы уже знакомы, " + user['name']
         )
         return
+    
+    if hasattr(user, "timezone"): #это последний степ регистрации; если он задан, значит, пользователь уже зарегался
+        await botClient.send_message(
+        message.chat.id,
+        "Здорово, что ты вернулся, " + user['name'] + " 😍\n\nЯ продолжу интересоваться твоим настроением 😌"
+    )
+        update_user_is_active(user['_id'], True)
+        return
 
     await botClient.send_message(
         message.chat.id,
-        "Здорово, что ты вернулся, " + user['name'] + " 😍"
+        "Ты уже начал регистрацию\n\nЗаверши ее с того места, где ты остановился, а потом я начну интересоваться твоим настроением и поддерживать тебя 😌"
     )
-    update_user_is_active(user['_id'], True)
+
