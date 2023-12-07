@@ -1,4 +1,4 @@
-import { ObjectId } from "mongodb";
+import { FindCursor, ObjectId } from "mongodb";
 import { Asset, Link, Space } from "contentful-management";
 import { ContentfulEnvironmentAPI } from "contentful-management/dist/typings/create-environment-api";
 
@@ -21,6 +21,23 @@ export type FormDataType = {
   media_link?: string;
   image_ids?: string[];
   is_anonymous: boolean;
+};
+
+export type Message = {
+  _id: ObjectId;
+  text: string;
+  is_anonymous: boolean;
+  is_approved: boolean;
+  media_link: string;
+  image_ids: string[];
+  created_date: string;
+  id_user: string;
+  original_media_link: string;
+};
+
+export type MessageWithRates = Message & {
+  total_like: number;
+  total_dislike: number;
 };
 
 export const checkFormId = async (
@@ -213,4 +230,82 @@ export const submitForm = async ({
       { method: "POST" }
     );
   }
+};
+
+export const getAllMessagesWithRatesByUser2023 = async (userId: ObjectId) => {
+  const client = await clientPromise;
+  const collection = client.db("roger-bot-db").collection("messages");
+
+  const messagesCursor: FindCursor<MessageWithRates> =
+    await collection.aggregate([
+      {
+        $match: {
+          id_user: userId,
+        },
+      },
+      {
+        $lookup: {
+          from: "rate",
+          localField: "_id",
+          foreignField: "id_message",
+          pipeline: [
+            {
+              $match: {
+                time_to_send: {
+                  $gte: new Date("2023-01-01T00:00:00.000+00:00"),
+                  $lte: new Date("2024-01-01T00:00:00.000+00:00"),
+                },
+              },
+            },
+          ],
+          as: "rates",
+        },
+      },
+      {
+        $addFields: {
+          total_dislike: {
+            $sum: {
+              $map: {
+                input: "$rates",
+                as: "rate",
+                in: {
+                  $cond: [
+                    {
+                      $eq: ["$$rate.rate", false],
+                    },
+                    1,
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+          total_like: {
+            $sum: {
+              $map: {
+                input: "$rates",
+                as: "rate",
+                in: {
+                  $cond: [
+                    {
+                      $eq: ["$$rate.rate", true],
+                    },
+                    1,
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          rates: 0,
+        },
+      },
+    ]);
+  const messages = await messagesCursor.toArray();
+
+  return messages;
 };

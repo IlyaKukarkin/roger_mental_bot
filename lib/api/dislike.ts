@@ -19,7 +19,7 @@ type User = {
   rates: Rate[];
 };
 
-type Rate = {
+export type Rate = {
   rate: boolean;
   _id: ObjectId;
   id_user: ObjectId;
