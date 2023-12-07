@@ -5,21 +5,24 @@ import clientPromise from "../mongodb";
 import { sendMoodMessage } from "./users";
 import { checkAndDeleteMoodKeyboard } from "./utils";
 import {
-  User,
+  UserSendMessage,
   APILog,
   APILogStage,
   APILogError,
   APILogErrorName,
 } from "./types";
 
-type RateToday = {
-  current_date: string;
-  dateComp: number;
+type MentalRate = {
   _id: ObjectId;
   rate: number;
   id_user: ObjectId;
   date: string;
   id_tg_message: number;
+};
+
+type MentalRateToday = MentalRate & {
+  current_date: string;
+  dateComp: number;
 };
 
 const logData: APILog = {
@@ -33,7 +36,7 @@ export const askMood = async (): Promise<Boolean> => {
   const usersCol = client.db("roger-bot-db").collection("users");
   const mentalRateCl = client.db("roger-bot-db").collection("mental_rate");
 
-  const cursorUsers: FindCursor<User> = await usersCol.aggregate([
+  const cursorUsers: FindCursor<UserSendMessage> = await usersCol.aggregate([
     {
       $match: {
         is_active: true,
@@ -131,47 +134,74 @@ const checkAlreadySendToday = async (userId: ObjectId) => {
   const client = await clientPromise;
   const mentalRateCol = client.db("roger-bot-db").collection("mental_rate");
 
-  const cursorRates: FindCursor<RateToday> = await mentalRateCol.aggregate([
-    {
-      $match: {
-        id_user: new ObjectId(userId),
+  const cursorRates: FindCursor<MentalRateToday> =
+    await mentalRateCol.aggregate([
+      {
+        $match: {
+          id_user: new ObjectId(userId),
+        },
       },
-    },
-    {
-      $addFields: {
-        current_date: {
-          $dateToParts: {
-            date: new Date(),
+      {
+        $addFields: {
+          current_date: {
+            $dateToParts: {
+              date: new Date(),
+            },
           },
         },
       },
-    },
-    {
-      $addFields: {
-        current_date: {
-          $dateFromParts: {
-            year: "$current_date.year",
-            month: "$current_date.month",
-            day: "$current_date.day",
+      {
+        $addFields: {
+          current_date: {
+            $dateFromParts: {
+              year: "$current_date.year",
+              month: "$current_date.month",
+              day: "$current_date.day",
+            },
           },
         },
       },
-    },
-    {
-      $addFields: {
-        dateComp: {
-          $cmp: ["$current_date", "$date"],
+      {
+        $addFields: {
+          dateComp: {
+            $cmp: ["$current_date", "$date"],
+          },
         },
       },
-    },
-    {
-      $match: {
-        dateComp: -1,
+      {
+        $match: {
+          dateComp: -1,
+        },
       },
-    },
-  ]);
+    ]);
 
   const rates = await cursorRates.toArray();
 
   return rates.length !== 0;
+};
+
+export const getAllMoodRates2023 = async (userId: ObjectId) => {
+  const client = await clientPromise;
+  const rateCol = client.db("roger-bot-db").collection("mental_rate");
+
+  const mentalRatesCursor: FindCursor<MentalRate> = await rateCol.aggregate([
+    {
+      $match: {
+        $and: [
+          {
+            date: {
+              $gte: new Date("2023-01-01T00:00:00.000+00:00"),
+              $lte: new Date("2024-01-01T00:00:00.000+00:00"),
+            },
+          },
+          {
+            id_user: userId,
+          },
+        ],
+      },
+    },
+  ]);
+  const mentalRates = await mentalRatesCursor.toArray();
+
+  return mentalRates;
 };
