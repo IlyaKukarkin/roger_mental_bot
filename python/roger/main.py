@@ -9,7 +9,7 @@ from aiogram.utils.callback_data import CallbackData
 
 from logger import logger
 from states import Recording, FriendsStates, Registration
-from db.users import insert_new_user
+from db.users import update_user_is_active, get_user_by_telegram_id
 from common import delete_keyboard
 from feedback import feedback_start, feedback_get_text_from_user, feedback_get_photo_from_user
 from version import version_command
@@ -33,6 +33,7 @@ from variables import botClient, botDispatcher
 from handlers import rate_message
 from fillform import fillform_command
 from feedback_answer import feedback_answer_start, feedback_send_text_to_user
+from settings import settings_main, check_to_send_mes
 from chatgpt import (
     support_message,
     await_for_a_problem,
@@ -53,10 +54,7 @@ from friends import (
 
 
 # текущая версия бота
-VERSION = "2.0.0"
-USER_NAME = ""
-USER_TIME = ""
-TIME_ZONE = ""
+VERSION = "2.1.0"
 
 # read texts from json file
 with open('texts.json', encoding="utf-8") as t:
@@ -404,34 +402,38 @@ async def process_callback_yesname_button1(
     callback_query: types.CallbackQuery,
     state: dispatcher.FSMContext
 ):
-    """регистрация пользователя, имя верно - НЕТ"""
-    global USER_NAME
-
-    USER_NAME = await get_user_name(callback_query, state)
-    await get_user_time_to_send(callback_query.from_user.id)
+    """регистрация пользователя, имя верно - ДА"""
+    data = await state.get_data()
+    await get_user_name(data["user_id"], callback_query)
+    await state.finish()
+    await get_user_time_to_send(data["user_id"], callback_query.from_user.id, data["source"])
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
                                       'name_button_no', state=Registration.Name)
-async def process_callback_noname_button1(callback_query: types.CallbackQuery):
-    """регистрация пользователя, имя верно - ДА"""
-    await get_printed_user_name(callback_query)
+async def process_callback_noname_button1(
+    callback_query: types.CallbackQuery,
+    state: dispatcher.FSMContext
+):
+    """регистрация пользователя, имя верно - НЕТ"""
+    data = await state.get_data()
+    await get_printed_user_name(data["user_id"], callback_query, data["source"])
 
 
 @botDispatcher.message_handler(state=Registration.AwaitForAName)
 async def customer_name(message: types.Message, state: dispatcher.FSMContext):
     """регистрация пользователя, вводим имя вручную"""
-    global USER_NAME
-
-    USER_NAME = await get_customer_name(message, state)
-    if USER_NAME is None:
+    data = await state.get_data()
+    username = await get_customer_name(data["user_id"], message, state, data["source"])
+    if username is None:
         return
-    await get_user_time_to_send(message.chat.id)
+    if data["source"] == "reg":
+        await get_user_time_to_send(data["user_id"], message.chat.id, "reg")
 
 
-async def get_user_time_to_send(chat_id: int):
+async def get_user_time_to_send(user_id: ObjectId, chat_id: int, source: str):
     """получаем время, когда отправлять сообщения пользователю"""
-    await get_user_time_to_send_messages(chat_id)
+    await get_user_time_to_send_messages(user_id, chat_id, source)
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
@@ -440,11 +442,13 @@ async def process_callback_askfortime20_button(
     callback_query: types.CallbackQuery,
     state: dispatcher.FSMContext
 ):
-    """ввод таймзоны, 8 вечера"""
-    global USER_TIME
-
-    USER_TIME = await user_time_20(callback_query, state)
-    await get_user_time_zone(callback_query.from_user.id)
+    """ввод времени для отправки сообщений, 8 вечера"""
+    data = await state.get_data()
+    await user_time_20(data["user_id"], callback_query, state)
+    if data["source"] == "reg":
+        await get_user_time_zone(data["user_id"], callback_query.from_user.id)
+    if data["source"] == "settings":
+        await check_to_send_mes(callback_query.from_user.id)
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
@@ -453,11 +457,13 @@ async def process_callback_askfortime21_button(
     callback_query: types.CallbackQuery,
     state: dispatcher.FSMContext
 ):
-    """ввод таймзоны, 9 вечера"""
-    global USER_TIME
-
-    USER_TIME = await user_time_21(callback_query, state)
-    await get_user_time_zone(callback_query.from_user.id)
+    """ввод времени для отправки сообщений, 9 вечера"""
+    data = await state.get_data()
+    await user_time_21(data["user_id"], callback_query, state)
+    if data["source"] == "reg":
+        await get_user_time_zone(data["user_id"], callback_query.from_user.id)
+    if data["source"] == "settings":
+        await check_to_send_mes(callback_query.from_user.id)
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
@@ -466,11 +472,13 @@ async def process_callback_askfortime22_button(
     callback_query: types.CallbackQuery,
     state: dispatcher.FSMContext
 ):
-    """ввод таймзоны, 10 вечера"""
-    global USER_TIME
-
-    USER_TIME = await user_time_22(callback_query, state)
-    await get_user_time_zone(callback_query.from_user.id)
+    """ввод времени для отправки сообщений, 10 вечера"""
+    data = await state.get_data()
+    await user_time_22(data["user_id"], callback_query, state)
+    if data["source"] == "reg":
+        await get_user_time_zone(data["user_id"], callback_query.from_user.id)
+    if data["source"] == "settings":
+        await check_to_send_mes(callback_query.from_user.id)
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
@@ -479,53 +487,36 @@ async def process_callback_askfortime23_button1(
     callback_query: types.CallbackQuery,
     state: dispatcher.FSMContext
 ):
-    """ввод таймзоны, 11 вечера"""
-    global USER_TIME
+    """ввод времени для отправки сообщений, 11 вечера"""
+    data = await state.get_data()
+    await user_time_23(data["user_id"], callback_query, state)
+    if data["source"] == "reg":
+        await get_user_time_zone(data["user_id"], callback_query.from_user.id)
+    if data["source"] == "settings":
+        await check_to_send_mes(callback_query.from_user.id)
 
-    USER_TIME = await user_time_23(callback_query, state)
-    await get_user_time_zone(callback_query.from_user.id)
 
-
-async def get_user_time_zone(chat_id: int):
+async def get_user_time_zone(user_id: ObjectId, chat_id: int):
     """получаем таймзону пользователя"""
-    await get_user_timezone(chat_id)
+    await get_user_timezone(user_id, chat_id, "reg")
 
 
 @botDispatcher.message_handler(state=Registration.AwaitForATimeZoneToSend)
 async def customer(message: types.Message, state: dispatcher.FSMContext):
-    """запрашиваем тааймзону"""
-    global TIME_ZONE
-
-    TIME_ZONE = await customer_timezone(message, state)
-    if TIME_ZONE is not None:
-        await create_user(message)
-
-
-async def create_user(message: types.Message):
-    """регистрируем нового пользователя"""
-    form_id = ObjectId()
-
-    tg_username = message.from_user.username
-
-    if tg_username is None:
-        tg_username = ""
-
-    if tg_username != "":
-        tg_username = "@" + tg_username
-    else:
-        tg_username = " "
-
-    insert_new_user(
-        tg_username,
-        str(message.chat.id),
-        USER_NAME,
-        TIME_ZONE,
-        USER_TIME,
-        form_id
-    )
-
-    await botClient.send_message(message.chat.id, "Отлично! 😍")
-    await create_new_message_after_registration(message.chat.id, USER_NAME, form_id)
+    """запрашиваем таймзону"""
+    data = await state.get_data()
+    time_zone = await customer_timezone(data["user_id"], message, state, data["source"])
+    if time_zone is not None and data["source"] == "reg":
+        await state.finish()
+        update_user_is_active(data["user_id"], True)
+        await botClient.send_message(message.chat.id,
+                                     "Отлично! 😍")
+        await create_new_message_after_registration(data["user_id"], message.chat.id)
+    if data["source"] == "settings":
+        await botClient.send_message(message.chat.id,
+                                     "Обновил твой часовой пояс на UTC" + time_zone)
+        await check_to_send_mes(message.chat.id)
+        await state.finish()
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
@@ -582,6 +573,38 @@ async def process_callback_orangebutton_button2(callback_query: types.CallbackQu
 async def process_callback_redbutton_button1(callback_query: types.CallbackQuery):
     """оценка настроения за день - красный"""
     await callback_after_click_on_color_button(callback_query, 1, 'red')
+
+
+@botDispatcher.message_handler(commands=['settings'])
+async def settings_main_command(message: types.Message):
+    """update user settings by themselves"""
+    await settings_main(message.chat.id)
+
+
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'settings_name')
+async def settings_change_name_callback(callback_query: types.CallbackQuery):
+    """update user name by themselves"""
+    user = get_user_by_telegram_id(str(callback_query.from_user.id))
+    await get_printed_user_name(user["_id"], callback_query, "settings")
+
+
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'settings_timezone')
+async def settings_change_timezone_callback(callback_query: types.CallbackQuery):
+    """update user name by themselves"""
+    user = get_user_by_telegram_id(str(callback_query.from_user.id))
+    await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
+    await get_user_timezone(user["_id"], callback_query.from_user.id, "settings")
+
+
+@botDispatcher.callback_query_handler(lambda c: c.data ==
+                                      'settings_time_to_send_messages_button')
+async def settings_change_time_to_send_messages_callback(callback_query: types.CallbackQuery):
+    """update user name by themselves"""
+    user = get_user_by_telegram_id(str(callback_query.from_user.id))
+    await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
+    await get_user_time_to_send_messages(user["_id"], callback_query.from_user.id, "settings")
 
 
 @botDispatcher.message_handler(content_types='text', state='*')

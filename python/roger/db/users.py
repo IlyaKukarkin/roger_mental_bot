@@ -6,6 +6,34 @@ from bson import ObjectId
 from db.setup import dbClient
 
 
+def insert_new_empty_user(
+    tg_username: str,
+    telegram_id: str,
+    form_id: ObjectId
+):
+    """
+    Adds a new empty user record to the DataBase table "Users"
+
+    Parameters:
+    tg_username (str): username from Telegram, starts with an "@"
+    telegram_id (str): telegram id of user from Telegram
+
+    Returns:
+    User MongoDB ID
+    """
+    user = dbClient['users'].insert_one({
+        "telegram_username": tg_username,
+        "is_volunteer": False,
+        "is_banned_from_volunteering": False,
+        "form_id": form_id,
+        "telegram_id": telegram_id,
+        "is_admin": False,
+        "is_active": False,
+        "created_at": datetime.now(),
+    })
+    return user.inserted_id
+
+
 def insert_new_user(
     tg_username: str,
     telegram_id: str,
@@ -131,7 +159,6 @@ def get_user_by_telegram_id(
     """
 
     user = dbClient['users'].find_one({"telegram_id": telegram_id})
-
     return user
 
 
@@ -210,3 +237,60 @@ def get_user_with_mental_rate(
     )
 
     return list(user)[0]
+
+
+def update_user_name(
+    _id: ObjectId,
+    name: str
+):
+    """
+    Patch user name in user table
+
+    Parameters:
+    _id (ObjectId): ID for the user to find
+    name (str): name of a user
+
+    Returns:
+    None
+    """
+
+    dbClient['users'].find_one_and_update(
+        {'_id': _id}, {"$set": {'name': name}})
+
+
+def update_user_timezone(
+    _id: ObjectId,
+    timezone: str
+):
+    """
+    Patch user timezone in user table
+
+    Parameters:
+    _id (ObjectId): ID for the user to find
+    timezone (str): timezone of a user
+
+    Returns:
+    None
+    """
+
+    dbClient['users'].find_one_and_update(
+        {'_id': _id}, {"$set": {'timezone': timezone}})
+
+
+def update_user_time_to_send_messages(
+    _id: ObjectId,
+    time: int
+):
+    """
+    Patch user time to send messages in user table
+
+    Parameters:
+    _id (ObjectId): ID for the user to find
+    time (int): time when user wants to receive mood messages. In a range from 20 to 23
+
+    Returns:
+    None
+    """
+
+    dbClient['users'].find_one_and_update(
+        {'_id': _id}, {"$set": {'time_to_send_messages': time}})

@@ -74,6 +74,14 @@ support_start_button = InlineKeyboardButton(
 support_start_keyboard = InlineKeyboardMarkup().add(
     support_start_button)
 
+settings_name = InlineKeyboardButton(
+    'Имя', callback_data='settings_name')
+settings_timezone = InlineKeyboardButton(
+    'Часовой пояс', callback_data='settings_timezone')
+settings_time_to_send_messages_button = InlineKeyboardButton(
+    'Время отправки сообщений', callback_data='settings_time_to_send_messages_button')
+settings_keyboard = InlineKeyboardMarkup(row_width=1).add(
+    settings_name, settings_timezone, settings_time_to_send_messages_button)
 
 approve_friends_request = InlineKeyboardButton(
     'Добавить в друзья', callback_data='approve_request')
@@ -153,6 +161,7 @@ def add_back_button(kb: InlineKeyboardMarkup, callback_info: str):
     kb = kb.add(dymamic_back_button)
 
     return kb
+
 
 # ask_for_rate_messages_support = add_back_button(ask_for_rate_messages_support, 'main')
 
