@@ -25,6 +25,7 @@ const Results2023Page: NextPage<Props> = ({ statistic }) => {
   if (!statistic) {
     return (
       <section className="flex items-center h-full min-h-screen p-16 dark:bg-gray-900 dark:text-gray-100">
+        {/* ToDo: add "warp" animation instead of loading spinner */}
         <Loading />
       </section>
     );
