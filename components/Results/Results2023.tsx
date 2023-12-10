@@ -85,10 +85,10 @@ const Results2023 = ({ statistic }: Props) => {
         <Timeline currIndex={index} />
       </div>
       <div
-        className={`aspect-[9/16] w-auto rounded-xl bg-gray-900 text-gray-100 ${styles.story}`}
+        className={`aspect-[9/16] w-auto rounded-xl bg-gray-900 text-gray-100 relative ${styles.story}`}
       >
         <div
-          className={`text-center p-8 h-full w-full flex flex-col justify-center items-center cursor-pointer ${styles.container}`}
+          className={`text-center h-full w-full flex flex-col justify-center items-center cursor-pointer ${styles.container}`}
           onClick={onClick}
         >
           {transitions((style, i) => {
