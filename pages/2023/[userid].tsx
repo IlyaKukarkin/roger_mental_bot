@@ -24,7 +24,7 @@ const Results2023Page: NextPage<Props> = ({ statistic }) => {
 
   if (!statistic) {
     return (
-      <section className="flex items-center h-full min-h-screen p-16 dark:bg-gray-900 dark:text-gray-100">
+      <section className="flex h-full min-h-screen items-center p-16 dark:bg-gray-900 dark:text-gray-100">
         {/* ToDo: add "warp" animation instead of loading spinner */}
         <Loading />
       </section>
@@ -35,14 +35,14 @@ const Results2023Page: NextPage<Props> = ({ statistic }) => {
 };
 
 export async function getStaticProps(
-  context: GetStaticPropsContext<{ userid: string }, string>
+  context: GetStaticPropsContext<{ userid: string }, string>,
 ) {
   const { params } = context;
   const userId = params && params.userid;
 
   // ToDo: replace for prod value
   const res = await fetch(
-    `https://rogerbot.tech/api/statistic?user_id=${userId}`
+    `https://rogerbot.tech/api/statistic?user_id=${userId}`,
   );
   const statistic = await res.json();
 

@@ -32,7 +32,7 @@ const Calendar = ({ months }: Props) => {
           return (
             <div key={month} className="flex flex-col items-center">
               <div
-                className={`opacity-80 w-10 h-10 rounded-full ${
+                className={`h-10 w-10 rounded-full opacity-80 ${
                   getRateBgColor[getMoodForMonth(data)]
                 }`}
               />
@@ -43,7 +43,7 @@ const Calendar = ({ months }: Props) => {
                 На основе{" "}
                 {Object.values(data).reduce(
                   (acc, currValue, index) => acc + (!index ? 0 : currValue),
-                  0
+                  0,
                 )}{" "}
                 оценок
               </p>

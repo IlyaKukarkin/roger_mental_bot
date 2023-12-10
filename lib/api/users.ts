@@ -56,7 +56,7 @@ export const getTelegramId = async (userId: ObjectId): Promise<string> => {
     { _id: userId },
     {
       telegram_id: 1,
-    }
+    },
   );
 
   return user.telegram_id;
@@ -71,7 +71,7 @@ export const getUserById = async (userId: ObjectId): Promise<User> => {
 };
 
 export const getUserByTelegramId = async (
-  telegramId: string
+  telegramId: string,
 ): Promise<User | null> => {
   const client = await clientPromise;
   const collection = client.db("roger-bot-db").collection("users");
@@ -90,7 +90,7 @@ export const blockUser = async (userId: ObjectId) => {
       $set: {
         is_active: false,
       },
-    }
+    },
   );
 };
 
@@ -102,7 +102,7 @@ export const sendMessageToAdmins = async (message: string): Promise<void> => {
     {
       _id: 0,
       telegram_id: 1,
-    }
+    },
   );
 
   const adminUsers = await cursorUsers.toArray();
@@ -112,59 +112,59 @@ export const sendMessageToAdmins = async (message: string): Promise<void> => {
       try {
         await fetch(
           `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${message}`,
-          { method: "POST" }
+          { method: "POST" },
         );
       } catch (e) {
         console.log("Ошибка при отправке сообщения Админам: ", e);
       }
-    })
+    }),
   );
 };
 
 export const sendMessageToUser = async (
   userTelegramId: string,
-  message: string
+  message: string,
 ): Promise<void> => {
   await fetch(
     `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${userTelegramId}&text=${message}`,
-    { method: "POST" }
+    { method: "POST" },
   );
 };
 
 export const sendHurryUpMessage = async (
-  userTelegramId: string
+  userTelegramId: string,
 ): Promise<void> => {
   await fetch(
     `https://api.telegram.org/bot${
       process.env.ROGER_TOKEN_BOT
     }/sendMessage?chat_id=${userTelegramId}&text=${getHurryUpMessage()}`,
-    { method: "POST" }
+    { method: "POST" },
   );
 };
 
 export const sendThatsItMessage = async (
-  userTelegramId: string
+  userTelegramId: string,
 ): Promise<void> => {
   await fetch(
     `https://api.telegram.org/bot${
       process.env.ROGER_TOKEN_BOT
     }/sendMessage?chat_id=${userTelegramId}&text=${getThatsItMessage()}`,
-    { method: "POST" }
+    { method: "POST" },
   );
 };
 
 export const deleteMarkupKeyboard = async (
   userTelegramId: string,
-  messageId: number
+  messageId: number,
 ) => {
   return await fetch(
     `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/editMessageReplyMarkup?chat_id=${userTelegramId}&message_id=${messageId}&reply_markup=`,
-    { method: "POST" }
+    { method: "POST" },
   );
 };
 
 export const sendMoodMessage = async (
-  userTelegramId: string
+  userTelegramId: string,
 ): Promise<TgMessage | null> => {
   const context: APILogContext = {
     stage: APILogStage.ASK_MOOD,
@@ -209,9 +209,9 @@ export const sendMoodMessage = async (
       `https://api.telegram.org/bot${
         process.env.ROGER_TOKEN_BOT
       }/sendMessage?chat_id=${userTelegramId}&text=${getMoodMessage()}&parse_mode=Markdown&reply_markup=${JSON.stringify(
-        buttons
+        buttons,
       )}`,
-      { method: "POST" }
+      { method: "POST" },
     );
 
     const data: TgResponse = await resp.json();
@@ -301,7 +301,7 @@ export const getUser2023Stata = async (userId: ObjectId) => {
           },
         };
       },
-      {}
+      {},
     ),
     messages: {},
     userCreatedAt: new Date(user.created_at),
@@ -334,7 +334,7 @@ export const getUser2023Stata = async (userId: ObjectId) => {
     result.general.averageUserTotalRates =
       statistic.users_rate_2023.reduce(
         (accum, currValue) => accum + currValue,
-        0
+        0,
       ) / statistic.users_rate_2023.length;
 
     const getValidIndex = ([left, curr, right]: [number, number, number]) => {
@@ -351,11 +351,11 @@ export const getUser2023Stata = async (userId: ObjectId) => {
     // Fallback values
     const mentalFallbacks: [number, number, number] = [
       statistic.users_rate_2023.lastIndexOf(
-        result.general.totalRatesWithMood - 1
+        result.general.totalRatesWithMood - 1,
       ),
       statistic.users_rate_2023.lastIndexOf(result.general.totalRatesWithMood),
       statistic.users_rate_2023.lastIndexOf(
-        result.general.totalRatesWithMood + 1
+        result.general.totalRatesWithMood + 1,
       ),
     ];
     result.general.userMentalRating = getValidIndex(mentalFallbacks) + 1;
@@ -363,7 +363,7 @@ export const getUser2023Stata = async (userId: ObjectId) => {
     // Fallback values
     const rates = Object.values(messages).reduce(
       (acc, currValue) => acc + currValue.total_dislike + currValue.total_like,
-      0
+      0,
     );
     const ratesFallbacks: [number, number, number] = [
       statistic.support_rates_2023.lastIndexOf(rates - 1),

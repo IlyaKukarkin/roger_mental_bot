@@ -42,7 +42,7 @@ const Results2023 = ({ statistic }: Props) => {
   }, [index, transRef]);
 
   const pages: ((
-    props: AnimatedProps<{ style: CSSProperties }>
+    props: AnimatedProps<{ style: CSSProperties }>,
   ) => React.ReactElement)[] = [
     ({ style }) => (
       <animated.div style={{ ...style }}>
@@ -80,15 +80,15 @@ const Results2023 = ({ statistic }: Props) => {
   ];
 
   return (
-    <div className="flex items-center justify-center h-screen pt-24 relative bg-gray-800 text-gray-100 ">
-      <div className="absolute top-0 w-full z-40">
+    <div className="relative flex h-screen items-center justify-center bg-gray-800 text-gray-100 md:pt-24 ">
+      <div className="absolute top-0 z-40 w-full">
         <Timeline currIndex={index} />
       </div>
       <div
-        className={`aspect-[9/16] w-auto rounded-xl bg-gray-900 text-gray-100 relative ${styles.story}`}
+        className={`relative h-full w-full rounded-xl bg-gray-900 text-gray-100 md:aspect-[9/16] md:h-[calc(100%-64px)] md:w-auto`}
       >
         <div
-          className={`text-center h-full w-full flex flex-col justify-center items-center cursor-pointer ${styles.container}`}
+          className={`flex h-full w-full cursor-pointer flex-col items-center justify-center text-center ${styles.container}`}
           onClick={onClick}
         >
           {transitions((style, i) => {

@@ -9,7 +9,7 @@ type Props = Pick<
 const Mood = ({ totalRates, totalRatesWithMood, userMentalRating }: Props) => {
   const percentageOfRates = useMemo(
     () => Math.ceil((totalRatesWithMood / totalRates) * 100),
-    [totalRatesWithMood, totalRates]
+    [totalRatesWithMood, totalRates],
   );
 
   const percentMessage = useMemo(() => {

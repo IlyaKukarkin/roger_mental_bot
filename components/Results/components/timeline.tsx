@@ -14,13 +14,13 @@ const Timeline = ({ currIndex }: { currIndex: number }) => {
   };
 
   return (
-    <div className="mt-4 p-4 space-y-2 flex justify-center">
+    <div className="mt-4 flex justify-center space-y-2 p-4">
       <div className="flex max-w-xs space-x-3">
         {tempArray.map((_, index) => {
           return (
             <span
               key={index}
-              className={`w-12 h-2 rounded-sm ${getItemColor(index)}`}
+              className={`h-2 w-12 rounded-sm ${getItemColor(index)}`}
             ></span>
           );
         })}

@@ -4,7 +4,7 @@ import { sendRestartSuccessNotification } from "../../lib/api/restart-success";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   if (req.method === "POST") {
     try {

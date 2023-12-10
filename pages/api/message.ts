@@ -19,7 +19,7 @@ export const config = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   switch (req.method) {
     case "GET":
@@ -40,7 +40,7 @@ export default async function handler(
       try {
         const contentType = req.headers["content-type"];
         const boundary = contentType?.slice(
-          contentType?.indexOf("boundary=") + 9
+          contentType?.indexOf("boundary=") + 9,
         );
 
         const chunks: Uint8Array[] = [];

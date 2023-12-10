@@ -1,12 +1,8 @@
 /* ToDo: use tailwind */
 .container > div {
-    will-change: transform, opacity;
-    position: absolute;
-    -webkit-user-select: none;
-    user-select: none;
-    padding: 2rem;
-  }
-
-.story { 
-  height: calc(100% - 64px);
+  will-change: transform, opacity;
+  position: absolute;
+  -webkit-user-select: none;
+  user-select: none;
+  padding: 2rem;
 }

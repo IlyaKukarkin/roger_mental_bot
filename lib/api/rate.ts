@@ -190,7 +190,7 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
     `Retrieved ${messagesArray.length} messages from the database to check ratings`,
     {
       ...logData,
-    }
+    },
   );
 
   for await (const message of messages) {
@@ -215,7 +215,7 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
             message.user_telegram_id,
             `Твоё сообщение «${message.text.slice(0, 60)}${
               message.text.length > 60 ? "..." : ""
-            }» прошло модерацию и будет показываться тем, кому это важно.%0A%0AСпасибо ❤️%0A%0AСоздать новое сообщение можно через команду /fillform`
+            }» прошло модерацию и будет показываться тем, кому это важно.%0A%0AСпасибо ❤️%0A%0AСоздать новое сообщение можно через команду /fillform`,
           );
         } catch (e) {
           log.error(
@@ -225,7 +225,7 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
               user: {
                 telegram_id: message.user_telegram_id,
               },
-            }
+            },
           );
         }
       } else {
@@ -264,12 +264,12 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
   if (updateToApproved.length !== 0) {
     const resultApprove = await messagesCol.updateMany(
       filterToApproved,
-      docToApproved
+      docToApproved,
     );
 
     log.info(
       `Updated ${resultApprove.modifiedCount} messages to status "Approve"`,
-      { ...logData }
+      { ...logData },
     );
   } else {
     log.info(`Updated 0 messages to status "Approve"`, { ...logData });
@@ -278,12 +278,12 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
   if (updateToReview.length !== 0) {
     const resultReview = await messagesCol.updateMany(
       filterToReview,
-      docToReview
+      docToReview,
     );
 
     log.info(
       `Updated ${resultReview.modifiedCount} messages to status "Review"`,
-      { ...logData }
+      { ...logData },
     );
   } else {
     log.info(`Updated 0 messages to status "Review"`, { ...logData });
@@ -297,7 +297,7 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
 
 const calculateRate = (
   message: MessageToRate,
-  settings: Settings
+  settings: Settings,
 ): MessageToRate => {
   const {
     approve_number,

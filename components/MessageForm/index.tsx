@@ -226,13 +226,13 @@ const MessageForm = ({ user }: Props) => {
     }
 
     return (
-      <div className="grid grid-cols-3 md:grid-cols-4 relative gap-2 mt-2">
+      <div className="relative mt-2 grid grid-cols-3 gap-2 md:grid-cols-4">
         {Object.values(images)
           .slice(0, 10)
           .map((img: File, index) => {
             return (
               <div key={img.name} className="relative aspect-video">
-                <div className="relative w-full z-10 flex justify-end">
+                <div className="relative z-10 flex w-full justify-end">
                   <button
                     type="button"
                     disabled={submitting}
@@ -245,7 +245,7 @@ const MessageForm = ({ user }: Props) => {
                         payload: tempArr,
                       });
                     }}
-                    className="text-violet-400 dark:text-violet-400 hover:cursor-pointer hover:text-violet-500 hover:dark:text-violet-500"
+                    className="text-violet-400 hover:cursor-pointer hover:text-violet-500 dark:text-violet-400 hover:dark:text-violet-500"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -253,7 +253,7 @@ const MessageForm = ({ user }: Props) => {
                       viewBox="0 0 24 24"
                       strokeWidth={1.5}
                       stroke="currentColor"
-                      className="w-6 h-6"
+                      className="h-6 w-6"
                     >
                       <path
                         strokeLinecap="round"
@@ -268,7 +268,7 @@ const MessageForm = ({ user }: Props) => {
                   alt=""
                   fill
                   sizes="122px"
-                  className="w-20 h-20 bg-center object-cover bg-cover rounded-md dark:bg-gray-500 dark:bg-gray-700"
+                  className="h-20 w-20 rounded-md bg-cover bg-center object-cover dark:bg-gray-500 dark:bg-gray-700"
                 />
               </div>
             );
@@ -334,9 +334,9 @@ const MessageForm = ({ user }: Props) => {
   const renderSuccess = useMemo(() => {
     if (submitResult === SubmitResult.SUCCESS) {
       return (
-        <div className="absolute top-0 left-0 right-0 bottom-0 rounded-md backdrop-blur-sm z-10 w-full h-full">
-          <div className="relative top-1/3 left-[10%] md:left-1/4 p-6 rounded-md right-[10%] md:right-1/4 bottom-1/4 w-[80%] md:w-1/2 flex flex-col gap-6 shadow-md bg-gray-100 dark:bg-gray-900 dark:text-gray-100">
-            <h2 className="text-2xl font-semibold text-center leading-tight tracking-wide">
+        <div className="absolute top-0 left-0 right-0 bottom-0 z-10 h-full w-full rounded-md backdrop-blur-sm">
+          <div className="relative top-1/3 left-[10%] right-[10%] bottom-1/4 flex w-[80%] flex-col gap-6 rounded-md bg-gray-100 p-6 shadow-md dark:bg-gray-900 dark:text-gray-100 md:left-1/4 md:right-1/4 md:w-1/2">
+            <h2 className="text-center text-2xl font-semibold leading-tight tracking-wide">
               Спасибо!
             </h2>
             <p className="flex-1 text-center dark:text-gray-400">
@@ -344,7 +344,7 @@ const MessageForm = ({ user }: Props) => {
             </p>
             <button
               type="button"
-              className="px-8 py-3 font-semibold rounded bg-violet-400 dark:bg-violet-400 dark:text-gray-900"
+              className="rounded bg-violet-400 px-8 py-3 font-semibold dark:bg-violet-400 dark:text-gray-900"
               onClick={() => {
                 window.location.href = "https://telegram.me/RogerMentalBot";
                 window.close();
@@ -361,15 +361,15 @@ const MessageForm = ({ user }: Props) => {
   }, [submitResult]);
 
   return (
-    <section className="p-6 h-full min-h-screen max-h-screen flex justify-center items-center dark:text-gray-100 dark:bg-gray-800">
+    <section className="flex h-full max-h-screen min-h-screen items-center justify-center p-6 dark:bg-gray-800 dark:text-gray-100">
       {renderAlert}
       <form
         noValidate={true}
         onSubmit={handleSubmit}
-        className="container relative w-full max-w-xl p-2 md:p-8 mx-auto space-y-6 rounded-md shadow bg-gray-100 dark:bg-gray-900 ng-untouched ng-pristine ng-valid"
+        className="ng-untouched ng-pristine ng-valid container relative mx-auto w-full max-w-xl space-y-6 rounded-md bg-gray-100 p-2 shadow dark:bg-gray-900 md:p-8"
       >
         {renderSuccess}
-        <h2 className="w-full text-center text-2xl md:text-3xl font-bold leading-tight">
+        <h2 className="w-full text-center text-2xl font-bold leading-tight md:text-3xl">
           Поделись хорошим настроением
         </h2>
 
@@ -407,7 +407,7 @@ const MessageForm = ({ user }: Props) => {
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
-                    className="w-4 h-4"
+                    className="h-4 w-4"
                   >
                     <path
                       strokeLinecap="round"
@@ -427,7 +427,7 @@ const MessageForm = ({ user }: Props) => {
                     ? "Аноним"
                     : user.name
                 }
-                className="w-full py-2 pl-10 text-sm rounded-md focus:outline-none dark:bg-gray-800 dark:text-gray-100 focus:dark:bg-gray-900 focus:border-violet-400"
+                className="w-full rounded-md py-2 pl-10 text-sm focus:border-violet-400 focus:outline-none dark:bg-gray-800 dark:text-gray-100 focus:dark:bg-gray-900"
               />
             </div>
           </fieldset>
@@ -439,7 +439,7 @@ const MessageForm = ({ user }: Props) => {
             disabled={user.name === ADMIN_USER}
             defaultChecked={anonymous}
             onChange={() => dispatch({ type: ActionType.CHANGE_ANONYMOUS })}
-            className="mr-1 rounded-sm focus:ring-violet-400 focus:border-violet-400 focus:ring-2 accent-violet-400"
+            className="mr-1 rounded-sm accent-violet-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-400"
           />
           <label htmlFor="anonymous" className="text-sm dark:text-gray-400">
             Заполнить анонимно?
@@ -448,7 +448,7 @@ const MessageForm = ({ user }: Props) => {
         <div>
           <label
             htmlFor="message"
-            className="block text-sm font-medium mb-1 ml-1"
+            className="mb-1 ml-1 block text-sm font-medium"
           >
             Напиши слова поддержки
           </label>
@@ -464,7 +464,7 @@ const MessageForm = ({ user }: Props) => {
             }
             maxLength={5000}
             placeholder="Привет! Когда у меня плохое настроение, я открываю плейлист по ссылке и представляю, что я маленький корабль в океане..."
-            className={`block w-full max-h-96 min-h-12 h-32 md:h-24 p-2 rounded autoexpand focus:outline-none focus:ring-violet-400 focus:dark:bg-gray-900 focus:border-violet-400 dark:bg-gray-800 ${
+            className={`min-h-12 autoexpand block h-32 max-h-96 w-full rounded p-2 focus:border-violet-400 focus:outline-none focus:ring-violet-400 dark:bg-gray-800 focus:dark:bg-gray-900 md:h-24 ${
               formSubmitted && !message ? ERROR_INPUT_STYLES : ""
             }`}
           ></textarea>
@@ -482,7 +482,7 @@ const MessageForm = ({ user }: Props) => {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-4 h-4"
+                  className="h-4 w-4"
                 >
                   <path
                     strokeLinecap="round"
@@ -505,7 +505,7 @@ const MessageForm = ({ user }: Props) => {
                   })
                 }
                 placeholder="https://youtu.be/o-YBDTqX_ZU"
-                className={`w-full py-2 pl-10 text-sm rounded-md focus:outline-none focus:ring-violet-400 dark:bg-gray-800 dark:text-gray-100 focus:dark:bg-gray-900 focus:border-violet-400 ${
+                className={`w-full rounded-md py-2 pl-10 text-sm focus:border-violet-400 focus:outline-none focus:ring-violet-400 dark:bg-gray-800 dark:text-gray-100 focus:dark:bg-gray-900 ${
                   formSubmitted && linkError ? ERROR_INPUT_STYLES : ""
                 }`}
               />
@@ -532,7 +532,7 @@ const MessageForm = ({ user }: Props) => {
                     payload: Object.values(fileInput.current?.files || {}),
                   })
                 }
-                className={`w-full px-2 md:px-8 py-2 bg-white border-dark-500 border border-dashed rounded-md dark:border-gray-700 focus:ring-violet-400 focus:outline-none dark:border-2 dark:text-gray-400 dark:bg-gray-800 focus:dark:bg-gray-900 focus:border-violet-400 ${
+                className={`border-dark-500 w-full rounded-md border border-dashed bg-white px-2 py-2 focus:border-violet-400 focus:outline-none focus:ring-violet-400 dark:border-2 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 focus:dark:bg-gray-900 md:px-8 ${
                   formSubmitted && imagesError !== ImagesError.VALID
                     ? ERROR_INPUT_STYLES
                     : ""
@@ -547,14 +547,14 @@ const MessageForm = ({ user }: Props) => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full px-4 py-2 h-10 font-bold rounded shadow focus:outline-none focus:ring focus:ring-opacity-50
-            bg-violet-400 focus:ring-violet-400 hover:bg-violet-500 text-gray-900 disabled:dark:bg-gray-800 disabled:bg-gray-200"
+            className="h-10 w-full rounded bg-violet-400 px-4 py-2 font-bold text-gray-900 shadow hover:bg-violet-500
+            focus:outline-none focus:ring focus:ring-violet-400 focus:ring-opacity-50 disabled:bg-gray-200 disabled:dark:bg-gray-800"
           >
             {submitting ? (
               <div className="flex items-center justify-center space-x-2">
-                <div className="w-4 h-4 rounded-full animate-pulse bg-violet-400 dark:bg-violet-400"></div>
-                <div className="w-4 h-4 rounded-full animate-pulse bg-violet-400 dark:bg-violet-400"></div>
-                <div className="w-4 h-4 rounded-full animate-pulse bg-violet-400 dark:bg-violet-400"></div>
+                <div className="h-4 w-4 animate-pulse rounded-full bg-violet-400 dark:bg-violet-400"></div>
+                <div className="h-4 w-4 animate-pulse rounded-full bg-violet-400 dark:bg-violet-400"></div>
+                <div className="h-4 w-4 animate-pulse rounded-full bg-violet-400 dark:bg-violet-400"></div>
               </div>
             ) : (
               "Отправить"

@@ -41,7 +41,7 @@ export type MessageWithRates = Message & {
 };
 
 export const checkFormId = async (
-  form_id: string = ""
+  form_id: string = "",
 ): Promise<User | null> => {
   if (!form_id || !ObjectId.isValid(form_id)) {
     return null;
@@ -100,7 +100,7 @@ export const uploadImage = async (image: ImageData): Promise<any> => {
               },
             },
           },
-        })
+        }),
       )
       .then((asset: Asset) => {
         const link: Link<"Tag"> = {
@@ -205,7 +205,7 @@ export const submitForm = async ({
         $set: {
           form_id: new ObjectId(),
         },
-      }
+      },
     );
   }
 
@@ -221,13 +221,13 @@ export const submitForm = async ({
 
   await fetch(
     `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend}`,
-    { method: "POST" }
+    { method: "POST" },
   );
 
   if (messageCount === 0) {
     await fetch(
       `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend2}`,
-      { method: "POST" }
+      { method: "POST" },
     );
   }
 };

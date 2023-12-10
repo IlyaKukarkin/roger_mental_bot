@@ -2,7 +2,7 @@ import React, { PropsWithChildren } from "react";
 
 const PageLayout = ({ children }: PropsWithChildren) => {
   return (
-    <section className="p-6 h-full min-h-screen flex justify-center items-center dark:bg-gray-800 dark:text-gray-50">
+    <section className="flex h-full min-h-screen items-center justify-center p-6 dark:bg-gray-800 dark:text-gray-50">
       {children}
     </section>
   );
