@@ -85,7 +85,7 @@ const Results2023 = ({ statistic }: Props) => {
         <Timeline currIndex={index} />
       </div>
       <div
-        className={`relative h-full w-full rounded-xl bg-gray-900 text-gray-100 md:aspect-[9/16] md:h-[calc(100%-64px)] md:w-auto`}
+        className={`relative h-full w-full md:rounded-xl bg-gray-900 text-gray-100 md:aspect-[9/16] md:h-[calc(100%-64px)] md:w-auto`}
       >
         <div
           className={`flex h-full w-full cursor-pointer flex-col items-center justify-center text-center ${styles.container}`}
