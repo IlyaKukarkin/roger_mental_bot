@@ -80,7 +80,7 @@ export const askMood = async (): Promise<Boolean> => {
     `Retrieved ${users.length} users from the database, time has come for ${usersToSend.length} users`,
     {
       ...logData,
-    }
+    },
   );
 
   await Promise.all(
@@ -124,7 +124,7 @@ export const askMood = async (): Promise<Boolean> => {
           error: logError,
         });
       }
-    })
+    }),
   );
 
   return true;

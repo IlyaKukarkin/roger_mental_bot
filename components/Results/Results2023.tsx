@@ -12,6 +12,7 @@ import Mood from "./components/mood";
 import Calendar from "./components/calendar";
 import Support from "./components/support";
 import End from "./components/end";
+import Timeline from "./components/timeline";
 
 import styles from "./styles.module.css";
 
@@ -19,7 +20,8 @@ type Props = {
   statistic: User2023Stata;
 };
 
-const TIME_PER_PAGE = 5000;
+export const NUMBER_OF_PAGES = 5;
+export const TIME_PER_PAGE = 5000;
 
 const Results2023 = ({ statistic }: Props) => {
   const { general, messages, months, userCreatedAt } = statistic;
@@ -37,10 +39,10 @@ const Results2023 = ({ statistic }: Props) => {
 
   useEffect(() => {
     transRef.start();
-  }, [index]);
+  }, [index, transRef]);
 
   const pages: ((
-    props: AnimatedProps<{ style: CSSProperties }>
+    props: AnimatedProps<{ style: CSSProperties }>,
   ) => React.ReactElement)[] = [
     ({ style }) => (
       <animated.div style={{ ...style }}>
@@ -78,14 +80,23 @@ const Results2023 = ({ statistic }: Props) => {
   ];
 
   return (
-    <div
-      className={`text-center dark:bg-gray-900 dark:text-gray-100 ${styles.container}`}
-      onClick={onClick}
-    >
-      {transitions((style, i) => {
-        const Page = pages[i];
-        return <Page style={style} />;
-      })}
+    <div className="relative flex h-screen items-center justify-center bg-gray-800 text-gray-100 md:pt-24 ">
+      <div className="absolute top-0 z-40 w-full">
+        <Timeline currIndex={index} />
+      </div>
+      <div
+        className={`relative h-full w-full md:rounded-xl bg-gray-900 text-gray-100 md:aspect-[9/16] md:h-[calc(100%-64px)] md:w-auto`}
+      >
+        <div
+          className={`flex h-full w-full cursor-pointer flex-col items-center justify-center text-center ${styles.container}`}
+          onClick={onClick}
+        >
+          {transitions((style, i) => {
+            const Page = pages[i];
+            return <Page style={style} />;
+          })}
+        </div>
+      </div>
     </div>
   );
 };

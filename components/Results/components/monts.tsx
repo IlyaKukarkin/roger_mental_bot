@@ -44,7 +44,7 @@ const Months = ({ months }: Props) => {
         Ты поставил{" "}
         {Object.values(months[bestMonth]).reduce(
           (accum, currValue, index) => accum + (index ? currValue : 0),
-          0
+          0,
         )}{" "}
         оценки — из них {months[bestMonth][4]} зелёных и {months[bestMonth][3]}{" "}
         желтых
@@ -58,7 +58,7 @@ const Months = ({ months }: Props) => {
         Ты поставил{" "}
         {Object.values(months[worthMonth]).reduce(
           (accum, currValue, index) => accum + (index ? currValue : 0),
-          0
+          0,
         )}{" "}
         оценки — из них {months[worthMonth][1]} красных и{" "}
         {months[worthMonth][2]} оранжевых

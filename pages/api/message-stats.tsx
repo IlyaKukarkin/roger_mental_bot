@@ -241,7 +241,7 @@ export default async function handler(req: NextRequest) {
         {
           width: 1200,
           height: 630,
-        }
+        },
       );
     }
 
@@ -263,7 +263,7 @@ export default async function handler(req: NextRequest) {
                     text,
                     link && link_image && link_title
                       ? TYPE.IMAGE_OR_LINK
-                      : TYPE.TEXT
+                      : TYPE.TEXT,
                   )}
                 </div>
                 <div tw="flex mt-8">
@@ -288,7 +288,7 @@ export default async function handler(req: NextRequest) {
         {
           width: 1200,
           height: 630,
-        }
+        },
       );
     }
 
@@ -306,7 +306,9 @@ export default async function handler(req: NextRequest) {
               {renderText(
                 "Слова поддержки:",
                 text,
-                link && link_image && link_title ? TYPE.ALL : TYPE.IMAGE_OR_LINK
+                link && link_image && link_title
+                  ? TYPE.ALL
+                  : TYPE.IMAGE_OR_LINK,
               )}
               {link &&
                 link_image &&
@@ -329,7 +331,7 @@ export default async function handler(req: NextRequest) {
       {
         width: 1200,
         height: 630,
-      }
+      },
     );
   } catch (e: any) {
     console.log(`${e.message}`);

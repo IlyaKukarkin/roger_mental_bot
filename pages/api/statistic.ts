@@ -12,13 +12,13 @@ export const config = {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   switch (req.method) {
     case "GET":
       try {
         const stata = await getUser2023Stata(
-          new ObjectId(req.query.user_id as string)
+          new ObjectId(req.query.user_id as string),
         );
 
         if (stata) {

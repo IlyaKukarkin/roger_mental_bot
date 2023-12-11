@@ -21,18 +21,18 @@ const Support = ({ messages, months, userSupportRating }: Props) => {
     () =>
       Object.values(messages).reduce(
         (acc, currValue) => acc + currValue.likes,
-        0
+        0,
       ),
-    [messages]
+    [messages],
   );
 
   const countMessageShows = useMemo(
     () =>
       Object.values(messages).reduce(
         (acc, currValue) => acc + currValue.rates,
-        0
+        0,
       ),
-    [messages]
+    [messages],
   );
 
   return (

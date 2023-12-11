@@ -125,7 +125,7 @@ export default async function handler(req: NextRequest) {
           skip: acc.skip + 1,
         };
       },
-      { red: 0, orange: 0, yellow: 0, green: 0, skip: 0 }
+      { red: 0, orange: 0, yellow: 0, green: 0, skip: 0 },
     );
 
     const calcRed = Math.round((Number(red) / Number(total)) * 100);
@@ -193,7 +193,7 @@ export default async function handler(req: NextRequest) {
 
         return agr;
       },
-      [0, 0, 0, 0, 0, 0, 0]
+      [0, 0, 0, 0, 0, 0, 0],
     );
 
     const max = Math.max(...countGoodDays);
@@ -283,7 +283,7 @@ export default async function handler(req: NextRequest) {
 
         return agr;
       },
-      [0, 0, 0, 0, 0, 0, 0]
+      [0, 0, 0, 0, 0, 0, 0],
     );
 
     const max = Math.max(...countBadDays);
@@ -415,7 +415,7 @@ export default async function handler(req: NextRequest) {
         {
           width: 1200,
           height: 630,
-        }
+        },
       );
     }
 
@@ -450,7 +450,7 @@ export default async function handler(req: NextRequest) {
       {
         width: 1200,
         height: 630,
-      }
+      },
     );
   } catch (e: any) {
     console.log(`${e.message}`);

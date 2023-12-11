@@ -53,7 +53,7 @@ const Calendar = ({ data }: Props) => {
     <div tw="flex flex-col">
       {renderTitle()}
       {splitToWeeks(data, data.length).map((week: Data[], index) =>
-        renderRow(week, index)
+        renderRow(week, index),
       )}
     </div>
   );

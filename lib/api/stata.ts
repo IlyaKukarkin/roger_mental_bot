@@ -121,7 +121,7 @@ export const updateUserRateStatistics = async (): Promise<void> => {
     `Retrieved ${users.length} messages from the database to update statistic`,
     {
       ...logData,
-    }
+    },
   );
 
   const statistic: Statistics = await statisticCol.findOne();
@@ -146,7 +146,7 @@ export const updateUserRateStatistics = async (): Promise<void> => {
         users_rate_2week: updateWeek2,
         users_rate_week: updateWeek,
       },
-    }
+    },
   );
 };
 
@@ -239,7 +239,7 @@ export const update2023Statistics = async (): Promise<void> => {
 
   const [cursorUsers, cursorMessages]: [
     FindCursor<User2023>,
-    FindCursor<Rates2023>
+    FindCursor<Rates2023>,
   ] = await Promise.all([prepareUsers, prepareMessages]);
 
   const [users, rates] = await Promise.all([
@@ -251,22 +251,22 @@ export const update2023Statistics = async (): Promise<void> => {
     `Retrieved ${users.length} users from the database to update 2023 statistic`,
     {
       ...logData,
-    }
+    },
   );
   log.info(
     `Retrieved ${rates.length} rates from the database to update 2023 statistic`,
     {
       ...logData,
-    }
+    },
   );
 
   const statistic: Statistics = await statisticCol.findOne();
 
   const users_rate_2023: number[] = users.map((user) =>
-    Number(user.mental_rate_2023)
+    Number(user.mental_rate_2023),
   );
   const support_rates_2023: number[] = rates.map((rate) =>
-    Number(rate.totalRates)
+    Number(rate.totalRates),
   );
 
   users_rate_2023.sort((a, b) => b - a);
@@ -281,7 +281,7 @@ export const update2023Statistics = async (): Promise<void> => {
         users_rate_2023,
         support_rates_2023,
       },
-    }
+    },
   );
 };
 
