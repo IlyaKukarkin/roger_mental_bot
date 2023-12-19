@@ -151,7 +151,7 @@ def get_date_range(
     from_date = datetime.strptime(
         str(from_date_str), '%Y-%m-%d %H:%M:%S%z')
 
-    return [from_date, date_now_clear]
+    return [from_date, date_now]
 
 
 def get_statistic_data(
