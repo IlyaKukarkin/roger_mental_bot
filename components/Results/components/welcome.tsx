@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 
 import { User2023Stata } from "../../../lib/api/users";
+import { BOT_LINK } from "../../../utils/constants";
 
 type Props = Pick<User2023Stata, "userCreatedAt">;
 
@@ -11,11 +12,31 @@ const Welcome = ({ userCreatedAt }: Props) => {
   };
 
   return (
-    <p>
-      Твоя стата за год от t.me/rogermentalbot за{" "}
-      {startDate(new Date(userCreatedAt)).toLocaleDateString()} -{" "}
-      {new Date().toLocaleDateString()}
-    </p>
+    <div className="flex flex-col items-center justify-center gap-10">
+      <img
+        alt=""
+        className="ri ri ri ri h-12 w-12 rounded-full dark:bg-gray-500"
+        src="https://source.unsplash.com/40x40/?portrait?1"
+      />
+
+      <div>
+        <p>
+          Твоя стата за год от{" "}
+          <a
+            rel="noopener noreferrer"
+            href={BOT_LINK}
+            target="_blank"
+            className="underline dark:text-violet-400"
+          >
+            <span>Roger Mental Bot</span>
+          </a>
+          <br />
+          за {/* // ToDo: make dynamic/animated numbers for Date here */}
+          {startDate(new Date(userCreatedAt)).toLocaleDateString()} -{" "}
+          {new Date().toLocaleDateString()}
+        </p>
+      </div>
+    </div>
   );
 };
 

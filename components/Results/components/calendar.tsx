@@ -27,6 +27,7 @@ const Calendar = ({ months }: Props) => {
   return (
     <>
       <p>Как тебе запомнился каждый месяц</p>
+      <br />
       <div className="grid grid-cols-4 grid-rows-3 gap-6">
         {Object.entries(months).map(([month, data]) => {
           return (
