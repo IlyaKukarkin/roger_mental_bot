@@ -11,9 +11,14 @@ module.exports = {
           "0%": { transform: "translateY(-20px)" },
           "100%": { transform: "translateY(0px)" },
         },
+        warp: {
+          "0%": { translate: "-50% 100cqmax;" },
+          "100%": { translate: "-50% -100%;" },
+        },
       },
       animation: {
         alert: "alert 0.25s ease-out",
+        warp: "warp 1s linear",
       },
     },
   },
