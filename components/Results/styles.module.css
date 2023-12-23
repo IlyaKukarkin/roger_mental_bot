@@ -1,5 +1,5 @@
 /* ToDo: use tailwind */
-.container > div {
+.page {
   will-change: transform, opacity;
   position: absolute;
   -webkit-user-select: none;

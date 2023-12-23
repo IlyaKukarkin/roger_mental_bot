@@ -27,7 +27,6 @@ const Results2023 = ({ statistic }: Props) => {
   const { general, messages, months, userCreatedAt } = statistic;
 
   const [index, set] = useState(0);
-  const onClick = () => set((state) => (state + 1) % 5);
   const transRef = useSpringRef();
   const transitions = useTransition(index, {
     ref: transRef,
@@ -37,7 +36,21 @@ const Results2023 = ({ statistic }: Props) => {
     leave: { opacity: 0, transform: "translate3d(-50%,0,0)" },
   });
 
+  const onPrevClick = () => {
+    if (index !== 0) {
+      set((prev) => prev - 1);
+    }
+  };
+
+  const onNextClick = () => {
+    if (index !== NUMBER_OF_PAGES - 1) {
+      set((prev) => prev + 1);
+    }
+  };
+
   useEffect(() => {
+    console.log("HERE: ", index);
+
     transRef.start();
   }, [index, transRef]);
 
@@ -45,12 +58,12 @@ const Results2023 = ({ statistic }: Props) => {
     props: AnimatedProps<{ style: CSSProperties }>,
   ) => React.ReactElement)[] = [
     ({ style }) => (
-      <animated.div style={{ ...style }}>
+      <animated.div className={styles.page} style={{ ...style }}>
         <Welcome userCreatedAt={userCreatedAt} />
       </animated.div>
     ),
     ({ style }) => (
-      <animated.div style={{ ...style }}>
+      <animated.div className={styles.page} style={{ ...style }}>
         <Mood
           totalRates={general.totalRates}
           totalRatesWithMood={general.totalRatesWithMood}
@@ -59,12 +72,12 @@ const Results2023 = ({ statistic }: Props) => {
       </animated.div>
     ),
     ({ style }) => (
-      <animated.div style={{ ...style }}>
+      <animated.div className={styles.page} style={{ ...style }}>
         <Calendar months={months} />
       </animated.div>
     ),
     ({ style }) => (
-      <animated.div style={{ ...style }}>
+      <animated.div className={styles.page} style={{ ...style }}>
         <Support
           months={months}
           messages={messages}
@@ -73,7 +86,7 @@ const Results2023 = ({ statistic }: Props) => {
       </animated.div>
     ),
     ({ style }) => (
-      <animated.div style={{ ...style }}>
+      <animated.div className={styles.page} style={{ ...style }}>
         <End />
       </animated.div>
     ),
@@ -88,9 +101,70 @@ const Results2023 = ({ statistic }: Props) => {
         className={`relative h-full w-full bg-gray-900 text-gray-100 md:aspect-[9/16] md:h-[calc(100%-64px)] md:w-auto md:rounded-xl`}
       >
         <div
-          className={`flex h-full w-full cursor-pointer flex-col items-center justify-center text-center ${styles.container}`}
-          onClick={onClick}
+          className={`flex h-full w-full flex-col items-center justify-center text-center ${styles.container}`}
         >
+          {/* Mobile controls */}
+          <div
+            className="absolute top-0 left-0 right-1/2 bottom-0 z-30 md:hidden"
+            onClick={onPrevClick}
+          />
+          <div
+            className="absolute top-0 left-1/2 right-0 bottom-0 z-30 md:hidden"
+            onClick={onNextClick}
+          />
+
+          {/* Desctop controls */}
+          <div className="absolute left-[-64px] hidden md:block">
+            <button
+              aria-label="Slide back"
+              type="button"
+              onClick={onPrevClick}
+              className="focus:ri z-30 rounded-full bg-opacity-50 p-2 focus:outline-none dark:bg-gray-900 focus:dark:bg-gray-400"
+            >
+              <svg
+                width="8"
+                height="14"
+                fill="none"
+                viewBox="0 0 8 14"
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+              >
+                <path
+                  d="M7 1L1 7L7 13"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                ></path>
+              </svg>
+            </button>
+          </div>
+          <div className="absolute right-[-64px] hidden md:block">
+            <button
+              aria-label="Slide forward"
+              id="next"
+              onClick={onNextClick}
+              className="focus:ri z-30 rounded-full bg-opacity-50 p-2 focus:outline-none dark:bg-gray-900 focus:dark:bg-gray-400"
+            >
+              <svg
+                width="8"
+                height="14"
+                viewBox="0 0 8 14"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+              >
+                <path
+                  d="M1 1L7 7L1 13"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                ></path>
+              </svg>
+            </button>
+          </div>
+
           {transitions((style, i) => {
             const Page = pages[i];
             return <Page style={style} />;

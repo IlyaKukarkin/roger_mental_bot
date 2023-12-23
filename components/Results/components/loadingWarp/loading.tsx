@@ -16,9 +16,9 @@ const CONFIG = {
 
 const randomFromRange = (from: number, to: number): number => {
   // ToDo: make this function((
-  console.log(Math.floor(Math.random() * 100));
-  const temp = new Array(to - from).fill(0);
-  console.log(Math.random().toString().slice(2).slice(-2));
+  // console.log(Math.floor(Math.random() * 100));
+  // const temp = new Array(to - from).fill(0);
+  // console.log(Math.random().toString().slice(2).slice(-2));
   return 0;
 };
 
@@ -31,7 +31,7 @@ const Loading = () => {
   const SIDES = [topRef, rightRef, bottomRef, leftRef] as const;
 
   useEffect(() => {
-    randomFromRange(0, 0);
+    // randomFromRange(0, 0);
 
     let hue = 0,
       x = 0,
