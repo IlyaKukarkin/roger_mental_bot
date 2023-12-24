@@ -92,6 +92,12 @@ const Results2023 = ({ statistic }: Props) => {
 
   return (
     <div className="relative flex h-screen items-center justify-center bg-gray-800 text-gray-100 md:pt-24">
+      <div className="invisible absolute top-0 left-0 right-0 bottom-0 z-50 flex h-full w-full flex-col items-center justify-center bg-gray-900 text-center landscape:visible">
+        <span className="text-4xl">↩️</span>
+        <span className="text-xl">
+          Переверни телефон, чтобы увидеть свою статистику за год
+        </span>
+      </div>
       <div className="absolute top-0 z-40 w-full">
         <Timeline currIndex={index} />
       </div>

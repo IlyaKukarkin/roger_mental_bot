@@ -6,6 +6,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        landscape: { raw: "(orientation: landscape)" },
+      },
       keyframes: {
         alert: {
           "0%": { transform: "translateY(-20px)" },

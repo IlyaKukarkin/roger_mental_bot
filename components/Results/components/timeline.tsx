@@ -1,17 +1,13 @@
-import React, { memo } from "react";
+import React, { memo, useState, useEffect } from "react";
+import useMeasure from "react-use-measure";
+import { useSpring, animated } from "@react-spring/web";
 
 import { NUMBER_OF_PAGES } from "../Results2023";
 
 const Timeline = ({ currIndex }: { currIndex: number }) => {
   const tempArray = Array(NUMBER_OF_PAGES).fill(0);
-
-  const getItemColor = (index: number) => {
-    if (index <= currIndex) {
-      return "bg-violet-400";
-    }
-
-    return "bg-gray-600";
-  };
+  const [ref, { width }] = useMeasure();
+  const props = useSpring({ from: { width: 0 }, to: { width }, reset: true });
 
   return (
     <div className="mt-4 flex justify-center space-y-2 p-4">
@@ -19,9 +15,17 @@ const Timeline = ({ currIndex }: { currIndex: number }) => {
         {tempArray.map((_, index) => {
           return (
             <span
+              ref={ref}
               key={index}
-              className={`h-2 w-12 rounded-sm ${getItemColor(index)}`}
-            ></span>
+              className={`h-2 w-12 rounded-sm bg-gray-600`}
+            >
+              {index === currIndex && (
+                <animated.div
+                  className="h-2 rounded-sm bg-violet-400"
+                  style={props}
+                />
+              )}
+            </span>
           );
         })}
       </div>
