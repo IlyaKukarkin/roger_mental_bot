@@ -13,31 +13,40 @@ const Welcome = ({ userCreatedAt }: Props) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-10">
+    <div className="flex h-full flex-col items-center justify-evenly gap-10 font-bold">
       <Image
-        src="/android-chrome-192x192.png"
+        src="/android-chrome-512x512.png"
         className="h-32 w-32 rounded-full dark:bg-gray-500"
         alt="Roger Bot Logo"
-        width="128"
-        height="128"
+        width="200"
+        height="200"
       />
 
-      <div>
-        <p>
-          Твоя стата за год от{" "}
-          <a
-            rel="noopener noreferrer"
-            href={BOT_LINK}
-            target="_blank"
-            className="underline dark:text-violet-400"
-          >
-            <span>Roger Mental Bot</span>
-          </a>
-          <br />
-          за {/* // ToDo: make dynamic/animated numbers for Date here */}
-          {startDate(new Date(userCreatedAt)).toLocaleDateString()} -{" "}
-          {new Date().toLocaleDateString()}
-        </p>
+      <p className="text-4xl">Твоя статистика за год от Роджера</p>
+
+      <p className="text-2xl">
+        {startDate(new Date(userCreatedAt)).toLocaleDateString()} -{" "}
+        {new Date().toLocaleDateString()}
+      </p>
+
+      <p className="text-4xl">Смотри, каким был твой год 👉</p>
+
+      <div className="flex items-center gap-2">
+        <Image
+          src="/telegram.png"
+          className="h-32 w-32 rounded-full dark:bg-gray-500"
+          alt="Roger Bot Logo"
+          width="24"
+          height="24"
+        />
+        <a
+          rel="noopener noreferrer"
+          href={BOT_LINK}
+          target="_blank"
+          className=""
+        >
+          <span>@rogermentalbot</span>
+        </a>
       </div>
     </div>
   );

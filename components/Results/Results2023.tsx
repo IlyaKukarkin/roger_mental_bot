@@ -39,20 +39,16 @@ const Results2023 = ({ statistic }: Props) => {
   });
 
   useEffect(() => {
-    timerRef.current = setTimeout(() => set((prev) => prev + 1), TIME_PER_PAGE);
-  }, []);
-
-  useEffect(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
     transRef.start();
 
     if (index + 1 !== NUMBER_OF_PAGES) {
-      timerRef.current = setTimeout(
-        () => set((prev) => prev + 1),
-        TIME_PER_PAGE,
-      );
+      // timerRef.current = setTimeout(
+      //   () => set((prev) => prev + 1),
+      //   TIME_PER_PAGE,
+      // );
     }
   }, [index, transRef]);
 
@@ -132,7 +128,7 @@ const Results2023 = ({ statistic }: Props) => {
         <Timeline currIndex={index} pause={pause} />
       </div>
       <div
-        className={`relative h-full w-full select-none bg-gray-900 text-gray-100 md:aspect-[9/16] md:h-[calc(100%-64px)] md:w-auto md:rounded-xl`}
+        className={`relative h-full w-full select-none bg-results text-gray-100 md:aspect-[9/16] md:h-[calc(100%-64px)] md:w-auto md:rounded-xl`}
         onMouseDown={onPauseStart}
         onMouseUp={onPauseEnd}
       >
@@ -159,7 +155,7 @@ const Results2023 = ({ statistic }: Props) => {
               aria-label="Slide back"
               type="button"
               onClick={onPrevClick}
-              className="focus:ri z-30 rounded-full bg-opacity-50 p-2 focus:outline-none dark:bg-gray-900 focus:dark:bg-gray-400"
+              className="z-30 rounded-full bg-opacity-50 p-2 focus:outline-none dark:bg-gray-900"
             >
               <svg
                 width="8"
@@ -184,7 +180,7 @@ const Results2023 = ({ statistic }: Props) => {
               aria-label="Slide forward"
               id="next"
               onClick={onNextClick}
-              className="focus:ri z-30 rounded-full bg-opacity-50 p-2 focus:outline-none dark:bg-gray-900 focus:dark:bg-gray-400"
+              className="z-30 rounded-full bg-opacity-50 p-2 focus:outline-none dark:bg-gray-900"
             >
               <svg
                 width="8"

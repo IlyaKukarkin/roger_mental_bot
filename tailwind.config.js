@@ -6,6 +6,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        results: "#051247",
+      },
       screens: {
         landscape: {
           raw: "(orientation: landscape) and (hover: none) and (pointer: coarse)",

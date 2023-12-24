@@ -5,6 +5,8 @@
   -webkit-user-select: none;
   user-select: none;
   padding: 2rem;
+  top: 0;
+  bottom: 0;
 }
 
 .wrapper {
