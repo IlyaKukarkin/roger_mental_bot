@@ -28,6 +28,7 @@ const Results2023 = ({ statistic }: Props) => {
   const timerRef = useRef<null | NodeJS.Timeout>(null);
 
   const [index, set] = useState(0);
+  const [pause, setPause] = useState(false);
   const transRef = useSpringRef();
   const transitions = useTransition(index, {
     ref: transRef,
@@ -116,10 +117,20 @@ const Results2023 = ({ statistic }: Props) => {
         </span>
       </div>
       <div className="absolute top-0 z-40 w-full">
-        <Timeline currIndex={index} />
+        <Timeline currIndex={index} pause={pause} />
       </div>
       <div
         className={`relative h-full w-full bg-gray-900 text-gray-100 md:aspect-[9/16] md:h-[calc(100%-64px)] md:w-auto md:rounded-xl`}
+        onMouseDown={() => {
+          if (timerRef.current) {
+            clearTimeout(timerRef.current);
+          }
+          setPause(true)
+        }}
+        onMouseUp={() =>{
+          setPause(false)
+          timerRef.current = setTimeout(() => set((prev) => prev + 1), TIME_PER_PAGE);
+        }}
       >
         <div
           className={`flex h-full w-full flex-col items-center justify-center text-center ${styles.container}`}
