@@ -20,6 +20,7 @@ const Results2023Page: NextPage<Props> = ({ statistic }) => {
 
   console.log('Stata: ', statistic);
   console.log('Animation: ', showLoadingAnimation);
+  console.log('Isfallback: ', router.isFallback);
 
   useEffect(() => {
     setTimeout(() => setShowLoadingAnimation(false), 3000);
@@ -28,7 +29,7 @@ const Results2023Page: NextPage<Props> = ({ statistic }) => {
     router.replace({ query: { userid: userId } }, undefined, { shallow: true });
   }, []);
 
-  if (showLoadingAnimation || !statistic) {
+  if (showLoadingAnimation || router.isFallback) {
     return (
       <div className="relative flex h-screen items-center justify-center bg-gray-800 text-gray-100 md:pt-24">
         <div
