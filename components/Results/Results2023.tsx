@@ -49,8 +49,6 @@ const Results2023 = ({ statistic }: Props) => {
   };
 
   useEffect(() => {
-    console.log("HERE: ", index);
-
     transRef.start();
   }, [index, transRef]);
 

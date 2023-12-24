@@ -1,4 +1,5 @@
 import React, { memo } from "react";
+import Image from 'next/image'
 
 import { User2023Stata } from "../../../lib/api/users";
 import { BOT_LINK } from "../../../utils/constants";
@@ -13,11 +14,7 @@ const Welcome = ({ userCreatedAt }: Props) => {
 
   return (
     <div className="flex flex-col items-center justify-center gap-10">
-      <img
-        alt=""
-        className="ri ri ri ri h-12 w-12 rounded-full dark:bg-gray-500"
-        src="https://source.unsplash.com/40x40/?portrait?1"
-      />
+      <Image src="/android-chrome-192x192.png" className="h-32 w-32 rounded-full dark:bg-gray-500" alt="Roger Bot Logo" width="128" height="128" />
 
       <div>
         <p>

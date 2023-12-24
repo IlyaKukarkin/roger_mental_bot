@@ -14,13 +14,13 @@ const CONFIG = {
   depth: 100,
 } as const;
 
-const randomFromRange = (from: number, to: number): number => {
-  // ToDo: make this function((
-  // console.log(Math.floor(Math.random() * 100));
-  // const temp = new Array(to - from).fill(0);
-  // console.log(Math.random().toString().slice(2).slice(-2));
-  return 0;
-};
+const getRandomInt = (min: number, max: number): number => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+
+  // The maximum is exclusive and the minimum is inclusive
+  return Math.floor(Math.random() * (max - min) + min); 
+}
 
 const Loading = () => {
   const topRef = useRef<HTMLDivElement>(null);
@@ -31,8 +31,6 @@ const Loading = () => {
   const SIDES = [topRef, rightRef, bottomRef, leftRef] as const;
 
   useEffect(() => {
-    // randomFromRange(0, 0);
-
     let hue = 0,
       x = 0,
       speed = 0,
@@ -63,17 +61,11 @@ const Loading = () => {
           }
 
           return {
-            hue,
-            x,
-            speed,
-            delay,
+            hue: getRandomInt(CONFIG.hl, CONFIG.hu),
+            x: getRandomInt(0, 100 / CONFIG.cell - 1),
+            speed: getRandomInt(CONFIG.sl, CONFIG.su),
+            delay: getRandomInt(CONFIG.dl, CONFIG.du),
           };
-          // return {
-          //   hue: gsap.utils.random(CONFIG.hl, CONFIG.hu, 1),
-          //   x: gsap.utils.random(0, 100 / CONFIG.cell - 1, 1),
-          //   speed: gsap.utils.random(CONFIG.sl, CONFIG.su),
-          //   delay: gsap.utils.random(CONFIG.dl, CONFIG.du),
-          // };
         });
 
         for (const BEAM of BEAMS) {
