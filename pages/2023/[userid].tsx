@@ -1,12 +1,12 @@
 import type { NextPage, GetStaticPropsContext } from "next";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 import { amplitude } from "../../utils/useAmplitudeInit";
 import { User2023Stata } from "../../lib/api/users";
-import Loading from "../../components/Loading";
 import Results2023 from "../../components/Results/Results2023";
+import Loading from "../../components/Results/components/loadingWarp/loading";
 
 type Props = {
   statistic: User2023Stata;
@@ -16,18 +16,28 @@ const Results2023Page: NextPage<Props> = ({ statistic }) => {
   const router = useRouter();
   const { t: trackingId } = router.query;
   const userId = router.query.userid;
+  const [showLoadingAnimation, setShowLoadingAnimation] = useState(true);
 
   useEffect(() => {
+    setTimeout(() => setShowLoadingAnimation(false), 1500);
+
     amplitude.setUserId(trackingId);
     router.replace({ query: { userid: userId } }, undefined, { shallow: true });
   }, []);
 
-  if (!statistic) {
+  if (showLoadingAnimation || router.isFallback) {
     return (
-      <section className="flex h-full min-h-screen items-center p-16 dark:bg-gray-900 dark:text-gray-100">
-        {/* ToDo: add "warp" animation instead of loading spinner */}
-        <Loading />
-      </section>
+      <div className="relative flex h-screen items-center justify-center bg-gray-800 text-gray-100 md:pt-24">
+        <div
+          className={`relative h-full w-full bg-gray-900 text-gray-100 md:aspect-[9/16] md:h-[calc(100%-64px)] md:w-auto md:rounded-xl`}
+        >
+          <div
+            className={`flex h-full w-full cursor-pointer flex-col items-center justify-center text-center`}
+          >
+            <Loading />
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -40,7 +50,6 @@ export async function getStaticProps(
   const { params } = context;
   const userId = params && params.userid;
 
-  // ToDo: replace for prod value
   const res = await fetch(
     `https://rogerbot.tech/api/statistic?user_id=${userId}`,
   );

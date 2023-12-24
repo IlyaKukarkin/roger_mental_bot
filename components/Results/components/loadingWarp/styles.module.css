@@ -1,0 +1,99 @@
+.warp {
+    container-type: size;
+    width: 100%;
+    height: 100%;
+    perspective: 100px;
+    transform-style: preserve-3d;
+    clip-path: inset(0 0 0 0);
+    overflow: hidden;
+    /* min-height: 350px; */
+    /* min-width: 350px; */
+}
+
+/* ToDo: Disable pointer events of each element in warp */
+.warp * {
+    pointer-events: none;
+}
+
+.warp__side {
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    position: absolute;
+    container-type: inline-size;
+    background:
+        linear-gradient(hsl(0 0% 100% / 0.15) 0 1px, transparent 1px 5%) 50% -0.5px / 5% 5%,
+    linear-gradient(90deg, hsl(0 0% 100% / 0.15) 0 1px, transparent 1px 5%) 50% 50% / 5% 5%;
+}
+
+.warp__side__top {
+    width: 100cqi;
+    height: 100cqmax;
+    transform-origin: 50% 0%;
+    transform: rotateX(-89deg);
+}
+
+.warp__side__bottom {
+    width: 100cqi;
+    height: 100cqmax;
+    top: 100%;
+    transform-origin: 50% 0%;
+    transform: rotateX(-89deg);
+}
+
+.warp__side__left {
+    width: 100cqh;
+    height: 100cqmax;
+    top: 0;
+    left: 0;
+    transform-origin: 0% 0%;
+    transform: rotate(90deg) rotateX(-89deg);
+}
+
+.warp__side__right {
+    width: 100cqh;
+    height: 100cqmax;
+    top: 0;
+    right: 0;
+    transform-origin: 100% 0%;
+    transform: rotate(-90deg) rotateX(-89deg);
+}
+
+.beam {
+    width: 5%;
+    position: absolute;
+    top: 0;
+    left: calc(var(--x, 0) * 5%);
+    aspect-ratio: 1 / var(--ar, 1);
+    background: linear-gradient(hsl(var(--hue) 80% 60%), transparent);
+    translate: 0 calc((var(--speed) / var(--delay)) * 1cqh);
+    animation-name: warp;
+    animation-duration: calc((var(--speed, 0)) * 1s);
+    animation-delay: calc((var(--delay, 0)) * -1s);
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+@keyframes warp {
+    0% { translate: -50% 100cqmax; }
+    100% { translate: -50% -100%; }
+}
+
+.article {
+    text-align: center;
+    z-index: 5;
+    display: grid;
+    gap: 1rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    border: 1px solid hsl(0 0% 50% / 1);
+    border-radius: 6px;
+    padding: 1rem;
+    width: 320px;
+    box-shadow:
+    0 1px hsl(0 0% 2% / 0.25) inset,
+    0 -1px hsl(0 0% 2% / 0.5) inset,
+    0 5px 10px hsl(0 0% 0% / 0.5);
+}

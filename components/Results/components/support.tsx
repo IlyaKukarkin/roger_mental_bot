@@ -37,9 +37,6 @@ const Support = ({ messages, months, userSupportRating }: Props) => {
 
   return (
     <>
-      <p>Поддержка</p>
-      <br />
-
       <p>За год тебя поддержало {allBadrates} человек</p>
       <br />
 

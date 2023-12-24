@@ -27,10 +27,13 @@ const Mood = ({ totalRates, totalRatesWithMood, userMentalRating }: Props) => {
       <p>
         Ты замерил <b>{totalRates}</b> раз настроение
       </p>
+      <br />
       <p>
         <b>{percentageOfRates}%</b> дней получили от тебя оценку
       </p>
+      <br />
       <p>{percentMessage}</p>
+      <br />
       <p>Ты в топ-{userMentalRating} по всему боту замеру настроения!</p>
     </>
   );
