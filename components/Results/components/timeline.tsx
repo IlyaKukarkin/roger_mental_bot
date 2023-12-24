@@ -39,6 +39,9 @@ const Timeline = ({
                   style={props}
                 />
               )}
+              {index < currIndex && (
+                <div className="h-2 w-full rounded-sm bg-violet-400"></div>
+              )}
             </span>
           );
         })}

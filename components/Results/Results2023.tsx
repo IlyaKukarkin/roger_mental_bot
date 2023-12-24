@@ -134,9 +134,7 @@ const Results2023 = ({ statistic }: Props) => {
       <div
         className={`relative h-full w-full select-none bg-gray-900 text-gray-100 md:aspect-[9/16] md:h-[calc(100%-64px)] md:w-auto md:rounded-xl`}
         onMouseDown={onPauseStart}
-        onTouchStart={onPauseStart}
         onMouseUp={onPauseEnd}
-        onTouchEnd={onPauseEnd}
       >
         <div
           className={`flex h-full w-full flex-col items-center justify-center text-center ${styles.container}`}
@@ -145,10 +143,12 @@ const Results2023 = ({ statistic }: Props) => {
           <div
             className="absolute top-0 left-0 right-1/2 bottom-0 z-30 md:hidden"
             onClick={onPrevClick}
+            onTouchStart={onPauseStart}
           />
           <div
             className="absolute top-0 left-1/2 right-0 bottom-0 z-30 md:hidden"
             onClick={onNextClick}
+            onTouchEnd={onPauseEnd}
           />
 
           {/* Desctop controls */}
