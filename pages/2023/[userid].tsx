@@ -44,123 +44,20 @@ const Results2023Page: NextPage<Props> = ({ statistic }) => {
   return <Results2023 statistic={statistic} />;
 };
 
-const mockData: Partial<User2023Stata> = {
-  general: {
-    totalRates: 12,
-    totalRatesWithMood: 10,
-    averageUserTotalRates: 5,
-    userMentalRating: 3,
-    userSupportRating: 2,
-  },
-  months: {
-    0: {
-      0: 0,
-      1: 1,
-      2: 2,
-      3: 3,
-      4: 4,
-    },
-    1: {
-      0: 0,
-      1: 1,
-      2: 2,
-      3: 3,
-      4: 4,
-    },
-    2: {
-      0: 0,
-      1: 1,
-      2: 2,
-      3: 3,
-      4: 4,
-    },
-    3: {
-      0: 0,
-      1: 1,
-      2: 2,
-      3: 3,
-      4: 4,
-    },
-    4: {
-      0: 0,
-      1: 1,
-      2: 2,
-      3: 3,
-      4: 4,
-    },
-    5: {
-      0: 0,
-      1: 1,
-      2: 2,
-      3: 3,
-      4: 4,
-    },
-    6: {
-      0: 0,
-      1: 1,
-      2: 2,
-      3: 3,
-      4: 4,
-    },
-    7: {
-      0: 0,
-      1: 1,
-      2: 2,
-      3: 3,
-      4: 4,
-    },
-    8: {
-      0: 0,
-      1: 1,
-      2: 2,
-      3: 3,
-      4: 4,
-    },
-    9: {
-      0: 0,
-      1: 1,
-      2: 2,
-      3: 3,
-      4: 4,
-    },
-    10: {
-      0: 0,
-      1: 1,
-      2: 2,
-      3: 3,
-      4: 4,
-    },
-    11: {
-      0: 0,
-      1: 1,
-      2: 2,
-      3: 3,
-      4: 4,
-    },
-  },
-  messages: {
-    test: {
-      likes: 5,
-      dislikes: 2,
-      rates: 7,
-    },
-  },
-};
-
 export async function getStaticProps(
   context: GetStaticPropsContext<{ userid: string }, string>,
 ) {
   const { params } = context;
   const userId = params && params.userid;
 
-  // const res = await fetch(
-  //   `https://rogerbot.tech/api/statistic?user_id=${userId}`,
-  // );
-  // const statistic = await res.json();
+  const res = await fetch(
+    `https://rogerbot.tech/api/statistic?user_id=${userId}`,
+  );
+  const statistic = await res.json();
 
   return {
     props: {
-      statistic: mockData,
+      statistic,
     },
     revalidate: 86400, // 1 Day in seconds
   };
