@@ -68,6 +68,18 @@ const Results2023 = ({ statistic }: Props) => {
     }
   };
 
+  const onPauseStart = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+    setPause(true);
+  };
+
+  const onPauseEnd = () => {
+    setPause(false);
+    timerRef.current = setTimeout(() => set((prev) => prev + 1), TIME_PER_PAGE);
+  };
+
   const pages: ((
     props: AnimatedProps<{ style: CSSProperties }>,
   ) => React.ReactElement)[] = [
@@ -121,16 +133,10 @@ const Results2023 = ({ statistic }: Props) => {
       </div>
       <div
         className={`relative h-full w-full bg-gray-900 text-gray-100 md:aspect-[9/16] md:h-[calc(100%-64px)] md:w-auto md:rounded-xl`}
-        onMouseDown={() => {
-          if (timerRef.current) {
-            clearTimeout(timerRef.current);
-          }
-          setPause(true)
-        }}
-        onMouseUp={() =>{
-          setPause(false)
-          timerRef.current = setTimeout(() => set((prev) => prev + 1), TIME_PER_PAGE);
-        }}
+        onMouseDown={onPauseStart}
+        onTouchStart={onPauseStart}
+        onMouseUp={onPauseEnd}
+        onTouchEnd={onPauseEnd}
       >
         <div
           className={`flex h-full w-full flex-col items-center justify-center text-center ${styles.container}`}

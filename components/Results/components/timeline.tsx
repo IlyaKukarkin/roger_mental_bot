@@ -4,7 +4,13 @@ import { useSpring, animated } from "@react-spring/web";
 
 import { NUMBER_OF_PAGES, TIME_PER_PAGE } from "../Results2023";
 
-const Timeline = ({ currIndex, pause }: { currIndex: number, pause: boolean }) => {
+const Timeline = ({
+  currIndex,
+  pause,
+}: {
+  currIndex: number;
+  pause: boolean;
+}) => {
   const tempArray = Array(NUMBER_OF_PAGES).fill(0);
   const [ref, { width }] = useMeasure();
   const props = useSpring({
