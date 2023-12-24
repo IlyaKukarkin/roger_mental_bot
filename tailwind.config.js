@@ -7,7 +7,9 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        landscape: { raw: "(orientation: landscape)" },
+        landscape: {
+          raw: "(orientation: landscape) and (hover: none) and (pointer: coarse)",
+        },
       },
       keyframes: {
         alert: {
@@ -25,5 +27,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require("@tailwindcss/forms")],
+  plugins: [require("@tailwindcss/forms"), require("tailwindcss-touch")()],
 };
