@@ -132,7 +132,7 @@ const Results2023 = ({ statistic }: Props) => {
         <Timeline currIndex={index} pause={pause} />
       </div>
       <div
-        className={`relative h-full w-full bg-gray-900 text-gray-100 md:aspect-[9/16] md:h-[calc(100%-64px)] md:w-auto md:rounded-xl`}
+        className={`relative h-full w-full select-none bg-gray-900 text-gray-100 md:aspect-[9/16] md:h-[calc(100%-64px)] md:w-auto md:rounded-xl`}
         onMouseDown={onPauseStart}
         onTouchStart={onPauseStart}
         onMouseUp={onPauseEnd}
