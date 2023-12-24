@@ -30,7 +30,7 @@
     width: 100cqi;
     height: 100cqmax;
     transform-origin: 50% 0%;
-    transform: rotateX(-90deg);
+    transform: rotateX(-89deg);
 }
 
 .warp__side__bottom {
@@ -38,7 +38,7 @@
     height: 100cqmax;
     top: 100%;
     transform-origin: 50% 0%;
-    transform: rotateX(-90deg);
+    transform: rotateX(-89deg);
 }
 
 .warp__side__left {
@@ -47,7 +47,7 @@
     top: 0;
     left: 0;
     transform-origin: 0% 0%;
-    transform: rotate(90deg) rotateX(-90deg);
+    transform: rotate(90deg) rotateX(-89deg);
 }
 
 .warp__side__right {
@@ -56,7 +56,7 @@
     top: 0;
     right: 0;
     transform-origin: 100% 0%;
-    transform: rotate(-90deg) rotateX(-90deg);
+    transform: rotate(-90deg) rotateX(-89deg);
 }
 
 .beam {
