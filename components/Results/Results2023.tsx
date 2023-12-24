@@ -1,4 +1,4 @@
-import React, { CSSProperties, useEffect, useState } from "react";
+import React, { CSSProperties, useEffect, useRef, useState } from "react";
 import {
   useTransition,
   animated,
@@ -25,6 +25,7 @@ export const TIME_PER_PAGE = 5000;
 
 const Results2023 = ({ statistic }: Props) => {
   const { general, messages, months, userCreatedAt } = statistic;
+  const timerRef = useRef<null | NodeJS.Timeout>(null);
 
   const [index, set] = useState(0);
   const transRef = useSpringRef();
@@ -35,6 +36,24 @@ const Results2023 = ({ statistic }: Props) => {
     enter: { opacity: 1, transform: "translate3d(0%,0,0)" },
     leave: { opacity: 0, transform: "translate3d(-50%,0,0)" },
   });
+
+  useEffect(() => {
+    timerRef.current = setTimeout(() => set((prev) => prev + 1), TIME_PER_PAGE);
+  }, []);
+
+  useEffect(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+    transRef.start();
+
+    if (index + 1 !== NUMBER_OF_PAGES) {
+      timerRef.current = setTimeout(
+        () => set((prev) => prev + 1),
+        TIME_PER_PAGE,
+      );
+    }
+  }, [index, transRef]);
 
   const onPrevClick = () => {
     if (index !== 0) {
@@ -47,10 +66,6 @@ const Results2023 = ({ statistic }: Props) => {
       set((prev) => prev + 1);
     }
   };
-
-  useEffect(() => {
-    transRef.start();
-  }, [index, transRef]);
 
   const pages: ((
     props: AnimatedProps<{ style: CSSProperties }>,

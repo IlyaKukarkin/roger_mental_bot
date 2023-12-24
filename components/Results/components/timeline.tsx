@@ -2,12 +2,19 @@ import React, { memo, useState, useEffect } from "react";
 import useMeasure from "react-use-measure";
 import { useSpring, animated } from "@react-spring/web";
 
-import { NUMBER_OF_PAGES } from "../Results2023";
+import { NUMBER_OF_PAGES, TIME_PER_PAGE } from "../Results2023";
 
 const Timeline = ({ currIndex }: { currIndex: number }) => {
   const tempArray = Array(NUMBER_OF_PAGES).fill(0);
   const [ref, { width }] = useMeasure();
-  const props = useSpring({ from: { width: 0 }, to: { width }, reset: true });
+  const props = useSpring({
+    from: { width: 0 },
+    to: { width },
+    reset: true,
+    config: {
+      duration: TIME_PER_PAGE,
+    },
+  });
 
   return (
     <div className="mt-4 flex justify-center space-y-2 p-4">
