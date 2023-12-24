@@ -19,8 +19,8 @@ const getRandomInt = (min: number, max: number): number => {
   max = Math.floor(max);
 
   // The maximum is exclusive and the minimum is inclusive
-  return Math.floor(Math.random() * (max - min) + min); 
-}
+  return Math.floor(Math.random() * (max - min) + min);
+};
 
 const Loading = () => {
   const topRef = useRef<HTMLDivElement>(null);

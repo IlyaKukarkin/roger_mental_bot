@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import Image from 'next/image'
+import Image from "next/image";
 
 import { User2023Stata } from "../../../lib/api/users";
 import { BOT_LINK } from "../../../utils/constants";
@@ -13,25 +13,42 @@ const Welcome = ({ userCreatedAt }: Props) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-10">
-      <Image src="/android-chrome-192x192.png" className="h-32 w-32 rounded-full dark:bg-gray-500" alt="Roger Bot Logo" width="128" height="128" />
+    <div className="flex h-full flex-col items-center font-bold">
+      <div className="mt-20 md:mt-0">
+        <Image
+          src="/android-chrome-512x512.png"
+          className="h-32 w-32 rounded-full pt-10 dark:bg-gray-500"
+          alt="Roger Bot Logo"
+          width="200"
+          height="200"
+        />
+      </div>
 
-      <div>
-        <p>
-          Твоя стата за год от{" "}
-          <a
-            rel="noopener noreferrer"
-            href={BOT_LINK}
-            target="_blank"
-            className="underline dark:text-violet-400"
-          >
-            <span>Roger Mental Bot</span>
-          </a>
-          <br />
-          за {/* // ToDo: make dynamic/animated numbers for Date here */}
-          {startDate(new Date(userCreatedAt)).toLocaleDateString()} -{" "}
-          {new Date().toLocaleDateString()}
-        </p>
+      <p className="pt-16 text-3xl">Твоя статистика за год от Роджера</p>
+
+      <p className="pt-2 text-xl">
+        {startDate(new Date(userCreatedAt)).toLocaleDateString()} -{" "}
+        {new Date().toLocaleDateString()}
+      </p>
+
+      <p className="pt-40 text-3xl md:pt-32">Смотри, каким был твой год 👉</p>
+
+      <div className="flex grow items-end gap-2 pb-4 pt-8">
+        <Image
+          src="/telegram.png"
+          className="h-32 w-32 rounded-full dark:bg-gray-500"
+          alt="Roger Bot Logo"
+          width="24"
+          height="24"
+        />
+        <a
+          rel="noopener noreferrer"
+          href={BOT_LINK}
+          target="_blank"
+          className=""
+        >
+          <span>@rogermentalbot</span>
+        </a>
       </div>
     </div>
   );

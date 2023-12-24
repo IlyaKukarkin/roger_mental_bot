@@ -6,6 +6,14 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        results: "#051247",
+      },
+      screens: {
+        landscape: {
+          raw: "(orientation: landscape) and (hover: none) and (pointer: coarse)",
+        },
+      },
       keyframes: {
         alert: {
           "0%": { transform: "translateY(-20px)" },
@@ -22,5 +30,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require("@tailwindcss/forms")],
+  plugins: [require("@tailwindcss/forms"), require("tailwindcss-touch")()],
 };

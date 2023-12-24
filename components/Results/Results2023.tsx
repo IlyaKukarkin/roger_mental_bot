@@ -1,4 +1,4 @@
-import React, { CSSProperties, useEffect, useState } from "react";
+import React, { CSSProperties, useEffect, useRef, useState } from "react";
 import {
   useTransition,
   animated,
@@ -25,8 +25,10 @@ export const TIME_PER_PAGE = 5000;
 
 const Results2023 = ({ statistic }: Props) => {
   const { general, messages, months, userCreatedAt } = statistic;
+  const timerRef = useRef<null | NodeJS.Timeout>(null);
 
   const [index, set] = useState(0);
+  const [pause, setPause] = useState(false);
   const transRef = useSpringRef();
   const transitions = useTransition(index, {
     ref: transRef,
@@ -35,6 +37,20 @@ const Results2023 = ({ statistic }: Props) => {
     enter: { opacity: 1, transform: "translate3d(0%,0,0)" },
     leave: { opacity: 0, transform: "translate3d(-50%,0,0)" },
   });
+
+  useEffect(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+    transRef.start();
+
+    if (index + 1 !== NUMBER_OF_PAGES) {
+      timerRef.current = setTimeout(
+        () => set((prev) => prev + 1),
+        TIME_PER_PAGE,
+      );
+    }
+  }, [index, transRef]);
 
   const onPrevClick = () => {
     if (index !== 0) {
@@ -48,9 +64,17 @@ const Results2023 = ({ statistic }: Props) => {
     }
   };
 
-  useEffect(() => {
-    transRef.start();
-  }, [index, transRef]);
+  const onPauseStart = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+    setPause(true);
+  };
+
+  const onPauseEnd = () => {
+    setPause(false);
+    timerRef.current = setTimeout(() => set((prev) => prev + 1), TIME_PER_PAGE);
+  };
 
   const pages: ((
     props: AnimatedProps<{ style: CSSProperties }>,
@@ -92,11 +116,21 @@ const Results2023 = ({ statistic }: Props) => {
 
   return (
     <div className="relative flex h-screen items-center justify-center bg-gray-800 text-gray-100 md:pt-24">
+      <div
+        className={`absolute top-0 left-0 right-0 bottom-0 z-50 flex h-full w-full flex-col items-center justify-center bg-gray-900 text-center ${styles.wrapper}`}
+      >
+        <span className="text-4xl">↩️</span>
+        <span className="text-xl">
+          Переверни телефон, чтобы увидеть свою статистику за год
+        </span>
+      </div>
       <div className="absolute top-0 z-40 w-full">
-        <Timeline currIndex={index} />
+        <Timeline currIndex={index} pause={pause} />
       </div>
       <div
-        className={`relative h-full w-full bg-gray-900 text-gray-100 md:aspect-[9/16] md:h-[calc(100%-64px)] md:w-auto md:rounded-xl`}
+        className={`relative h-full w-full select-none bg-results text-gray-100 md:aspect-[9/16] md:h-[calc(100%-64px)] md:w-auto md:rounded-xl`}
+        onMouseDown={onPauseStart}
+        onMouseUp={onPauseEnd}
       >
         <div
           className={`flex h-full w-full flex-col items-center justify-center text-center ${styles.container}`}
@@ -105,10 +139,14 @@ const Results2023 = ({ statistic }: Props) => {
           <div
             className="absolute top-0 left-0 right-1/2 bottom-0 z-30 md:hidden"
             onClick={onPrevClick}
+            onTouchStart={onPauseStart}
+            onTouchEnd={onPauseEnd}
           />
           <div
             className="absolute top-0 left-1/2 right-0 bottom-0 z-30 md:hidden"
             onClick={onNextClick}
+            onTouchStart={onPauseStart}
+            onTouchEnd={onPauseEnd}
           />
 
           {/* Desctop controls */}
@@ -117,7 +155,7 @@ const Results2023 = ({ statistic }: Props) => {
               aria-label="Slide back"
               type="button"
               onClick={onPrevClick}
-              className="focus:ri z-30 rounded-full bg-opacity-50 p-2 focus:outline-none dark:bg-gray-900 focus:dark:bg-gray-400"
+              className="z-30 rounded-full bg-opacity-50 p-2 focus:outline-none dark:bg-gray-900"
             >
               <svg
                 width="8"
@@ -142,7 +180,7 @@ const Results2023 = ({ statistic }: Props) => {
               aria-label="Slide forward"
               id="next"
               onClick={onNextClick}
-              className="focus:ri z-30 rounded-full bg-opacity-50 p-2 focus:outline-none dark:bg-gray-900 focus:dark:bg-gray-400"
+              className="z-30 rounded-full bg-opacity-50 p-2 focus:outline-none dark:bg-gray-900"
             >
               <svg
                 width="8"

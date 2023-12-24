@@ -5,4 +5,16 @@
   -webkit-user-select: none;
   user-select: none;
   padding: 2rem;
+  top: 0;
+  bottom: 0;
+}
+
+.wrapper {
+  visibility: hidden;
+}
+
+@media (orientation: landscape) and (hover: none) and (pointer: coarse) {
+  .wrapper {
+    visibility: visible;
+  }
 }
