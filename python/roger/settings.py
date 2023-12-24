@@ -29,5 +29,6 @@ async def check_to_send_mes(tg_id: int):
 
     user = get_user_by_telegram_id(str(tg_id))
     now = datetime.datetime.now()
-    if (int(user["timezone"]) + now.hour >= int(user["time_to_send_messages"])) and was_mental_rate_sent_today(user["_id"]) == False:
+    if (int(user["timezone"]) + now.hour >= int(user["time_to_send_messages"])
+        ) and was_mental_rate_sent_today(user["_id"]) is False:
         await sendmes(tg_id)
