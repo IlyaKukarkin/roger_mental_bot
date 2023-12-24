@@ -18,6 +18,9 @@ const Results2023Page: NextPage<Props> = ({ statistic }) => {
   const userId = router.query.userid;
   const [showLoadingAnimation, setShowLoadingAnimation] = useState(true);
 
+  console.log('Stata: ', !statistic);
+  console.log('Animation: ', showLoadingAnimation);
+
   useEffect(() => {
     setTimeout(() => setShowLoadingAnimation(false), 3000);
 
