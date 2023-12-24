@@ -18,12 +18,8 @@ const Results2023Page: NextPage<Props> = ({ statistic }) => {
   const userId = router.query.userid;
   const [showLoadingAnimation, setShowLoadingAnimation] = useState(true);
 
-  console.log('Stata: ', statistic);
-  console.log('Animation: ', showLoadingAnimation);
-  console.log('Isfallback: ', router.isFallback);
-
   useEffect(() => {
-    setTimeout(() => setShowLoadingAnimation(false), 3000);
+    setTimeout(() => setShowLoadingAnimation(false), 1500);
 
     amplitude.setUserId(trackingId);
     router.replace({ query: { userid: userId } }, undefined, { shallow: true });
