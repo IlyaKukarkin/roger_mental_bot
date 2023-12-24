@@ -13,25 +13,27 @@ const Welcome = ({ userCreatedAt }: Props) => {
   };
 
   return (
-    <div className="flex h-full flex-col items-center justify-evenly gap-10 font-bold">
-      <Image
-        src="/android-chrome-512x512.png"
-        className="h-32 w-32 rounded-full dark:bg-gray-500"
-        alt="Roger Bot Logo"
-        width="200"
-        height="200"
-      />
+    <div className="flex h-full flex-col items-center gap-16 font-bold">
+      <div className="mt-20 md:mt-0">
+        <Image
+          src="/android-chrome-512x512.png"
+          className="h-32 w-32 rounded-full pt-10 dark:bg-gray-500"
+          alt="Roger Bot Logo"
+          width="200"
+          height="200"
+        />
+      </div>
 
-      <p className="text-4xl">Твоя статистика за год от Роджера</p>
+      <p className="text-3xl">Твоя статистика за год от Роджера</p>
 
-      <p className="text-2xl">
+      <p className="text-xl">
         {startDate(new Date(userCreatedAt)).toLocaleDateString()} -{" "}
         {new Date().toLocaleDateString()}
       </p>
 
-      <p className="text-4xl">Смотри, каким был твой год 👉</p>
+      <p className="text-3xl">Смотри, каким был твой год 👉</p>
 
-      <div className="flex items-center gap-2">
+      <div className="flex grow items-end gap-2 pb-4">
         <Image
           src="/telegram.png"
           className="h-32 w-32 rounded-full dark:bg-gray-500"
