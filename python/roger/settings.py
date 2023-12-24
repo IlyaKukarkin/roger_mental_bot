@@ -5,6 +5,7 @@ from variables import botClient
 from keyboards import settings_keyboard
 from sendmessage import sendmes
 from db.users import get_user_by_telegram_id
+from db.mental_rate import was_mental_rate_sent_today
 
 
 async def settings_main(
@@ -28,5 +29,5 @@ async def check_to_send_mes(tg_id: int):
 
     user = get_user_by_telegram_id(str(tg_id))
     now = datetime.datetime.now()
-    if int(user["timezone"]) + now.hour >= int(user["time_to_send_messages"]):
+    if (int(user["timezone"]) + now.hour >= int(user["time_to_send_messages"])) and was_mental_rate_sent_today(user["_id"]) == False:
         await sendmes(tg_id)
