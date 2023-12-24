@@ -45,10 +45,10 @@ const Results2023 = ({ statistic }: Props) => {
     transRef.start();
 
     if (index + 1 !== NUMBER_OF_PAGES) {
-      // timerRef.current = setTimeout(
-      //   () => set((prev) => prev + 1),
-      //   TIME_PER_PAGE,
-      // );
+      timerRef.current = setTimeout(
+        () => set((prev) => prev + 1),
+        TIME_PER_PAGE,
+      );
     }
   }, [index, transRef]);
 
