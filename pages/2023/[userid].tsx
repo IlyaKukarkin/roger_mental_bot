@@ -19,8 +19,7 @@ const Results2023Page: NextPage<Props> = ({ statistic }) => {
   const [showLoadingAnimation, setShowLoadingAnimation] = useState(true);
 
   useEffect(() => {
-    // ToDo: rollback after testing
-    setTimeout(() => setShowLoadingAnimation(true), 3000);
+    setTimeout(() => setShowLoadingAnimation(false), 3000);
 
     amplitude.setUserId(trackingId);
     router.replace({ query: { userid: userId } }, undefined, { shallow: true });
