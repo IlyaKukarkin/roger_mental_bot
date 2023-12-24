@@ -6,3 +6,13 @@
   user-select: none;
   padding: 2rem;
 }
+
+.wrapper {
+  visibility: hidden;
+}
+
+@media (orientation: landscape) and (hover: none) and (pointer: coarse) {
+  .wrapper {
+    visibility: visible;
+  }
+}
