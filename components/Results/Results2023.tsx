@@ -9,6 +9,7 @@ import {
 import { User2023Stata } from "../../lib/api/users";
 import Welcome from "./components/welcome";
 import Mood from "./components/mood";
+import MoodYear from "./components/moodYear";
 import Calendar from "./components/calendar";
 import Support from "./components/support";
 import End from "./components/end";
@@ -20,14 +21,14 @@ type Props = {
   statistic: User2023Stata;
 };
 
-export const NUMBER_OF_PAGES = 5;
+export const NUMBER_OF_PAGES = 6;
 export const TIME_PER_PAGE = 5000;
 
 const Results2023 = ({ statistic }: Props) => {
   const { general, messages, months, userCreatedAt } = statistic;
   const timerRef = useRef<null | NodeJS.Timeout>(null);
 
-  const [index, set] = useState(2);
+  const [index, set] = useState(0);
   const [pause, setPause] = useState(false);
   const transRef = useSpringRef();
   const transitions = useTransition(index, {
@@ -45,10 +46,10 @@ const Results2023 = ({ statistic }: Props) => {
     transRef.start();
 
     if (index + 1 !== NUMBER_OF_PAGES) {
-      // timerRef.current = setTimeout(
-      //   () => set((prev) => prev + 1),
-      //   TIME_PER_PAGE,
-      // );
+      timerRef.current = setTimeout(
+        () => set((prev) => prev + 1),
+        TIME_PER_PAGE,
+      );
     }
   }, [index, transRef]);
 
@@ -96,6 +97,11 @@ const Results2023 = ({ statistic }: Props) => {
     ({ style }) => (
       <animated.div className={styles.page} style={{ ...style }}>
         <Calendar months={months} />
+      </animated.div>
+    ),
+    ({ style }) => (
+      <animated.div className={styles.page} style={{ ...style }}>
+        <MoodYear months={months} />
       </animated.div>
     ),
     ({ style }) => (

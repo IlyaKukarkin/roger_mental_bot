@@ -11,20 +11,20 @@ const Calendar = ({ months }: Props) => {
   const [showMonth, setShowMonth] = useState<number>(-1);
 
   const getMoodForMonth = (data: { [mood: number]: number }): MOOD => {
-    const rates = Object.values(data);
+    const [_, ...rates] = Object.values(data);
 
-    const max = rates.reduce((acc, currValue, index) => {
-      if (index === 0) {
-        return acc;
-      }
+    if (rates.every((rate) => rate === 0)) {
+      return 0;
+    }
 
+    const max = rates.reduce((acc, currValue) => {
       if (acc < currValue) {
         return currValue;
       }
       return acc;
     }, 0);
 
-    return rates.indexOf(max);
+    return rates.lastIndexOf(max) + 1;
   };
 
   const getMoodEmoji = (mood: MOOD) => {
@@ -51,7 +51,7 @@ const Calendar = ({ months }: Props) => {
 
   return (
     <div className="flex h-full flex-col items-center font-bold">
-      <p className="mt-56 text-xl md:mt-32">
+      <p className="mt-56 text-3xl md:mt-32">
         Каким тебе запомнился каждый месяц
       </p>
 
