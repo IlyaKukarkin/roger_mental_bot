@@ -14,7 +14,7 @@ const Welcome = ({ userCreatedAt }: Props) => {
 
   return (
     <div className="flex h-full flex-col items-center font-bold">
-      <div className="mt-20 md:mt-0">
+      <div className="mt-24">
         <Image
           src="/android-chrome-512x512.png"
           className="h-32 w-32 rounded-full pt-10 dark:bg-gray-500"
@@ -24,7 +24,7 @@ const Welcome = ({ userCreatedAt }: Props) => {
         />
       </div>
 
-      <p className="pt-16 text-3xl">Твоя статистика за год от Роджера</p>
+      <p className="pt-8 text-3xl">Твоя статистика за год от Роджера</p>
 
       <p className="pt-2 text-xl">
         {startDate(new Date(userCreatedAt)).toLocaleDateString()} -{" "}

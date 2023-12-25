@@ -51,9 +51,7 @@ const Calendar = ({ months }: Props) => {
 
   return (
     <div className="flex h-full flex-col items-center font-bold">
-      <p className="mt-56 text-3xl md:mt-24">
-        Каким тебе запомнился каждый месяц
-      </p>
+      <p className="mt-24 text-3xl">Каким тебе запомнился каждый месяц</p>
 
       <div className="mt-12 grid grid-cols-4 grid-rows-3 gap-6">
         {Object.entries(months).map(([month, data]) => {

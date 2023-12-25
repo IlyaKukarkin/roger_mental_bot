@@ -69,7 +69,7 @@ const Support = ({ messages, months, userSupportRating }: Props) => {
 
   return (
     <div className="flex h-full flex-col items-center font-bold">
-      <p className="mt-56 text-xl md:mt-24">В этом году тебя поддержало</p>
+      <p className="mt-24 text-xl">В этом году тебя поддержало</p>
       <p className="mt-6 text-3xl">{allBadRates} пользователя</p>
 
       {Object.keys(messages).length ? (

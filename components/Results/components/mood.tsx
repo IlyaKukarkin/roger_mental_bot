@@ -39,9 +39,7 @@ const Mood = ({ totalRates, totalRatesWithMood, userMentalRating }: Props) => {
 
   return (
     <div className="flex h-full flex-col items-center font-bold">
-      <p className="pt-56 text-3xl md:pt-24">
-        В этом году ты замерил настроение
-      </p>
+      <p className="pt-24 text-3xl">В этом году ты замерил настроение</p>
 
       <p className="pt-10 text-5xl">
         <b>{totalRates}</b> раз

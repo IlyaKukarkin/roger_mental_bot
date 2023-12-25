@@ -145,14 +145,14 @@ const Results2023 = ({ statistic }: Props) => {
           <div
             className="absolute top-0 left-0 right-1/2 bottom-[10%] z-30 md:hidden"
             onClick={onPrevClick}
-            onTouchStart={onPauseStart}
-            onTouchEnd={onPauseEnd}
+            // onTouchStart={onPauseStart}
+            // onTouchEnd={onPauseEnd}
           />
           <div
             className="absolute top-0 left-1/2 right-0 bottom-[10%] z-30 md:hidden"
             onClick={onNextClick}
-            onTouchStart={onPauseStart}
-            onTouchEnd={onPauseEnd}
+            // onTouchStart={onPauseStart}
+            // onTouchEnd={onPauseEnd}
           />
 
           {/* Desctop controls */}
