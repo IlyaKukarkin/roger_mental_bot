@@ -31,7 +31,7 @@ const Welcome = ({ userCreatedAt }: Props) => {
         {new Date().toLocaleDateString()}
       </p>
 
-      <p className="pt-40 text-3xl md:pt-32">Смотри, каким был твой год 👉</p>
+      <p className="pt-24 text-3xl md:pt-32">Смотри, каким был твой год 👉</p>
 
       <RogerLink />
     </div>

@@ -54,7 +54,7 @@ const Mood = ({ totalRates, totalRatesWithMood, userMentalRating }: Props) => {
         <span>{userMentalRating} место по числу оценок</span>
       </div>
 
-      <p className="pt-24 text-4xl">{percentMessage}</p>
+      <p className="pt-8 text-4xl md:pt-24">{percentMessage}</p>
 
       <div className="mt-6 flex items-center">
         <p className="text-6xl">👩‍💻</p>
