@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import Image from "next/image";
 
 import { User2023Stata } from "../../../lib/api/users";
-import { BOT_LINK } from "../../../utils/constants";
+import RogerLink from "./rogerLink";
 
 type Props = Pick<User2023Stata, "userCreatedAt">;
 
@@ -33,23 +33,7 @@ const Welcome = ({ userCreatedAt }: Props) => {
 
       <p className="pt-40 text-3xl md:pt-32">Смотри, каким был твой год 👉</p>
 
-      <div className="flex grow items-end gap-2 pb-4 pt-8">
-        <Image
-          src="/telegram.png"
-          className="h-32 w-32 rounded-full dark:bg-gray-500"
-          alt="Roger Bot Logo"
-          width="24"
-          height="24"
-        />
-        <a
-          rel="noopener noreferrer"
-          href={BOT_LINK}
-          target="_blank"
-          className=""
-        >
-          <span>@rogermentalbot</span>
-        </a>
-      </div>
+      <RogerLink />
     </div>
   );
 };
