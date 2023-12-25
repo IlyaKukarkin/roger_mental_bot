@@ -23,7 +23,7 @@ const MoodYear = ({ months }: Props) => {
       summ[4] += month[4];
     });
 
-    const moodForYear = Object.values(summ).toSorted((a, b) => b - a);
+    const moodForYear = [...Object.values(summ).sort((a, b) => b - a)];
 
     return moodForYear.some((i) => i > 0)
       ? Object.values(summ).lastIndexOf(moodForYear[0]) + 1
