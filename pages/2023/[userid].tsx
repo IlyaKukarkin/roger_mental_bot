@@ -29,7 +29,7 @@ const Results2023Page: NextPage<Props> = ({ statistic }) => {
     return (
       <div className="relative flex h-screen items-center justify-center bg-gray-800 text-gray-100 md:pt-24">
         <div
-          className={`relative h-full w-full bg-gray-900 text-gray-100 md:aspect-[9/16] md:h-[calc(100%-64px)] md:w-auto md:rounded-xl`}
+          className={`relative h-full w-full bg-results text-gray-100 md:aspect-[9/16] md:h-[calc(100%-64px)] md:w-auto md:rounded-xl`}
         >
           <div
             className={`flex h-full w-full cursor-pointer flex-col items-center justify-center text-center`}

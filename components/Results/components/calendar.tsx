@@ -51,7 +51,7 @@ const Calendar = ({ months }: Props) => {
 
   return (
     <div className="flex h-full flex-col items-center font-bold">
-      <p className="mt-56 text-3xl md:mt-32">
+      <p className="mt-56 text-3xl md:mt-24">
         Каким тебе запомнился каждый месяц
       </p>
 

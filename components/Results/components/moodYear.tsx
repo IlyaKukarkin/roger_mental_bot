@@ -66,7 +66,7 @@ const MoodYear = ({ months }: Props) => {
 
   return (
     <div className="flex h-full flex-col items-center font-bold">
-      <p className="mt-56 text-3xl md:mt-32">
+      <p className="mt-56 text-3xl md:mt-24">
         Смайлик, описывающий твой 2023 год
       </p>
 
