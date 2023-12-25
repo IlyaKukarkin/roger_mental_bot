@@ -27,7 +27,7 @@ const Results2023 = ({ statistic }: Props) => {
   const { general, messages, months, userCreatedAt } = statistic;
   const timerRef = useRef<null | NodeJS.Timeout>(null);
 
-  const [index, set] = useState(0);
+  const [index, set] = useState(2);
   const [pause, setPause] = useState(false);
   const transRef = useSpringRef();
   const transitions = useTransition(index, {
@@ -45,10 +45,10 @@ const Results2023 = ({ statistic }: Props) => {
     transRef.start();
 
     if (index + 1 !== NUMBER_OF_PAGES) {
-      timerRef.current = setTimeout(
-        () => set((prev) => prev + 1),
-        TIME_PER_PAGE,
-      );
+      // timerRef.current = setTimeout(
+      //   () => set((prev) => prev + 1),
+      //   TIME_PER_PAGE,
+      // );
     }
   }, [index, transRef]);
 
@@ -137,13 +137,13 @@ const Results2023 = ({ statistic }: Props) => {
         >
           {/* Mobile controls */}
           <div
-            className="absolute top-0 left-0 right-1/2 bottom-0 z-30 md:hidden"
+            className="absolute top-0 left-0 right-1/2 bottom-[10%] z-30 md:hidden"
             onClick={onPrevClick}
             onTouchStart={onPauseStart}
             onTouchEnd={onPauseEnd}
           />
           <div
-            className="absolute top-0 left-1/2 right-0 bottom-0 z-30 md:hidden"
+            className="absolute top-0 left-1/2 right-0 bottom-[10%] z-30 md:hidden"
             onClick={onNextClick}
             onTouchStart={onPauseStart}
             onTouchEnd={onPauseEnd}
