@@ -27,7 +27,7 @@ const Results2023 = ({ statistic }: Props) => {
   const { general, messages, months, userCreatedAt } = statistic;
   const timerRef = useRef<null | NodeJS.Timeout>(null);
 
-  const [index, set] = useState(1);
+  const [index, set] = useState(0);
   const [pause, setPause] = useState(false);
   const transRef = useSpringRef();
   const transitions = useTransition(index, {
@@ -45,10 +45,10 @@ const Results2023 = ({ statistic }: Props) => {
     transRef.start();
 
     if (index + 1 !== NUMBER_OF_PAGES) {
-      // timerRef.current = setTimeout(
-      //   () => set((prev) => prev + 1),
-      //   TIME_PER_PAGE,
-      // );
+      timerRef.current = setTimeout(
+        () => set((prev) => prev + 1),
+        TIME_PER_PAGE,
+      );
     }
   }, [index, transRef]);
 

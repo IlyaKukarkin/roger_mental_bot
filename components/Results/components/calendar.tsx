@@ -1,8 +1,9 @@
 import React, { memo } from "react";
 
 import { mapMonthToText } from "../utils";
-import { MOOD, getRateBgColor } from "../../Calendar/utils";
+import { MOOD } from "../../Calendar/utils";
 import { User2023Stata } from "../../../lib/api/users";
+import RogerLink from "./rogerLink";
 
 type Props = Pick<User2023Stata, "months">;
 
@@ -24,23 +25,36 @@ const Calendar = ({ months }: Props) => {
     return rates.indexOf(max);
   };
 
+  const getMoodEmoji = (mood: MOOD) => {
+    switch (mood) {
+      case MOOD.SKIP:
+        return "⚫";
+      case MOOD.RED:
+        return "🔴";
+      case MOOD.ORANGE:
+        return "🟠";
+      case MOOD.YELLOW:
+        return "🟡";
+      case MOOD.GREEN:
+        return "🟢";
+      default:
+        return "⚫";
+    }
+  };
+
   return (
-    <>
-      <p>Как тебе запомнился каждый месяц</p>
-      <br />
-      <div className="grid grid-cols-4 grid-rows-3 gap-6">
+    <div className="flex h-full flex-col items-center font-bold">
+      <p className="mt-56 text-xl md:mt-32">
+        Каким тебе запомнился каждый месяц
+      </p>
+
+      <div className="mt-12 grid grid-cols-4 grid-rows-3 gap-6">
         {Object.entries(months).map(([month, data]) => {
           return (
-            <div key={month} className="flex flex-col items-center">
-              <div
-                className={`h-10 w-10 rounded-full opacity-80 ${
-                  getRateBgColor[getMoodForMonth(data)]
-                }`}
-              />
-              <p>
-                <b>{mapMonthToText(Number(month))}</b>
-              </p>
-              <p className="text-xs">
+            <div key={month} className="group flex flex-col items-center">
+              <p className="text-4xl">{getMoodEmoji(getMoodForMonth(data))}</p>
+              <p className="mt-2 text-xl">{mapMonthToText(Number(month))}</p>
+              <p className="invisible text-xs group-hover:visible">
                 На основе{" "}
                 {Object.values(data).reduce(
                   (acc, currValue, index) => acc + (!index ? 0 : currValue),
@@ -52,7 +66,9 @@ const Calendar = ({ months }: Props) => {
           );
         })}
       </div>
-    </>
+
+      <RogerLink />
+    </div>
   );
 };
 
