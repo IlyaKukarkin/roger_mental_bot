@@ -121,7 +121,9 @@ const Results2023 = ({ statistic }: Props) => {
   ];
 
   return (
-    <div className="relative flex h-screen items-center justify-center bg-gray-800 text-gray-100 md:pt-24">
+    <div
+      className={`relative flex h-screen items-center justify-center bg-gray-800 text-gray-100 md:pt-24 ${styles.root}`}
+    >
       <div
         className={`absolute top-0 left-0 right-0 bottom-0 z-50 flex h-full w-full flex-col items-center justify-center bg-gray-900 text-center ${styles.wrapper}`}
       >
