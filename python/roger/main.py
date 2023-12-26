@@ -14,7 +14,7 @@ from common import delete_keyboard
 from feedback import feedback_start, feedback_get_text_from_user, feedback_get_photo_from_user
 from version import version_command
 from restart import restart_command
-from sendmestoall import send_message_to_all, get_message_to_all
+from sendmestoall import send_message_to_all, get_message_to_all, send_newyear_message_to_all
 from start import start_command
 from reg.reg_user_name import get_user_name, get_printed_user_name, get_customer_name
 from reg.reg_user_time import (
@@ -606,6 +606,11 @@ async def settings_change_time_to_send_messages_callback(callback_query: types.C
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await get_user_time_to_send_messages(user["_id"], callback_query.from_user.id, "settings")
 
+@botDispatcher.message_handler(commands=['sendnewyearmestoall'])
+async def settings_main_command(message: types.Message):
+    """sending new year 2023 message to all
+    available for admins only"""
+    await send_newyear_message_to_all(message)
 
 @botDispatcher.message_handler(content_types='text', state='*')
 async def process_any_command(message: types.Message):
