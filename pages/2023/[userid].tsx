@@ -30,8 +30,12 @@ const Results2023Page: NextPage<Props> = ({ statistic }) => {
 
     setTimeout(() => setShowLoadingAnimation(false), 1500);
 
-    amplitude.setUserId(trackingId);
-    router.replace({ query: { userid: userId } }, undefined, { shallow: true });
+    if (trackingId) {
+      amplitude.setUserId(trackingId);
+      router.replace({ query: { userid: userId } }, undefined, {
+        shallow: true,
+      });
+    }
   }, []);
 
   if (showLoadingAnimation || router.isFallback) {
@@ -68,7 +72,7 @@ export async function getStaticProps(
 
   return {
     props: {
-      statistic,
+      statistic: { ...statistic, userId },
     },
     revalidate: 86400, // 1 Day in seconds
   };
