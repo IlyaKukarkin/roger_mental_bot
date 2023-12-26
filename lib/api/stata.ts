@@ -161,11 +161,6 @@ export const update2023Statistics = async (): Promise<void> => {
 
   const prepareUsers = usersCol.aggregate([
     {
-      $match: {
-        is_active: true,
-      },
-    },
-    {
       $lookup: {
         from: "mental_rate",
         localField: "_id",
