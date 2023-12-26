@@ -128,6 +128,7 @@ export const submitForm = async ({
   const client = await clientPromise;
 
   const usersCollection = client.db("roger-bot-db").collection("users");
+  const mentalRatesCollection = client.db("roger-bot-db").collection("mental_rate");
   const user = await usersCollection.findOne({
     form_id: new ObjectId(form_id),
   });
@@ -136,9 +137,8 @@ export const submitForm = async ({
     throw new Error("User not found");
   }
 
-  let textToSend =
-    "Спасибо, что заполнил форму! Продолжай замерять свое настроение 🙃";
-  let textToSend2 = "Скоро я пришлю тебе первый опрос. До встречи!";
+  let textToSend = 'Спасибо, что заполнил форму! Продолжай замерять свое настроение 🙃'
+  let textToSend2 = 'Скоро я пришлю тебе первый опрос для измерения твоего настроения. До встречи!'
 
   const messages = await usersCollection.aggregate([
     {
@@ -163,15 +163,24 @@ export const submitForm = async ({
     },
   ]);
 
-  let messageCount = 0;
+  const mentalRatesCursor: FindCursor<unknown[]> = await mentalRatesCollection.aggregate([
+    {
+        '$match': {
+            'id_user': new ObjectId(user._id)
+        }
+    }
+])
+
+  const mentalRates = await mentalRatesCursor.toArray();
+
+  let messageCount = 0
 
   for await (const message of messages) {
     messageCount = message.messages;
   }
 
   if (messageCount === 0) {
-    textToSend =
-      "Спасибо, что заполнил форму! Я начну показывать сообщение другим пользователям, когда оно пройдет модерацию%0A%0AЧерез 7 дней сможешь увидеть, сколько раз я его показал и какие оценки оно получило. Не забывай каждый день замерять свое настроение, иначе магии не случится 😌";
+    textToSend = 'Спасибо, что заполнил форму! Я начну показывать сообщение другим пользователям, когда оно пройдет модерацию%0A%0AА через 7 дней ты сможешь увидеть, сколько раз я его показал и какие оценки оно получило (для этого у меня есть команда /stata). Не забывай каждый день замерять свое настроение, иначе магии не случится 😌';
   }
 
   const { media_link } = form;
@@ -219,16 +228,10 @@ export const submitForm = async ({
     id_user: new ObjectId(user._id),
   });
 
-  await fetch(
-    `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend}`,
-    { method: "POST" },
-  );
-
-  if (messageCount === 0) {
-    await fetch(
-      `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend2}`,
-      { method: "POST" },
-    );
+  await fetch(`https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend}`, { method: 'POST' })  
+  
+  if (mentalRates.length === 0) {
+    await fetch(`https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend2}`, { method: 'POST' })
   }
 };
 
