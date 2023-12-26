@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useReducer, useRef } from "react";
-import Image from "next/future/image";
+import Image from "next/image";
 import { useRouter } from "next/router";
 
 import Alert from "../Alert";

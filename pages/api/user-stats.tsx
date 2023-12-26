@@ -12,7 +12,7 @@ import {
 } from "../../components/Calendar/utils";
 
 export const config = {
-  runtime: "experimental-edge",
+  runtime: "edge",
 };
 
 export type Data = {

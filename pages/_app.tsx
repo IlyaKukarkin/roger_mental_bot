@@ -1,13 +1,18 @@
 import type { AppProps } from "next/app";
 
+import { i18n } from "@lingui/core";
+import { I18nProvider } from "@lingui/react";
 import Head from "next/head";
 
 import useAmplitudeInit from "../utils/useAmplitudeInit";
 import Loading from "../components/Loading";
+import { useLinguiInit } from "../utils/useLocales";
+
 import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const loading = useAmplitudeInit();
+  useLinguiInit(pageProps.translation);
 
   return (
     <>
@@ -44,7 +49,13 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta name="msapplication-TileColor" content="#041347" />
         <meta name="theme-color" content="#ffffff" />
       </Head>
-      {loading ? <Loading /> : <Component {...pageProps} />}
+      {loading ? (
+        <Loading />
+      ) : (
+        <I18nProvider i18n={i18n}>
+          <Component {...pageProps} />
+        </I18nProvider>
+      )}
     </>
   );
 }

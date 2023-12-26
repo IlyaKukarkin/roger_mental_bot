@@ -1,5 +1,6 @@
 import React, { memo } from "react";
-import Image from "next/image";
+import Image from "next/legacy/image";
+import { Trans } from "@lingui/macro";
 
 import { User2023Stata } from "../../../lib/api/users";
 import RogerLink from "./rogerLink";
@@ -25,7 +26,9 @@ const Welcome = ({ userCreatedAt }: Props) => {
       </div>
 
       <div>
-        <p className="text-3xl">Твоя статистика за год от Роджера</p>
+        <p className="text-3xl">
+          <Trans>Твоя статистика за год от Роджера</Trans>
+        </p>
 
         <p className="mt-4 text-xl">
           {startDate(new Date(userCreatedAt)).toLocaleDateString()} -{" "}
@@ -33,7 +36,9 @@ const Welcome = ({ userCreatedAt }: Props) => {
         </p>
       </div>
 
-      <p className="text-3xl">Смотри, каким был твой год 👉</p>
+      <p className="text-3xl">
+        <Trans>Смотри, каким был твой год 👉</Trans>
+      </p>
 
       <RogerLink />
     </div>
