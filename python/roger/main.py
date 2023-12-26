@@ -54,7 +54,7 @@ from friends import (
 
 
 # текущая версия бота
-VERSION = "2.1.0"
+VERSION = "2.1.1"
 
 # read texts from json file
 with open('texts.json', encoding="utf-8") as t:
