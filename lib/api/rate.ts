@@ -193,7 +193,9 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
     },
   );
 
-  for await (const message of messages) {
+  const notifyUsers: { userId: string; messageText: string }[] = [];
+
+  messagesArray.forEach((message) => {
     const calculatedMessage = calculateRate(message, settings);
 
     const logCalculatedResult = {
@@ -210,30 +212,33 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
 
         log.info(`Message approved`, logCalculatedResult);
 
-        try {
-          await sendMessageToUser(
-            message.user_telegram_id,
-            `Твоё сообщение «${message.text.slice(0, 60)}${
-              message.text.length > 60 ? "..." : ""
-            }» прошло модерацию и будет показываться тем, кому это важно.%0A%0AСпасибо ❤️%0A%0AСоздать новое сообщение можно через команду /fillform`,
-          );
-        } catch (e) {
-          log.error(
-            `Error sending "Message was approved" message to the user`,
-            {
-              ...logData,
-              user: {
-                telegram_id: message.user_telegram_id,
-              },
-            },
-          );
-        }
+        notifyUsers.push({
+          userId: message.user_telegram_id,
+          messageText: message.text,
+        });
       } else {
         log.info(`Message send back to review`, logCalculatedResult);
 
         updateToReview.push(calculatedMessage._id);
       }
     }
+  });
+
+  try {
+    await Promise.all([
+      ...notifyUsers.map(({ userId, messageText }) =>
+        sendMessageToUser(
+          userId,
+          `Твоё сообщение «${messageText.slice(0, 60)}${
+            messageText.length > 60 ? "..." : ""
+          }» прошло модерацию и будет показываться тем, кому это важно.%0A%0AСпасибо ❤️%0A%0AСоздать новое сообщение можно через команду /fillform`,
+        ),
+      ),
+    ]);
+  } catch (e) {
+    log.error(`Error sending "Message was approved" message to the users`, {
+      ...logData,
+    });
   }
 
   // create a filter to update all messages to "Approve"

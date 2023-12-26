@@ -363,9 +363,10 @@ export const getUser2023Stata = async (userId: ObjectId) => {
 
     // Fallback values
     const rates = Object.values(messages).reduce(
-      (acc, currValue) => acc + currValue.total_dislike + currValue.total_like,
+      (acc, currValue) => acc + currValue.total_like,
       0,
     );
+
     const ratesFallbacks: [number, number, number] = [
       statistic.support_rates_2023.lastIndexOf(rates - 1),
       statistic.support_rates_2023.lastIndexOf(rates),
