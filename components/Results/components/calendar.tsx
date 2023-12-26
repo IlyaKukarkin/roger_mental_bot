@@ -62,7 +62,9 @@ const Calendar = ({ months }: Props) => {
               className="group relative z-50 flex flex-col items-center"
             >
               <p className="text-4xl">{getMoodEmoji(getMoodForMonth(data))}</p>
-              <p className="text-xl">{mapMonthToText(Number(month))}</p>
+              <p className="text-base md:text-xl">
+                {mapMonthToText(Number(month))}
+              </p>
               <p className="invisible text-xs group-hover:visible">
                 На основе{" "}
                 {Object.values(data).reduce(
