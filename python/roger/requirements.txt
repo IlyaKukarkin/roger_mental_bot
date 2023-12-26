@@ -2,6 +2,7 @@ aiogram==2.25.1
 aiogram-media-group==0.5.1
 aiohttp==3.8.3
 aiosignal==1.2.0
+amplitude-analytics==1.1.4
 astroid==3.0.1
 async-timeout==4.0.2
 asyncio==3.4.3
