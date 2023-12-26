@@ -55,11 +55,13 @@ const Support = ({ messages, months, userSupportRating }: Props) => {
   const renderNoSupport = () => {
     return (
       <>
-        <p className="mt-32 text-[100px]">😱</p>
+        <div>
+          <p className="text-[100px]">😱</p>
 
-        <p className="mt-6 text-lg">А здесь нет статистики!</p>
+          <p className="text-lg">А здесь нет статистики!</p>
+        </div>
 
-        <p className="mt-6 text-lg">
+        <p className="text-lg">
           Создай сообщение по команде /fillform, чтобы начать поддерживать
           других пользователей
         </p>
@@ -68,15 +70,18 @@ const Support = ({ messages, months, userSupportRating }: Props) => {
   };
 
   return (
-    <div className="flex h-full flex-col items-center font-bold">
-      <p className="mt-24 text-xl">В этом году тебя поддержало</p>
-      <p className="mt-6 text-3xl">{allBadRates} пользователя</p>
+    <div className="flex h-full flex-col items-center justify-evenly font-bold">
+      <div>
+        <p className="text-xl">В этом году тебя поддержало</p>
+
+        <p className="mt-6 text-3xl">{allBadRates} пользователя</p>
+      </div>
 
       {Object.keys(messages).length ? (
         <>
-          <p className="mt-24 text-2xl">Но ты тоже не отставал!</p>
+          <p className="text-2xl">Но ты тоже не отставал!</p>
 
-          <div className="mt-4 grid grid-cols-2 grid-rows-2 items-center justify-center gap-y-8">
+          <div className="grid grid-cols-2 grid-rows-2 items-center justify-center gap-y-8">
             <div className="flex flex-col font-semibold">
               <p>Ты создал</p>
               <p className="text-3xl font-bold">

@@ -50,10 +50,10 @@ const Calendar = ({ months }: Props) => {
   };
 
   return (
-    <div className="flex h-full flex-col items-center font-bold">
-      <p className="mt-24 text-3xl">Каким тебе запомнился каждый месяц</p>
+    <div className="flex h-full flex-col items-center justify-evenly font-bold">
+      <p className="text-3xl">Каким тебе запомнился каждый месяц</p>
 
-      <div className="mt-12 grid grid-cols-4 grid-rows-3 gap-6">
+      <div className="grid grid-cols-4 grid-rows-3 gap-6">
         {Object.entries(months).map(([month, data]) => {
           return (
             <div
@@ -62,7 +62,7 @@ const Calendar = ({ months }: Props) => {
               className="group relative z-50 flex flex-col items-center"
             >
               <p className="text-4xl">{getMoodEmoji(getMoodForMonth(data))}</p>
-              <p className="mt-2 text-xl">{mapMonthToText(Number(month))}</p>
+              <p className="text-xl">{mapMonthToText(Number(month))}</p>
               <p className="invisible text-xs group-hover:visible">
                 На основе{" "}
                 {Object.values(data).reduce(

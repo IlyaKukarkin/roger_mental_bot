@@ -38,25 +38,29 @@ const Mood = ({ totalRates, totalRatesWithMood, userMentalRating }: Props) => {
   }, []);
 
   return (
-    <div className="flex h-full flex-col items-center font-bold">
-      <p className="pt-24 text-3xl">В этом году ты замерил настроение</p>
+    <div className="flex h-full flex-col items-center justify-evenly font-bold">
+      <div>
+        <p className=" text-3xl">В этом году ты замерил настроение</p>
 
-      <p className="pt-10 text-5xl">
-        <b>{totalRates}</b> раз
-      </p>
-
-      <div className="mt-10 grid grid-cols-2 grid-rows-2 items-center justify-center gap-x-6">
-        <span className="text-3xl">
-          <b>{percentageOfRates}%</b>
-        </span>
-        <span className="text-6xl">{mentalRatingEmoji}</span>
-        <span> дней получили от тебя оценку</span>
-        <span>{userMentalRating} место по числу оценок</span>
+        <p className="mt-6 text-5xl">
+          <b>{totalRates}</b> раз
+        </p>
       </div>
 
-      <p className="pt-8 text-4xl md:pt-24">{percentMessage}</p>
+      <div>
+        <div className="grid grid-cols-2 grid-rows-2 items-center justify-center gap-x-6">
+          <span className="text-3xl">
+            <b>{percentageOfRates}%</b>
+          </span>
+          <span className="text-6xl">{mentalRatingEmoji}</span>
+          <span> дней получили от тебя оценку</span>
+          <span>{userMentalRating} место по числу оценок</span>
+        </div>
 
-      <div className="mt-6 flex items-center">
+        <p className="mt-6 text-4xl">{percentMessage}</p>
+      </div>
+
+      <div className="flex items-center">
         <p className="text-6xl">👩‍💻</p>
         <p className="text-lg">
           Дневник настроения очень важен для хорошего ментального здоровья

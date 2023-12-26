@@ -13,8 +13,8 @@ const Welcome = ({ userCreatedAt }: Props) => {
   };
 
   return (
-    <div className="flex h-full flex-col items-center font-bold">
-      <div className="mt-24">
+    <div className="flex h-full flex-col items-center justify-evenly font-bold">
+      <div className="">
         <Image
           src="/android-chrome-512x512.png"
           className="h-32 w-32 rounded-full pt-10 dark:bg-gray-500"
@@ -24,14 +24,16 @@ const Welcome = ({ userCreatedAt }: Props) => {
         />
       </div>
 
-      <p className="pt-8 text-3xl">Твоя статистика за год от Роджера</p>
+      <div>
+        <p className="text-3xl">Твоя статистика за год от Роджера</p>
 
-      <p className="pt-2 text-xl">
-        {startDate(new Date(userCreatedAt)).toLocaleDateString()} -{" "}
-        {new Date().toLocaleDateString()}
-      </p>
+        <p className="mt-4 text-xl">
+          {startDate(new Date(userCreatedAt)).toLocaleDateString()} -{" "}
+          {new Date().toLocaleDateString()}
+        </p>
+      </div>
 
-      <p className="pt-24 text-3xl md:pt-32">Смотри, каким был твой год 👉</p>
+      <p className="text-3xl">Смотри, каким был твой год 👉</p>
 
       <RogerLink />
     </div>

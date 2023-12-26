@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import useMeasure from "react-use-measure";
 import { useSpring, animated } from "@react-spring/web";
 
-import { NUMBER_OF_PAGES, TIME_PER_PAGE } from "../Results2023";
+import { NUMBER_OF_PAGES, TIME_PER_PAGE } from "../../Results2023";
 
 const Timeline = ({
   currIndex,
