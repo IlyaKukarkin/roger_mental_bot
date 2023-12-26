@@ -23,7 +23,7 @@ type Props = {
 };
 
 export const NUMBER_OF_PAGES = 6;
-export const TIME_PER_PAGE = 5000;
+export const TIME_PER_PAGE = 8000;
 
 const Results2023 = ({ statistic }: Props) => {
   const { general, messages, months, userCreatedAt } = statistic;

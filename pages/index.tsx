@@ -1,18 +1,38 @@
-import type { NextPage } from "next";
+import type { NextPage, GetStaticProps } from "next";
 import type { User } from "../lib/api/types";
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import { useLingui } from "@lingui/react";
 
 import { MessageForm } from "../components";
 import { amplitude } from "../utils/useAmplitudeInit";
+import { loadCatalog } from "../utils/useLocales";
 import Loading from "../components/Loading";
+
+export const getStaticProps: GetStaticProps = async (ctx) => {
+  console.log(ctx);
+  const translation = await loadCatalog(ctx.locale!);
+  console.log(translation);
+  
+  return {
+    props: {
+      translation,
+    },
+  };
+};
 
 const Home: NextPage = () => {
   const router = useRouter();
   const { form_id } = router.query;
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
+
+  /**
+   * This hook is needed to subscribe your
+   * component for changes if you use t`` macro
+   */
+  useLingui();
 
   useEffect(() => {
     fetch(`/api/message${window.location.search}`)
