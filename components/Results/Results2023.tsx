@@ -16,6 +16,7 @@ import End from "./components/end";
 import Timeline from "./components/timeline";
 
 import styles from "./styles.module.css";
+import { amplitude } from "../../utils/useAmplitudeInit";
 
 type Props = {
   statistic: User2023Stata;
@@ -52,6 +53,12 @@ const Results2023 = ({ statistic }: Props) => {
       );
     }
   }, [index, transRef]);
+
+  useEffect(() => {
+    amplitude.track(`Open 2023 page #${index + 1}`, {
+      page_id: statistic.userId,
+    });
+  }, [index]);
 
   const onPrevClick = () => {
     if (index !== 0) {

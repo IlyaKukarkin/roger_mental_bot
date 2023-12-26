@@ -47,6 +47,7 @@ export type User2023Stata = {
     };
   };
   userCreatedAt: Date;
+  userId: string;
 };
 
 export const getTelegramId = async (userId: ObjectId): Promise<string> => {
