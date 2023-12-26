@@ -606,11 +606,13 @@ async def settings_change_time_to_send_messages_callback(callback_query: types.C
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await get_user_time_to_send_messages(user["_id"], callback_query.from_user.id, "settings")
 
+
 @botDispatcher.message_handler(commands=['sendnewyearmestoall'])
-async def settings_main_command(message: types.Message):
+async def sendnewyearmestoall_command(message: types.Message):
     """sending new year 2023 message to all
     available for admins only"""
     await send_newyear_message_to_all(message)
+
 
 @botDispatcher.message_handler(content_types='text', state='*')
 async def process_any_command(message: types.Message):

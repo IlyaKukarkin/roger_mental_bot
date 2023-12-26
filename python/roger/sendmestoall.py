@@ -96,6 +96,16 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
 
 async def send_newyear_message_to_all(message: types.Message):
 
+    """
+    Message handler for new year stata command /sendnewyearmestoall
+
+    Parameters:
+    message (TG Message): message to handle
+
+    Returns:
+    None
+    """
+
     admin_user = get_user_by_telegram_id(str(message.chat.id))
 
     if not admin_user["is_admin"]:
@@ -104,7 +114,7 @@ async def send_newyear_message_to_all(message: types.Message):
             "Сорри, ты не админ этого бота. Не расстраивайся, ты же пользователь!"
         )
         return
-    
+
     users = get_all_active_users()
 
     count_received_messages = 0
@@ -113,25 +123,30 @@ async def send_newyear_message_to_all(message: types.Message):
 
     link = "https://rogerbot.tech/2023/"
 
-    message_text_part1 = """
-Привет, друг! 💙
+    message_text_part1 = "Привет, друг! 💙" \
+        "\n\nКоманда Роджера подготовила твою статистику за 2023 год. " \
+        "Переходи по ссылке и узнай, " \
+        "каким цветом можно описать твой год, " \
+        "а еще сколько человек стали счастливее благодаря твоей поддержке." \
+        "\n\nТвоя статистика доступна по ссылке "
 
-Команда Роджера подготовила твою статистику за 2023 год. Переходи по ссылке и узнай, каким цветом можно описать твой год, а еще сколько человек стали счастливее благодаря твоей поддержке.
-
-Твоя статистика доступна по ссылке """ 
-
-    message_text_part2 = """\n\nА если тебе нравится пользоваться Роджером, поделись своей статистикой в соцсетях! Тогда еще больше людей смогут следить за своим настроением вместе с Роджером 😌
-
-С наступающим Новым годом! Загадываем, чтобы каждый день следующего года был только 🟢 цвета.
-
-Твой новогодний Роджер 🎄
-    """
+    message_text_part2 = "\n\nА если тебе нравится пользоваться Роджером, " \
+        "поделись статистикой в соцсетях! " \
+        "Тогда еще больше людей смогут следить " \
+        "за своим настроением вместе с Роджером 😌" \
+        "\n\nС наступающим Новым годом! Загадываем, " \
+        "чтобы каждый день следующего года был только 🟢 цвета." \
+        "\n\nТвой новогодний Роджер 🎄"
 
     for user in users:
         try:
             link += str(user["_id"])
 
-            await botClient.send_message(int(user["telegram_id"]), message_text_part1 + link + message_text_part2, disable_web_page_preview=True)
+            await botClient.send_message(
+                int(user["telegram_id"]),
+                message_text_part1 + link + message_text_part2,
+                disable_web_page_preview=True)
+
             count_received_messages += 1
 
         except (BotBlocked, ChatNotFound):  # если юзер заблочил бота, не падаем
@@ -141,7 +156,7 @@ async def send_newyear_message_to_all(message: types.Message):
 
             count_bot_blocked += 1
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             print("Failed to send a message to a user " + user['telegram_id'])
             print(e)
             count_other_exceptions += 1
@@ -154,4 +169,3 @@ async def send_newyear_message_to_all(message: types.Message):
             ". Прочие ошибки: " + str(count_other_exceptions)
         )
     )
-        
