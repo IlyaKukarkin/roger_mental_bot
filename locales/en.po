@@ -29,16 +29,12 @@ msgstr ""
 msgid "{0, plural, one {и # оранжевой} other {и # оранжевых}}"
 msgstr ""
 
-#: components/Results/components/support.tsx:134
-msgid "{0, plural, one {лайка на сообщения} other {лайков на сообщения}}"
-msgstr ""
-
 #: components/Results/components/calendar.tsx:72
-msgid "{0, plural, one {На основе # оценки} other {На основе # оценок}}"
+msgid "{0, plural, one {На основе # оценки} =21 {На основе # оценки} =31 {На основе # оценки} other {На основе # оценок}}"
 msgstr ""
 
-#: components/Results/components/support.tsx:108
-msgid "{0, plural, one {сообщение для поддержки} other {сообщения для поддержки}}"
+#: components/Results/components/support.tsx:113
+msgid "{0, plural, one {сообщение для поддержки} few {сообщения для поддержки} other {сообщений для поддержки}}"
 msgstr ""
 
 #: components/Results/components/monts.tsx:47
@@ -46,36 +42,36 @@ msgstr ""
 msgid "{0, plural, one {Ты поставил # оценки} other {Ты поставил # оценок}}"
 msgstr ""
 
-#: components/Results/components/support.tsx:85
-msgid "{allBadRates, plural, one {# пользователь} other {# пользователя}}"
+#: components/Results/components/support.tsx:89
+msgid "{allBadRates, plural, one {# пользователь} many {# пользователей} other {# пользователя}}"
 msgstr ""
 
-#: components/Results/components/support.tsx:121
+#: components/Results/components/support.tsx:81
+msgid "{allBadRates, plural, one {В этом году тебя поддержал} other {В этом году тебя поддержало}}"
+msgstr ""
+
+#: components/Results/components/support.tsx:140
+msgid "{countMessageLikes, plural, one {лайк на сообщения} few {лайка на сообщения} other {лайков на сообщения}}"
+msgstr ""
+
+#: components/Results/components/support.tsx:127
 msgid "{countMessageShows, plural, one {человека с плохим настроением} other {человек с плохим настроением}}"
 msgstr ""
 
-#: components/Results/components/mood.tsx:61
-msgid "{percentageOfRates, plural, one {дня получили от тебя оценку} other {дней получили от тебя оценку}}"
-msgstr ""
-
 #: components/Results/components/mood.tsx:50
-msgid "{totalRates, plural, one {раз} other {раза}}"
+msgid "{totalRates, plural, one {раз} few {раза} other {раз}}"
 msgstr ""
 
-#: components/Results/components/mood.tsx:68
-msgid "{userMentalRating, plural, one {# место по числу оценок} other {# место по числу оценок}}"
+#: components/Results/components/mood.tsx:64
+msgid "{userMentalRating} место по числу оценок"
 msgstr ""
 
-#: components/Results/components/support.tsx:144
-msgid "{userSupportRating, plural, one {# место по числу лайков} other {# место по числу лайков}}"
+#: components/Results/components/support.tsx:151
+msgid "{userSupportRating} место по числу лайков"
 msgstr ""
 
 #: components/Results/components/support.tsx:63
 msgid "А здесь нет статистики!"
-msgstr ""
-
-#: components/Results/components/support.tsx:81
-msgid "В этом году тебя поддержало"
 msgstr ""
 
 #: components/Results/components/mood.tsx:45
@@ -86,8 +82,12 @@ msgstr ""
 msgid "Год на легкую улыбочку! А следующий будет еще лучше?"
 msgstr ""
 
-#: components/Results/components/mood.tsx:82
+#: components/Results/components/mood.tsx:74
 msgid "Дневник настроения очень важен для хорошего ментального здоровья"
+msgstr ""
+
+#: components/Results/components/mood.tsx:61
+msgid "дней получили от тебя оценку"
 msgstr ""
 
 #: components/Results/components/calendar.tsx:56
@@ -103,7 +103,7 @@ msgstr ""
 msgid "Неплохо!"
 msgstr ""
 
-#: components/Results/components/support.tsx:96
+#: components/Results/components/support.tsx:101
 msgid "Но ты тоже не отставал!"
 msgstr ""
 
@@ -155,15 +155,15 @@ msgstr ""
 msgid "Ты молодчинка!"
 msgstr ""
 
-#: components/Results/components/support.tsx:117
+#: components/Results/components/support.tsx:123
 msgid "Ты поддержал"
 msgstr ""
 
-#: components/Results/components/support.tsx:130
+#: components/Results/components/support.tsx:136
 msgid "Ты получил"
 msgstr ""
 
-#: components/Results/components/support.tsx:102
+#: components/Results/components/support.tsx:107
 msgid "Ты создал"
 msgstr ""
 

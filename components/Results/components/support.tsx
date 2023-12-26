@@ -78,13 +78,18 @@ const Support = ({ messages, months, userSupportRating }: Props) => {
     <div className="flex h-full flex-col items-center justify-evenly font-bold">
       <div>
         <p className="text-xl">
-          <Trans>В этом году тебя поддержало</Trans>
+          <Plural
+            value={allBadRates}
+            one="В этом году тебя поддержал"
+            other="В этом году тебя поддержало"
+          />
         </p>
 
         <p className="mt-6 text-3xl">
           <Plural
             value={allBadRates}
             one="# пользователь"
+            many="# пользователей"
             other="# пользователя"
           />
         </p>
@@ -108,7 +113,8 @@ const Support = ({ messages, months, userSupportRating }: Props) => {
                 <Plural
                   value={Object.keys(messages).length}
                   one="сообщение для поддержки"
-                  other="сообщения для поддержки"
+                  few="сообщения для поддержки"
+                  other="сообщений для поддержки"
                 />
               </p>
             </div>
@@ -132,8 +138,9 @@ const Support = ({ messages, months, userSupportRating }: Props) => {
               <p className="text-3xl font-bold">{countMessageLikes}</p>
               <p>
                 <Plural
-                  value={Object.keys(messages).length}
-                  one="лайка на сообщения"
+                  value={countMessageLikes}
+                  one="лайк на сообщения"
+                  few="лайка на сообщения"
                   other="лайков на сообщения"
                 />
               </p>
@@ -141,11 +148,7 @@ const Support = ({ messages, months, userSupportRating }: Props) => {
             <div className="flex flex-col font-semibold">
               <p className="text-6xl">{supportRatingEmoji}</p>
               <p className="">
-                <Plural
-                  value={userSupportRating}
-                  one="# место по числу лайков"
-                  other="# место по числу лайков"
-                />
+                <Trans>{userSupportRating} место по числу лайков</Trans>
               </p>
             </div>
           </div>
