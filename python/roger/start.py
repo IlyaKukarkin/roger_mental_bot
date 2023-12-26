@@ -8,7 +8,8 @@ from db.users import get_user_by_telegram_id, update_user_is_active, insert_new_
 from states import Registration
 from keyboards import ask_for_name_kb
 from variables import botClient, botDispatcher
-from amplitudeUtils import amplitude_send_start_source_event
+from amplitude_utils import amplitude_send_start_source_event
+
 
 async def start_command(message: types.Message, args: str):
     """
@@ -43,7 +44,6 @@ async def start_command(message: types.Message, args: str):
         await amplitude_send_start_source_event(str(message.chat.id), args, "started_again")
 
         return
-
 
     if user is None:
         await amplitude_send_start_source_event(str(message.chat.id), args, "first_start")
@@ -127,4 +127,3 @@ async def start_command(message: types.Message, args: str):
         "а потом я начну интересоваться твоим настроением и поддерживать тебя 😌"
     )
     await amplitude_send_start_source_event(str(message.chat.id), args, "start_while_registration")
-

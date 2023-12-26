@@ -67,12 +67,12 @@ amplitude_api_key = os.getenv("AMPLITUDE_API_KEY")
 amplitude = Amplitude(amplitude_api_key)
 
 
-
 @botDispatcher.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
     """команда старт при первом запуске бота"""
     args = message.get_args()
     await start_command(message, args)
+
 
 @botDispatcher.message_handler(commands=['version'])
 async def process_version_command(message: types.Message):
