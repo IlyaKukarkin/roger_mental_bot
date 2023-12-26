@@ -9,6 +9,13 @@
   bottom: 0;
 }
 
+@media (hover: none) and (pointer: coarse) {
+  .root {
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+  }
+}
+
 .wrapper {
   visibility: hidden;
 }

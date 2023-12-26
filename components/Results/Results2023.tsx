@@ -9,6 +9,7 @@ import {
 import { User2023Stata } from "../../lib/api/users";
 import Welcome from "./components/welcome";
 import Mood from "./components/mood";
+import MoodYear from "./components/moodYear";
 import Calendar from "./components/calendar";
 import Support from "./components/support";
 import End from "./components/end";
@@ -20,7 +21,7 @@ type Props = {
   statistic: User2023Stata;
 };
 
-export const NUMBER_OF_PAGES = 5;
+export const NUMBER_OF_PAGES = 6;
 export const TIME_PER_PAGE = 5000;
 
 const Results2023 = ({ statistic }: Props) => {
@@ -100,6 +101,11 @@ const Results2023 = ({ statistic }: Props) => {
     ),
     ({ style }) => (
       <animated.div className={styles.page} style={{ ...style }}>
+        <MoodYear months={months} />
+      </animated.div>
+    ),
+    ({ style }) => (
+      <animated.div className={styles.page} style={{ ...style }}>
         <Support
           months={months}
           messages={messages}
@@ -115,7 +121,9 @@ const Results2023 = ({ statistic }: Props) => {
   ];
 
   return (
-    <div className="relative flex h-screen items-center justify-center bg-gray-800 text-gray-100 md:pt-24">
+    <div
+      className={`relative flex h-screen items-center justify-center bg-gray-800 text-gray-100 md:pt-24 ${styles.root}`}
+    >
       <div
         className={`absolute top-0 left-0 right-0 bottom-0 z-50 flex h-full w-full flex-col items-center justify-center bg-gray-900 text-center ${styles.wrapper}`}
       >
@@ -137,16 +145,16 @@ const Results2023 = ({ statistic }: Props) => {
         >
           {/* Mobile controls */}
           <div
-            className="absolute top-0 left-0 right-1/2 bottom-0 z-30 md:hidden"
+            className="absolute top-0 left-0 right-1/2 bottom-[10%] z-30 md:hidden"
             onClick={onPrevClick}
-            onTouchStart={onPauseStart}
-            onTouchEnd={onPauseEnd}
+            // onTouchStart={onPauseStart}
+            // onTouchEnd={onPauseEnd}
           />
           <div
-            className="absolute top-0 left-1/2 right-0 bottom-0 z-30 md:hidden"
+            className="absolute top-0 left-1/2 right-0 bottom-[10%] z-30 md:hidden"
             onClick={onNextClick}
-            onTouchStart={onPauseStart}
-            onTouchEnd={onPauseEnd}
+            // onTouchStart={onPauseStart}
+            // onTouchEnd={onPauseEnd}
           />
 
           {/* Desctop controls */}

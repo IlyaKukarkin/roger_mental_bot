@@ -1,12 +1,13 @@
 import React, { memo, useMemo } from "react";
 
 import { User2023Stata } from "../../../lib/api/users";
+import RogerLink from "./rogerLink";
 
 type Props = Pick<User2023Stata, "months" | "messages"> &
   Pick<User2023Stata["general"], "userSupportRating">;
 
 const Support = ({ messages, months, userSupportRating }: Props) => {
-  const allBadrates = useMemo(() => {
+  const allBadRates = useMemo(() => {
     let badRates = 0;
 
     for (let i = 0; i < 12; i++) {
@@ -35,21 +36,81 @@ const Support = ({ messages, months, userSupportRating }: Props) => {
     [messages],
   );
 
+  const supportRatingEmoji = useMemo(() => {
+    if (userSupportRating <= 20) {
+      return "🏆";
+    }
+
+    if (userSupportRating <= 50) {
+      return "🥇";
+    }
+
+    if (userSupportRating <= 100) {
+      return "🥈";
+    }
+
+    return "🥉";
+  }, [userSupportRating]);
+
+  const renderNoSupport = () => {
+    return (
+      <>
+        <div>
+          <p className="text-[100px]">😱</p>
+
+          <p className="text-lg">А здесь нет статистики!</p>
+        </div>
+
+        <p className="text-lg">
+          Создай сообщение по команде /fillform, чтобы начать поддерживать
+          других пользователей
+        </p>
+      </>
+    );
+  };
+
   return (
-    <>
-      <p>За год тебя поддержало {allBadrates} человек</p>
-      <br />
+    <div className="flex h-full flex-col items-center justify-evenly font-bold">
+      <div>
+        <p className="text-xl">В этом году тебя поддержало</p>
 
-      <p>Ты создал {Object.keys(messages).length} сообщения</p>
-      <p>И получил {countMessageLikes} лайка за год</p>
-      <p>За год ты поддержал {countMessageShows} человека.</p>
+        <p className="mt-6 text-3xl">{allBadRates} пользователя</p>
+      </div>
 
-      <br />
-      <p>
-        Ты в топ-{userSupportRating} по всему боту по поддержке других
-        пользователей!
-      </p>
-    </>
+      {Object.keys(messages).length ? (
+        <>
+          <p className="text-2xl">Но ты тоже не отставал!</p>
+
+          <div className="grid grid-cols-2 grid-rows-2 items-center justify-center gap-y-8">
+            <div className="flex flex-col font-semibold">
+              <p>Ты создал</p>
+              <p className="text-3xl font-bold">
+                {Object.keys(messages).length}
+              </p>
+              <p>сообщения для поддержки</p>
+            </div>
+            <div className="flex flex-col font-semibold">
+              <p>Ты поддержал</p>
+              <p className="text-3xl font-bold">{countMessageShows}</p>
+              <p>человека с плохим настроением</p>
+            </div>
+            <div className="flex flex-col font-semibold">
+              <p>Ты получил</p>
+              <p className="text-3xl font-bold">{countMessageLikes}</p>
+              <p>лайков на сообщения</p>
+            </div>
+            <div className="flex flex-col font-semibold">
+              <p className="text-6xl">{supportRatingEmoji}</p>
+              <p className="">{userSupportRating} место по числу лайков</p>
+            </div>
+          </div>
+        </>
+      ) : (
+        renderNoSupport()
+      )}
+
+      <RogerLink />
+    </div>
   );
 };
 
