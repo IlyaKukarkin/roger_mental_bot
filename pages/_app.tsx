@@ -12,7 +12,6 @@ import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const loading = useAmplitudeInit();
-  console.log(pageProps);
   useLinguiInit(pageProps.translation);
 
   return (

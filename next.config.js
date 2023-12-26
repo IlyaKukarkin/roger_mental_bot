@@ -6,10 +6,7 @@ const nextConfig = {
     locales: ["ru", "en"],
     defaultLocale: "ru",
   },
-  reactStrictMode: true,
-  swcMinify: true,
   experimental: {
-    legacyBrowsers: false,
     swcPlugins: [["@lingui/swc-plugin", {}]],
   },
 };

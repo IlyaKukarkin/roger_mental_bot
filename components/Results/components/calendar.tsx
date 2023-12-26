@@ -1,4 +1,5 @@
 import React, { memo, useState } from "react";
+import { Trans, Plural } from "@lingui/macro";
 
 import { mapMonthToText } from "../utils";
 import { MOOD } from "../../Calendar/utils";
@@ -51,7 +52,9 @@ const Calendar = ({ months }: Props) => {
 
   return (
     <div className="flex h-full flex-col items-center justify-evenly font-bold">
-      <p className="text-3xl">Каким тебе запомнился каждый месяц</p>
+      <p className="text-3xl">
+        <Trans>Каким тебе запомнился каждый месяц</Trans>
+      </p>
 
       <div className="grid grid-cols-4 grid-rows-3 gap-2 md:gap-6">
         {Object.entries(months).map(([month, data]) => {
@@ -66,12 +69,14 @@ const Calendar = ({ months }: Props) => {
                 {mapMonthToText(Number(month))}
               </p>
               <p className="invisible text-xs group-hover:visible">
-                На основе{" "}
-                {Object.values(data).reduce(
-                  (acc, currValue, index) => acc + (!index ? 0 : currValue),
-                  0,
-                )}{" "}
-                оценок
+                <Plural
+                  value={Object.values(data).reduce(
+                    (acc, currValue, index) => acc + (!index ? 0 : currValue),
+                    0,
+                  )}
+                  one="На основе # оценки"
+                  other="На основе # оценок"
+                />
               </p>
             </div>
           );

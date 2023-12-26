@@ -1,4 +1,5 @@
 import React, { useMemo, memo } from "react";
+import { Trans, Plural } from "@lingui/macro";
 
 import { User2023Stata } from "../../../lib/api/users";
 import RogerLink from "./rogerLink";
@@ -16,9 +17,9 @@ const Mood = ({ totalRates, totalRatesWithMood, userMentalRating }: Props) => {
 
   const percentMessage = useMemo(() => {
     if (percentageOfRates > 50) {
-      return "Ты молодчинка!";
+      return <Trans>Ты молодчинка!</Trans>;
     }
-    return "Неплохо!";
+    return <Trans>Неплохо!</Trans>;
   }, [percentageOfRates]);
 
   const mentalRatingEmoji = useMemo(() => {
@@ -40,10 +41,13 @@ const Mood = ({ totalRates, totalRatesWithMood, userMentalRating }: Props) => {
   return (
     <div className="flex h-full flex-col items-center justify-evenly font-bold">
       <div>
-        <p className=" text-3xl">В этом году ты замерил настроение</p>
+        <p className=" text-3xl">
+          <Trans>В этом году ты замерил настроение</Trans>
+        </p>
 
         <p className="mt-6 text-5xl">
-          <b>{totalRates}</b> раз
+          <b>{totalRates}</b>{" "}
+          <Plural value={totalRates} one="раз" other="раза" />
         </p>
       </div>
 
@@ -53,8 +57,20 @@ const Mood = ({ totalRates, totalRatesWithMood, userMentalRating }: Props) => {
             <b>{percentageOfRates}%</b>
           </span>
           <span className="text-6xl">{mentalRatingEmoji}</span>
-          <span> дней получили от тебя оценку</span>
-          <span>{userMentalRating} место по числу оценок</span>
+          <span>
+            <Plural
+              value={percentageOfRates}
+              one="дня получили от тебя оценку"
+              other="дней получили от тебя оценку"
+            />
+          </span>
+          <span>
+            <Plural
+              value={userMentalRating}
+              one="# место по числу оценок"
+              other="# место по числу оценок"
+            />
+          </span>
         </div>
 
         <p className="mt-6 text-4xl">{percentMessage}</p>
@@ -63,7 +79,9 @@ const Mood = ({ totalRates, totalRatesWithMood, userMentalRating }: Props) => {
       <div className="flex items-center">
         <p className="text-6xl">👩‍💻</p>
         <p className="text-lg">
-          Дневник настроения очень важен для хорошего ментального здоровья
+          <Trans>
+            Дневник настроения очень важен для хорошего ментального здоровья
+          </Trans>
         </p>
       </div>
 

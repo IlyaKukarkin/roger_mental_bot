@@ -11,7 +11,7 @@ module.exports = {
   catalogs: [
     {
       path: "locales/{locale}",
-      include: ["locales/"],
+      include: ["components/", "pages/"],
     },
   ],
 };

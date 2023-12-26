@@ -1,4 +1,5 @@
 import React, { memo, useMemo } from "react";
+import { Trans, Plural } from "@lingui/macro";
 
 import { User2023Stata } from "../../../lib/api/users";
 import { mapMonthToText } from "../utils";
@@ -36,32 +37,58 @@ const Months = ({ months }: Props) => {
 
   return (
     <>
-      <p>Самый позитивный месяц</p>
+      <p>
+        <Trans>Самый позитивный месяц</Trans>
+      </p>
       <p>
         <b>{mapMonthToText(bestMonth)}</b>
       </p>
       <p>
-        Ты поставил{" "}
-        {Object.values(months[bestMonth]).reduce(
-          (accum, currValue, index) => accum + (index ? currValue : 0),
-          0,
-        )}{" "}
-        оценки — из них {months[bestMonth][4]} зелёных и {months[bestMonth][3]}{" "}
-        желтых
+        <Plural
+          value={Object.values(months[bestMonth]).reduce(
+            (accum, currValue, index) => accum + (index ? currValue : 0),
+            0,
+          )}
+          one="Ты поставил # оценки"
+          other="Ты поставил # оценок"
+        />
+        <Plural
+          value={months[bestMonth][4]}
+          one=" — из них # зелёная"
+          other=" — из них # зелёных"
+        />
+        <Plural
+          value={months[bestMonth][3]}
+          one="и # желтая"
+          other="и # желтых"
+        />
       </p>
       <br />
-      <p>Самый грустный месяц</p>
+      <p>
+        <Trans>Самый грустный месяц</Trans>
+      </p>
       <p>
         <b>{mapMonthToText(worthMonth)}</b>
       </p>
       <p>
-        Ты поставил{" "}
-        {Object.values(months[worthMonth]).reduce(
-          (accum, currValue, index) => accum + (index ? currValue : 0),
-          0,
-        )}{" "}
-        оценки — из них {months[worthMonth][1]} красных и{" "}
-        {months[worthMonth][2]} оранжевых
+        <Plural
+          value={Object.values(months[bestMonth]).reduce(
+            (accum, currValue, index) => accum + (index ? currValue : 0),
+            0,
+          )}
+          one="Ты поставил # оценки"
+          other="Ты поставил # оценок"
+        />
+        <Plural
+          value={months[worthMonth][1]}
+          one=" — из них # красный"
+          other=" — из них # красных"
+        />
+        <Plural
+          value={months[worthMonth][2]}
+          one="и # оранжевой"
+          other="и # оранжевых"
+        />
       </p>
     </>
   );

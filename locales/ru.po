@@ -6,3 +6,167 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: @lingui/cli\n"
 "Language: ru\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: components/Results/components/monts.tsx:55
+msgid "{0, plural, one {— из них # зелёная} other {— из них # зелёных}}"
+msgstr "{0, plural, one {— из них # зелёная} other {— из них # зелёных}}"
+
+#: components/Results/components/monts.tsx:82
+msgid "{0, plural, one {— из них # красный} other {— из них # красных}}"
+msgstr "{0, plural, one {— из них # красный} other {— из них # красных}}"
+
+#: components/Results/components/monts.tsx:60
+msgid "{0, plural, one {и # желтая} other {и # желтых}}"
+msgstr "{0, plural, one {и # желтая} other {и # желтых}}"
+
+#: components/Results/components/monts.tsx:87
+msgid "{0, plural, one {и # оранжевой} other {и # оранжевых}}"
+msgstr "{0, plural, one {и # оранжевой} other {и # оранжевых}}"
+
+#: components/Results/components/support.tsx:134
+msgid "{0, plural, one {лайка на сообщения} other {лайков на сообщения}}"
+msgstr "{0, plural, one {лайка на сообщения} other {лайков на сообщения}}"
+
+#: components/Results/components/calendar.tsx:72
+msgid "{0, plural, one {На основе # оценки} other {На основе # оценок}}"
+msgstr "{0, plural, one {На основе # оценки} other {На основе # оценок}}"
+
+#: components/Results/components/support.tsx:108
+msgid "{0, plural, one {сообщение для поддержки} other {сообщения для поддержки}}"
+msgstr "{0, plural, one {сообщение для поддержки} other {сообщения для поддержки}}"
+
+#: components/Results/components/monts.tsx:47
+#: components/Results/components/monts.tsx:74
+msgid "{0, plural, one {Ты поставил # оценки} other {Ты поставил # оценок}}"
+msgstr "{0, plural, one {Ты поставил # оценки} other {Ты поставил # оценок}}"
+
+#: components/Results/components/support.tsx:85
+msgid "{allBadRates, plural, one {# пользователь} other {# пользователя}}"
+msgstr "{allBadRates, plural, one {# пользователь} other {# пользователя}}"
+
+#: components/Results/components/support.tsx:121
+msgid "{countMessageShows, plural, one {человека с плохим настроением} other {человек с плохим настроением}}"
+msgstr "{countMessageShows, plural, one {человека с плохим настроением} other {человек с плохим настроением}}"
+
+#: components/Results/components/mood.tsx:61
+msgid "{percentageOfRates, plural, one {дня получили от тебя оценку} other {дней получили от тебя оценку}}"
+msgstr "{percentageOfRates, plural, one {дня получили от тебя оценку} other {дней получили от тебя оценку}}"
+
+#: components/Results/components/mood.tsx:50
+msgid "{totalRates, plural, one {раз} other {раза}}"
+msgstr "{totalRates, plural, one {раз} other {раза}}"
+
+#: components/Results/components/mood.tsx:68
+msgid "{userMentalRating, plural, one {# место по числу оценок} other {# место по числу оценок}}"
+msgstr "{userMentalRating, plural, one {# место по числу оценок} other {# место по числу оценок}}"
+
+#: components/Results/components/support.tsx:144
+msgid "{userSupportRating, plural, one {# место по числу лайков} other {# место по числу лайков}}"
+msgstr "{userSupportRating, plural, one {# место по числу лайков} other {# место по числу лайков}}"
+
+#: components/Results/components/support.tsx:63
+msgid "А здесь нет статистики!"
+msgstr "А здесь нет статистики!"
+
+#: components/Results/components/support.tsx:81
+msgid "В этом году тебя поддержало"
+msgstr "В этом году тебя поддержало"
+
+#: components/Results/components/mood.tsx:45
+msgid "В этом году ты замерил настроение"
+msgstr "В этом году ты замерил настроение"
+
+#: components/Results/components/moodYear.tsx:68
+msgid "Год на легкую улыбочку! А следующий будет еще лучше?"
+msgstr "Год на легкую улыбочку! А следующий будет еще лучше?"
+
+#: components/Results/components/mood.tsx:82
+msgid "Дневник настроения очень важен для хорошего ментального здоровья"
+msgstr "Дневник настроения очень важен для хорошего ментального здоровья"
+
+#: components/Results/components/calendar.tsx:56
+msgid "Каким тебе запомнился каждый месяц"
+msgstr "Каким тебе запомнился каждый месяц"
+
+#: components/Results/components/moodYear.tsx:55
+#: components/Results/components/moodYear.tsx:76
+msgid "Наша умная система сообщила, что ты недостаточно часто замерял настроение, чтобы открыть смайлик. Продолжай замерять настроение!"
+msgstr "Наша умная система сообщила, что ты недостаточно часто замерял настроение, чтобы открыть смайлик. Продолжай замерять настроение!"
+
+#: components/Results/components/mood.tsx:22
+msgid "Неплохо!"
+msgstr "Неплохо!"
+
+#: components/Results/components/support.tsx:96
+msgid "Но ты тоже не отставал!"
+msgstr "Но ты тоже не отставал!"
+
+#: components/Results/components/moodYear.tsx:62
+msgid "Ну, этот год хотя бы заканчивается — следующий точно будет лучше!"
+msgstr "Ну, этот год хотя бы заканчивается — следующий точно будет лучше!"
+
+#: components/Results/components/moodYear.tsx:73
+msgid "Отличный год! Будет что рассказать внукам"
+msgstr "Отличный год! Будет что рассказать внукам"
+
+#: components/Results/components/end.tsx:15
+msgid "С любовью и хорошим настроением,"
+msgstr "С любовью и хорошим настроением,"
+
+#: components/Results/components/end.tsx:12
+msgid "С Новым годом!"
+msgstr "С Новым годом!"
+
+#: components/Results/components/monts.tsx:68
+msgid "Самый грустный месяц"
+msgstr "Самый грустный месяц"
+
+#: components/Results/components/monts.tsx:41
+msgid "Самый позитивный месяц"
+msgstr "Самый позитивный месяц"
+
+#: components/Results/components/moodYear.tsx:87
+msgid "Смайлик, описывающий твой 2023 год"
+msgstr "Смайлик, описывающий твой 2023 год"
+
+#: components/Results/components/welcome.tsx:40
+msgid "Смотри, каким был твой год 👉"
+msgstr "Смотри, каким был твой год 👉"
+
+#: components/Results/components/support.tsx:68
+msgid "Создай сообщение по команде /fillform, чтобы начать поддерживать других пользователей"
+msgstr "Создай сообщение по команде /fillform, чтобы начать поддерживать других пользователей"
+
+#: components/Results/components/end.tsx:18
+msgid "твой Роджер"
+msgstr "твой Роджер"
+
+#: components/Results/components/welcome.tsx:30
+msgid "Твоя статистика за год от Роджера"
+msgstr "Твоя статистика за год от Роджера"
+
+#: components/Results/components/mood.tsx:20
+msgid "Ты молодчинка!"
+msgstr "Ты молодчинка!"
+
+#: components/Results/components/support.tsx:117
+msgid "Ты поддержал"
+msgstr "Ты поддержал"
+
+#: components/Results/components/support.tsx:130
+msgid "Ты получил"
+msgstr "Ты получил"
+
+#: components/Results/components/support.tsx:102
+msgid "Ты создал"
+msgstr "Ты создал"
+
+#: components/Results/components/moodYear.tsx:71
+msgid "Хороший год выдался, не правда ли?"
+msgstr "Хороший год выдался, не правда ли?"

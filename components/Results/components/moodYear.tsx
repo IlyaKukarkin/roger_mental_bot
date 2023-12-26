@@ -1,4 +1,5 @@
 import React, { memo, useMemo } from "react";
+import { Trans } from "@lingui/macro";
 
 import { User2023Stata } from "../../../lib/api/users";
 import RogerLink from "./rogerLink";
@@ -50,23 +51,41 @@ const MoodYear = ({ months }: Props) => {
   const getYearText = useMemo(() => {
     switch (getYearMood) {
       case 0:
-        return "Наша умная система сообщила, что ты недостаточно часто замерял настроение, чтобы открыть смайлик. Продолжай замерять настроение!";
+        return (
+          <Trans>
+            Наша умная система сообщила, что ты недостаточно часто замерял
+            настроение, чтобы открыть смайлик. Продолжай замерять настроение!
+          </Trans>
+        );
       case 1:
-        return "Ну, этот год хотя бы заканчивается — следующий точно будет лучше!";
+        return (
+          <Trans>
+            Ну, этот год хотя бы заканчивается — следующий точно будет лучше!
+          </Trans>
+        );
       case 2:
-        return "Год на легкую улыбочку! А следующий будет еще лучше? ";
+        return (
+          <Trans>Год на легкую улыбочку! А следующий будет еще лучше? </Trans>
+        );
       case 3:
-        return "Хороший год выдался, не правда ли? ";
+        return <Trans>Хороший год выдался, не правда ли? </Trans>;
       case 4:
-        return "Отличный год! Будет что рассказать внукам";
+        return <Trans>Отличный год! Будет что рассказать внукам</Trans>;
       default:
-        return "Наша умная система сообщила, что ты недостаточно часто замерял настроение, чтобы открыть смайлик. Продолжай замерять настроение!";
+        return (
+          <Trans>
+            Наша умная система сообщила, что ты недостаточно часто замерял
+            настроение, чтобы открыть смайлик. Продолжай замерять настроение!
+          </Trans>
+        );
     }
   }, [getYearMood]);
 
   return (
     <div className="flex h-full flex-col items-center justify-evenly font-bold">
-      <p className="text-3xl">Смайлик, описывающий твой 2023 год</p>
+      <p className="text-3xl">
+        <Trans>Смайлик, описывающий твой 2023 год</Trans>
+      </p>
 
       <p className="-my-24 text-[250px]">{getYearEmoji}</p>
 

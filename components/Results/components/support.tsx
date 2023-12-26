@@ -1,4 +1,5 @@
 import React, { memo, useMemo } from "react";
+import { Trans, Plural } from "@lingui/macro";
 
 import { User2023Stata } from "../../../lib/api/users";
 import RogerLink from "./rogerLink";
@@ -58,12 +59,16 @@ const Support = ({ messages, months, userSupportRating }: Props) => {
         <div>
           <p className="text-[100px]">😱</p>
 
-          <p className="text-lg">А здесь нет статистики!</p>
+          <p className="text-lg">
+            <Trans>А здесь нет статистики!</Trans>
+          </p>
         </div>
 
         <p className="text-lg">
-          Создай сообщение по команде /fillform, чтобы начать поддерживать
-          других пользователей
+          <Trans>
+            Создай сообщение по команде /fillform, чтобы начать поддерживать
+            других пользователей
+          </Trans>
         </p>
       </>
     );
@@ -72,36 +77,76 @@ const Support = ({ messages, months, userSupportRating }: Props) => {
   return (
     <div className="flex h-full flex-col items-center justify-evenly font-bold">
       <div>
-        <p className="text-xl">В этом году тебя поддержало</p>
+        <p className="text-xl">
+          <Trans>В этом году тебя поддержало</Trans>
+        </p>
 
-        <p className="mt-6 text-3xl">{allBadRates} пользователя</p>
+        <p className="mt-6 text-3xl">
+          <Plural
+            value={allBadRates}
+            one="# пользователь"
+            other="# пользователя"
+          />
+        </p>
       </div>
 
       {Object.keys(messages).length ? (
         <>
-          <p className="text-2xl">Но ты тоже не отставал!</p>
+          <p className="text-2xl">
+            <Trans>Но ты тоже не отставал!</Trans>
+          </p>
 
           <div className="grid grid-cols-2 grid-rows-2 items-center justify-center gap-y-8">
             <div className="flex flex-col font-semibold">
-              <p>Ты создал</p>
+              <p>
+                <Trans>Ты создал</Trans>
+              </p>
               <p className="text-3xl font-bold">
                 {Object.keys(messages).length}
               </p>
-              <p>сообщения для поддержки</p>
+              <p>
+                <Plural
+                  value={Object.keys(messages).length}
+                  one="сообщение для поддержки"
+                  other="сообщения для поддержки"
+                />
+              </p>
             </div>
             <div className="flex flex-col font-semibold">
-              <p>Ты поддержал</p>
+              <p>
+                <Trans>Ты поддержал</Trans>
+              </p>
               <p className="text-3xl font-bold">{countMessageShows}</p>
-              <p>человека с плохим настроением</p>
+              <p>
+                <Plural
+                  value={countMessageShows}
+                  one="человека с плохим настроением"
+                  other="человек с плохим настроением"
+                />
+              </p>
             </div>
             <div className="flex flex-col font-semibold">
-              <p>Ты получил</p>
+              <p>
+                <Trans>Ты получил</Trans>
+              </p>
               <p className="text-3xl font-bold">{countMessageLikes}</p>
-              <p>лайков на сообщения</p>
+              <p>
+                <Plural
+                  value={Object.keys(messages).length}
+                  one="лайка на сообщения"
+                  other="лайков на сообщения"
+                />
+              </p>
             </div>
             <div className="flex flex-col font-semibold">
               <p className="text-6xl">{supportRatingEmoji}</p>
-              <p className="">{userSupportRating} место по числу лайков</p>
+              <p className="">
+                <Plural
+                  value={userSupportRating}
+                  one="# место по числу лайков"
+                  other="# место по числу лайков"
+                />
+              </p>
             </div>
           </div>
         </>
