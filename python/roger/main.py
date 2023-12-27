@@ -54,7 +54,7 @@ from friends import (
 
 
 # текущая версия бота
-VERSION = "2.1.1"
+VERSION = "2.1.2"
 
 # read texts from json file
 with open('texts.json', encoding="utf-8") as t:
@@ -606,12 +606,6 @@ async def settings_change_time_to_send_messages_callback(callback_query: types.C
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await get_user_time_to_send_messages(user["_id"], callback_query.from_user.id, "settings")
 
-
-@botDispatcher.message_handler(commands=['sendnewyearmestoall'])
-async def sendnewyearmestoall_command(message: types.Message):
-    """sending new year 2023 message to all
-    available for admins only"""
-    await send_newyear_message_to_all(message)
 
 
 @botDispatcher.message_handler(commands=['newyearstata'])
