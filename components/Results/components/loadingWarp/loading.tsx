@@ -93,14 +93,14 @@ const Loading = () => {
 
   return (
     <div className="relative h-full w-full">
-      <article className={`bg-gray-800 text-gray-100 ${styles.article}`}>
+      <article className={`bg-results text-gray-100 ${styles.article}`}>
         <h2>
           Одно мгновение...
           <br />
           <br />
           Собираем твою статистику
           <br />
-          за 2023 год!
+          за 2023 год
         </h2>
       </article>
       <div className={`${styles.warp}`}>

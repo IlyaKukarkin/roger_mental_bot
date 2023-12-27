@@ -47,6 +47,7 @@ export type User2023Stata = {
     };
   };
   userCreatedAt: Date;
+  userId: string;
 };
 
 export const getTelegramId = async (userId: ObjectId): Promise<string> => {
@@ -280,7 +281,7 @@ export const getUser2023Stata = async (userId: ObjectId) => {
     getUserById(userId),
   ]);
 
-  const result: User2023Stata = {
+  const result: Omit<User2023Stata, "userId"> = {
     general: {
       totalRates: 0,
       totalRatesWithMood: 0,

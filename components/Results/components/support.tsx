@@ -1,12 +1,14 @@
 import React, { memo, useMemo } from "react";
+import { Trans, Plural } from "@lingui/macro";
 
 import { User2023Stata } from "../../../lib/api/users";
+import RogerLink from "./rogerLink";
 
 type Props = Pick<User2023Stata, "months" | "messages"> &
   Pick<User2023Stata["general"], "userSupportRating">;
 
 const Support = ({ messages, months, userSupportRating }: Props) => {
-  const allBadrates = useMemo(() => {
+  const allBadRates = useMemo(() => {
     let badRates = 0;
 
     for (let i = 0; i < 12; i++) {
@@ -35,21 +37,128 @@ const Support = ({ messages, months, userSupportRating }: Props) => {
     [messages],
   );
 
+  const supportRatingEmoji = useMemo(() => {
+    if (userSupportRating <= 20) {
+      return "🏆";
+    }
+
+    if (userSupportRating <= 50) {
+      return "🥇";
+    }
+
+    if (userSupportRating <= 100) {
+      return "🥈";
+    }
+
+    return "🥉";
+  }, [userSupportRating]);
+
+  const renderNoSupport = () => {
+    return (
+      <>
+        <div>
+          <p className="text-[100px]">😱</p>
+
+          <p className="text-lg">
+            <Trans>А здесь нет статистики!</Trans>
+          </p>
+        </div>
+
+        <p className="text-lg">
+          <Trans>
+            Создай сообщение по команде /fillform, чтобы начать поддерживать
+            других пользователей
+          </Trans>
+        </p>
+      </>
+    );
+  };
+
   return (
-    <>
-      <p>За год тебя поддержало {allBadrates} человек</p>
-      <br />
+    <div className="flex h-full flex-col items-center justify-evenly font-bold">
+      <div>
+        <p className="text-xl">
+          <Plural
+            value={allBadRates}
+            one="В этом году тебя поддержал"
+            other="В этом году тебя поддержало"
+          />
+        </p>
 
-      <p>Ты создал {Object.keys(messages).length} сообщения</p>
-      <p>И получил {countMessageLikes} лайка за год</p>
-      <p>За год ты поддержал {countMessageShows} человека.</p>
+        <p className="mt-6 text-3xl">
+          <Plural
+            value={allBadRates}
+            one="# пользователь"
+            many="# пользователей"
+            other="# пользователя"
+          />
+        </p>
+      </div>
 
-      <br />
-      <p>
-        Ты в топ-{userSupportRating} по всему боту по поддержке других
-        пользователей!
-      </p>
-    </>
+      {Object.keys(messages).length ? (
+        <>
+          <p className="text-2xl">
+            <Trans>Но ты тоже не отставал!</Trans>
+          </p>
+
+          <div className="grid grid-cols-2 grid-rows-2 items-center justify-center gap-y-8">
+            <div className="flex flex-col font-semibold">
+              <p>
+                <Trans>Ты создал</Trans>
+              </p>
+              <p className="text-3xl font-bold">
+                {Object.keys(messages).length}
+              </p>
+              <p>
+                <Plural
+                  value={Object.keys(messages).length}
+                  one="сообщение для поддержки"
+                  few="сообщения для поддержки"
+                  other="сообщений для поддержки"
+                />
+              </p>
+            </div>
+            <div className="flex flex-col font-semibold">
+              <p>
+                <Trans>Ты поддержал</Trans>
+              </p>
+              <p className="text-3xl font-bold">{countMessageShows}</p>
+              <p>
+                <Plural
+                  value={countMessageShows}
+                  one="человека с плохим настроением"
+                  other="человек с плохим настроением"
+                />
+              </p>
+            </div>
+            <div className="flex flex-col font-semibold">
+              <p>
+                <Trans>Ты получил</Trans>
+              </p>
+              <p className="text-3xl font-bold">{countMessageLikes}</p>
+              <p>
+                <Plural
+                  value={countMessageLikes}
+                  one="лайк на сообщения"
+                  few="лайка на сообщения"
+                  other="лайков на сообщения"
+                />
+              </p>
+            </div>
+            <div className="flex flex-col font-semibold">
+              <p className="text-6xl">{supportRatingEmoji}</p>
+              <p className="">
+                <Trans>{userSupportRating} место по числу лайков</Trans>
+              </p>
+            </div>
+          </div>
+        </>
+      ) : (
+        renderNoSupport()
+      )}
+
+      <RogerLink />
+    </div>
   );
 };
 
