@@ -2,11 +2,13 @@ import type { NextPage, GetStaticPropsContext } from "next";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { useLingui } from "@lingui/react";
 
 import { amplitude } from "../../utils/useAmplitudeInit";
 import { User2023Stata } from "../../lib/api/users";
 import Results2023 from "../../components/Results/Results2023";
 import Loading from "../../components/Results/components/loadingWarp/loading";
+import { loadCatalog } from "../../utils/useLocales";
 
 import styles from "./styles.module.css";
 
@@ -19,6 +21,12 @@ const Results2023Page: NextPage<Props> = ({ statistic }) => {
   const { t: trackingId } = router.query;
   const userId = router.query.userid;
   const [showLoadingAnimation, setShowLoadingAnimation] = useState(true);
+
+  /**
+   * This hook is needed to subscribe your
+   * component for changes if you use t`` macro
+   */
+  useLingui();
 
   useEffect(() => {
     // Mobile ViewPort height fix
@@ -62,7 +70,7 @@ const Results2023Page: NextPage<Props> = ({ statistic }) => {
 export async function getStaticProps(
   context: GetStaticPropsContext<{ userid: string }, string>,
 ) {
-  const { params } = context;
+  const { params, locale } = context;
   const userId = params && params.userid;
 
   const apiURL =
@@ -70,12 +78,16 @@ export async function getStaticProps(
       ? "http://localhost:3000/api"
       : "https://rogerbot.tech/api";
 
-  const res = await fetch(`${apiURL}/statistic?user_id=${userId}`);
+  const [res, translation] = await Promise.all([
+    fetch(`${apiURL}/statistic?user_id=${userId}`),
+    loadCatalog(locale!),
+  ]);
   const statistic = await res.json();
 
   return {
     props: {
       statistic: { ...statistic, userId },
+      translation,
     },
     revalidate: 86400, // 1 Day in seconds
   };
