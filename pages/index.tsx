@@ -11,7 +11,12 @@ import { loadCatalog } from "../utils/useLocales";
 import Loading from "../components/Loading";
 
 export const getStaticProps: GetStaticProps = async (ctx) => {
+  console.log("getStaticProps -> locale", ctx.locale);
+  console.log("getStaticProps -> ctx", ctx);
+
   const translation = await loadCatalog(ctx.locale!);
+
+  console.log("getStaticProps -> translation", translation);
 
   return {
     props: {

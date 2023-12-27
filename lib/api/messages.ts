@@ -36,7 +36,7 @@ export type Message = {
 };
 
 export type MessageWithRates = {
-  count: number;
+  total: number;
 };
 
 export const checkFormId = async (
@@ -253,5 +253,5 @@ export const countCreatedMessagesByUser2023 = async (userId: ObjectId) => {
 
   const messages = await messagesCursor.toArray();
 
-  return messages.length ? messages[0].count : 0;
+  return messages.length ? messages[0].total : 0;
 };

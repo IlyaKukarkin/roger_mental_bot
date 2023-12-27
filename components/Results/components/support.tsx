@@ -36,7 +36,7 @@ const Support = ({
   const countMessageShows = useMemo(
     () =>
       Object.values(messages).reduce(
-        (acc, currValue) => acc + currValue.shows - currValue.dislikes,
+        (acc, currValue) => acc + currValue.shows,
         0,
       ),
     [messages],

@@ -354,7 +354,7 @@ const calculateRate = (
 
 export const get2023UsersRates = async (userId: ObjectId) => {
   const client = await clientPromise;
-  const rateCol = client.db("roger-bot-db").collection("rate");
+  const rateCol = client.db("roger-bot-db").collection("user_messages");
 
   const rates2023Cursor: FindCursor<User2023Rates> = await rateCol.aggregate([
     {
