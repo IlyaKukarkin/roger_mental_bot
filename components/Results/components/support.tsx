@@ -5,9 +5,14 @@ import { User2023Stata } from "../../../lib/api/users";
 import RogerLink from "./rogerLink";
 
 type Props = Pick<User2023Stata, "months" | "messages"> &
-  Pick<User2023Stata["general"], "userSupportRating">;
+  Pick<User2023Stata["general"], "userSupportRating" | "totalCreatedMessages">;
 
-const Support = ({ messages, months, userSupportRating }: Props) => {
+const Support = ({
+  messages,
+  months,
+  userSupportRating,
+  totalCreatedMessages,
+}: Props) => {
   const allBadRates = useMemo(() => {
     let badRates = 0;
 
@@ -31,7 +36,7 @@ const Support = ({ messages, months, userSupportRating }: Props) => {
   const countMessageShows = useMemo(
     () =>
       Object.values(messages).reduce(
-        (acc, currValue) => acc + currValue.rates,
+        (acc, currValue) => acc + currValue.shows - currValue.dislikes,
         0,
       ),
     [messages],
@@ -106,12 +111,10 @@ const Support = ({ messages, months, userSupportRating }: Props) => {
               <p>
                 <Trans>Ты создал</Trans>
               </p>
-              <p className="text-3xl font-bold">
-                {Object.keys(messages).length}
-              </p>
+              <p className="text-3xl font-bold">{totalCreatedMessages}</p>
               <p>
                 <Plural
-                  value={Object.keys(messages).length}
+                  value={totalCreatedMessages}
                   one="сообщение для поддержки"
                   few="сообщения для поддержки"
                   other="сообщений для поддержки"

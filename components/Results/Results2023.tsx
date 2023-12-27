@@ -116,6 +116,7 @@ const Results2023 = ({ statistic }: Props) => {
         <Support
           months={months}
           messages={messages}
+          totalCreatedMessages={general.totalCreatedMessages}
           userSupportRating={general.userSupportRating}
         />
       </animated.div>

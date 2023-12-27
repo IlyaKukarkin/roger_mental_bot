@@ -35,9 +35,8 @@ export type Message = {
   original_media_link: string;
 };
 
-export type MessageWithRates = Message & {
-  total_like: number;
-  total_dislike: number;
+export type MessageWithRates = {
+  count: number;
 };
 
 export const checkFormId = async (
@@ -232,7 +231,7 @@ export const submitForm = async ({
   }
 };
 
-export const getAllMessagesWithRatesByUser2023 = async (userId: ObjectId) => {
+export const countCreatedMessagesByUser2023 = async (userId: ObjectId) => {
   const client = await clientPromise;
   const collection = client.db("roger-bot-db").collection("messages");
 
@@ -241,71 +240,18 @@ export const getAllMessagesWithRatesByUser2023 = async (userId: ObjectId) => {
       {
         $match: {
           id_user: userId,
-        },
-      },
-      {
-        $lookup: {
-          from: "rate",
-          localField: "_id",
-          foreignField: "id_message",
-          pipeline: [
-            {
-              $match: {
-                time_to_send: {
-                  $gte: new Date("2023-01-01T00:00:00.000+00:00"),
-                  $lte: new Date("2024-01-01T00:00:00.000+00:00"),
-                },
-              },
-            },
-          ],
-          as: "rates",
-        },
-      },
-      {
-        $addFields: {
-          total_dislike: {
-            $sum: {
-              $map: {
-                input: "$rates",
-                as: "rate",
-                in: {
-                  $cond: [
-                    {
-                      $eq: ["$$rate.rate", false],
-                    },
-                    1,
-                    0,
-                  ],
-                },
-              },
-            },
-          },
-          total_like: {
-            $sum: {
-              $map: {
-                input: "$rates",
-                as: "rate",
-                in: {
-                  $cond: [
-                    {
-                      $eq: ["$$rate.rate", true],
-                    },
-                    1,
-                    0,
-                  ],
-                },
-              },
-            },
+          created_date: {
+            $gte: new Date("2023-01-01T00:00:00.000+00:00"),
+            $lte: new Date("2024-01-01T00:00:00.000+00:00"),
           },
         },
       },
       {
-        $project: {
-          rates: 0,
-        },
+        $count: "total",
       },
     ]);
+
   const messages = await messagesCursor.toArray();
 
-  return messages;
+  return messages.length ? messages[0].count : 0;
 };

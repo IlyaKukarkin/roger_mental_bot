@@ -46,8 +46,8 @@ const Mood = ({ totalRates, totalRatesWithMood, userMentalRating }: Props) => {
         </p>
 
         <p className="mt-6 text-5xl">
-          <b>{totalRates}</b>{" "}
-          <Plural value={totalRates} one="раз" few="раза" other="раз" />
+          <b>{totalRatesWithMood}</b>{" "}
+          <Plural value={totalRatesWithMood} one="раз" few="раза" other="раз" />
         </p>
       </div>
 
