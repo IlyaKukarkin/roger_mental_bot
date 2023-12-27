@@ -14,7 +14,7 @@ from common import delete_keyboard
 from feedback import feedback_start, feedback_get_text_from_user, feedback_get_photo_from_user
 from version import version_command
 from restart import restart_command
-from sendmestoall import send_message_to_all, get_message_to_all, send_newyear_message_to_all
+from sendmestoall import send_message_to_all, get_message_to_all
 from start import start_command
 from reg.reg_user_name import get_user_name, get_printed_user_name, get_customer_name
 from reg.reg_user_time import (
