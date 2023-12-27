@@ -14,9 +14,9 @@ import Calendar from "./components/calendar";
 import Support from "./components/support";
 import End from "./components/end";
 import Timeline from "./components/timeline";
+import { amplitude } from "../../utils/useAmplitudeInit";
 
 import styles from "./styles.module.css";
-import { amplitude } from "../../utils/useAmplitudeInit";
 
 type Props = {
   statistic: User2023Stata;
@@ -116,6 +116,7 @@ const Results2023 = ({ statistic }: Props) => {
         <Support
           months={months}
           messages={messages}
+          totalCreatedMessages={general.totalCreatedMessages}
           userSupportRating={general.userSupportRating}
         />
       </animated.div>

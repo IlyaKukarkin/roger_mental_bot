@@ -17,14 +17,16 @@ import {
   APILogError,
   APILogErrorName,
 } from "./types";
-import { getAllMessagesWithRatesByUser2023 } from "./messages";
+import { countCreatedMessagesByUser2023 } from "./messages";
 import { getAllMoodRates2023 } from "./ask-mood";
 import { getStatistic } from "./stata";
+import { get2023UsersRates } from "./rate";
 
 export type User2023Stata = {
   general: {
     totalRates: number;
     totalRatesWithMood: number;
+    totalCreatedMessages: number;
     averageUserTotalRates: number;
     userMentalRating: number;
     userSupportRating: number;
@@ -43,7 +45,7 @@ export type User2023Stata = {
     [messageId: string]: {
       likes: number;
       dislikes: number;
-      rates: number;
+      shows: number;
     };
   };
   userCreatedAt: Date;
@@ -274,17 +276,20 @@ export const sendMoodMessage = async (
 };
 
 export const getUser2023Stata = async (userId: ObjectId) => {
-  const [messages, rates, statistic, user] = await Promise.all([
-    getAllMessagesWithRatesByUser2023(userId),
-    getAllMoodRates2023(userId),
-    getStatistic(),
-    getUserById(userId),
-  ]);
+  const [totalCreatedMessages, messagesRates, moodRates, statistic, user] =
+    await Promise.all([
+      countCreatedMessagesByUser2023(userId),
+      get2023UsersRates(userId),
+      getAllMoodRates2023(userId),
+      getStatistic(),
+      getUserById(userId),
+    ]);
 
   const result: Omit<User2023Stata, "userId"> = {
     general: {
       totalRates: 0,
       totalRatesWithMood: 0,
+      totalCreatedMessages,
       averageUserTotalRates: 0,
       userMentalRating: 0,
       userSupportRating: 0,
@@ -308,18 +313,18 @@ export const getUser2023Stata = async (userId: ObjectId) => {
     userCreatedAt: new Date(user.created_at),
   };
 
-  result.messages = messages.reduce((accum, currValue) => {
+  result.messages = messagesRates.reduce((accum, currValue) => {
     return {
       ...accum,
       [currValue._id.toString()]: {
-        likes: currValue.total_like,
-        dislikes: currValue.total_dislike,
-        rates: currValue.total_like + currValue.total_dislike,
+        likes: currValue.likes,
+        dislikes: currValue.dislikes,
+        shows: currValue.show,
       },
     };
   }, {});
 
-  rates.forEach((rate) => {
+  moodRates.forEach((rate) => {
     // Count by month
     result.months[new Date(rate.date).getMonth()][rate.rate] += 1;
 
@@ -362,10 +367,11 @@ export const getUser2023Stata = async (userId: ObjectId) => {
     result.general.userMentalRating = getValidIndex(mentalFallbacks) + 1;
 
     // Fallback values
-    const rates = Object.values(messages).reduce(
-      (acc, currValue) => acc + currValue.total_dislike + currValue.total_like,
+    const rates = Object.values(messagesRates).reduce(
+      (acc, currValue) => acc + currValue.likes,
       0,
     );
+
     const ratesFallbacks: [number, number, number] = [
       statistic.support_rates_2023.lastIndexOf(rates - 1),
       statistic.support_rates_2023.lastIndexOf(rates),

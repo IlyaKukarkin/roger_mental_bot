@@ -65,9 +65,12 @@ export async function getStaticProps(
   const { params } = context;
   const userId = params && params.userid;
 
-  const res = await fetch(
-    `https://rogerbot.tech/api/statistic?user_id=${userId}`,
-  );
+  const apiURL =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:3000/api"
+      : "https://rogerbot.tech/api";
+
+  const res = await fetch(`${apiURL}/statistic?user_id=${userId}`);
   const statistic = await res.json();
 
   return {
