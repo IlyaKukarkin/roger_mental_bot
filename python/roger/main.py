@@ -614,6 +614,18 @@ async def sendnewyearmestoall_command(message: types.Message):
     await send_newyear_message_to_all(message)
 
 
+@botDispatcher.message_handler(commands=['newyearstata'])
+async def newyearstata_command(message: types.Message):
+    """sending new year 2023 stata by command"""
+    user = get_user_by_telegram_id(str(message.chat.id))
+    await botClient.send_message(
+        message.chat.id,
+        "Твоя статистика за 2023 год готова!\n\nПереходи по ссылке: " +
+        "https://rogerbot.tech/2023/" +
+        str(user["_id"]), disable_web_page_preview=True
+    )
+
+
 @botDispatcher.message_handler(content_types='text', state='*')
 async def process_any_command(message: types.Message):
     """дефолтная обработка любого сообщения"""
