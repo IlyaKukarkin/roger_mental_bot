@@ -121,7 +121,6 @@ async def send_newyear_message_to_all(message: types.Message):
     count_bot_blocked = 0
     count_other_exceptions = 0
 
-    link = "https://rogerbot.tech/2023/"
 
     message_text_part1 = "Привет, друг! 💙" \
         "\n\nКоманда Роджера подготовила твою статистику за 2023 год. " \
@@ -140,6 +139,7 @@ async def send_newyear_message_to_all(message: types.Message):
 
     for user in users:
         try:
+            link = "https://rogerbot.tech/2023/"
             link += str(user["_id"])
 
             await botClient.send_message(
