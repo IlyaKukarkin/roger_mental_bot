@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import { PropsWithChildren } from "react";
 
 export const config = {
-  runtime: "experimental-edge",
+  runtime: "edge",
 };
 
 type Props = {

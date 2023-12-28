@@ -35,9 +35,8 @@ export type Message = {
   original_media_link: string;
 };
 
-export type MessageWithRates = Message & {
-  total_like: number;
-  total_dislike: number;
+export type MessageWithRates = {
+  total: number;
 };
 
 export const checkFormId = async (
@@ -128,6 +127,9 @@ export const submitForm = async ({
   const client = await clientPromise;
 
   const usersCollection = client.db("roger-bot-db").collection("users");
+  const mentalRatesCollection = client
+    .db("roger-bot-db")
+    .collection("mental_rate");
   const user = await usersCollection.findOne({
     form_id: new ObjectId(form_id),
   });
@@ -138,7 +140,8 @@ export const submitForm = async ({
 
   let textToSend =
     "Спасибо, что заполнил форму! Продолжай замерять свое настроение 🙃";
-  let textToSend2 = "Скоро я пришлю тебе первый опрос. До встречи!";
+  let textToSend2 =
+    "Скоро я пришлю тебе первый опрос для измерения твоего настроения. До встречи!";
 
   const messages = await usersCollection.aggregate([
     {
@@ -163,6 +166,17 @@ export const submitForm = async ({
     },
   ]);
 
+  const mentalRatesCursor: FindCursor<unknown[]> =
+    await mentalRatesCollection.aggregate([
+      {
+        $match: {
+          id_user: new ObjectId(user._id),
+        },
+      },
+    ]);
+
+  const mentalRates = await mentalRatesCursor.toArray();
+
   let messageCount = 0;
 
   for await (const message of messages) {
@@ -171,7 +185,7 @@ export const submitForm = async ({
 
   if (messageCount === 0) {
     textToSend =
-      "Спасибо, что заполнил форму! Я начну показывать сообщение другим пользователям, когда оно пройдет модерацию%0A%0AЧерез 7 дней сможешь увидеть, сколько раз я его показал и какие оценки оно получило. Не забывай каждый день замерять свое настроение, иначе магии не случится 😌";
+      "Спасибо, что заполнил форму! Я начну показывать сообщение другим пользователям, когда оно пройдет модерацию%0A%0AА через 7 дней ты сможешь увидеть, сколько раз я его показал и какие оценки оно получило (для этого у меня есть команда /stata). Не забывай каждый день замерять свое настроение, иначе магии не случится 😌";
   }
 
   const { media_link } = form;
@@ -224,7 +238,7 @@ export const submitForm = async ({
     { method: "POST" },
   );
 
-  if (messageCount === 0) {
+  if (mentalRates.length === 0) {
     await fetch(
       `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend2}`,
       { method: "POST" },
@@ -232,7 +246,7 @@ export const submitForm = async ({
   }
 };
 
-export const getAllMessagesWithRatesByUser2023 = async (userId: ObjectId) => {
+export const countCreatedMessagesByUser2023 = async (userId: ObjectId) => {
   const client = await clientPromise;
   const collection = client.db("roger-bot-db").collection("messages");
 
@@ -241,71 +255,18 @@ export const getAllMessagesWithRatesByUser2023 = async (userId: ObjectId) => {
       {
         $match: {
           id_user: userId,
-        },
-      },
-      {
-        $lookup: {
-          from: "rate",
-          localField: "_id",
-          foreignField: "id_message",
-          pipeline: [
-            {
-              $match: {
-                time_to_send: {
-                  $gte: new Date("2023-01-01T00:00:00.000+00:00"),
-                  $lte: new Date("2024-01-01T00:00:00.000+00:00"),
-                },
-              },
-            },
-          ],
-          as: "rates",
-        },
-      },
-      {
-        $addFields: {
-          total_dislike: {
-            $sum: {
-              $map: {
-                input: "$rates",
-                as: "rate",
-                in: {
-                  $cond: [
-                    {
-                      $eq: ["$$rate.rate", false],
-                    },
-                    1,
-                    0,
-                  ],
-                },
-              },
-            },
-          },
-          total_like: {
-            $sum: {
-              $map: {
-                input: "$rates",
-                as: "rate",
-                in: {
-                  $cond: [
-                    {
-                      $eq: ["$$rate.rate", true],
-                    },
-                    1,
-                    0,
-                  ],
-                },
-              },
-            },
+          created_date: {
+            $gte: new Date("2023-01-01T00:00:00.000+00:00"),
+            $lte: new Date("2024-01-01T00:00:00.000+00:00"),
           },
         },
       },
       {
-        $project: {
-          rates: 0,
-        },
+        $count: "total",
       },
     ]);
+
   const messages = await messagesCursor.toArray();
 
-  return messages;
+  return messages.length ? messages[0].total : 0;
 };

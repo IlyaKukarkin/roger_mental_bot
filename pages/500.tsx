@@ -31,13 +31,12 @@ const Page500: NextPage = () => {
           ></polygon>
         </svg>
         <p className="text-3xl">Похоже, наш сервис оффлайн</p>
-        <Link href="/">
-          <a
-            rel="noopener noreferrer"
-            className="rounded bg-gray-300 px-8 py-3 font-semibold dark:bg-violet-400 dark:text-gray-900"
-          >
-            На главную страницу
-          </a>
+        <Link
+          href="/"
+          rel="noopener noreferrer"
+          className="rounded bg-gray-300 px-8 py-3 font-semibold dark:bg-violet-400 dark:text-gray-900"
+        >
+          На главную страницу
         </Link>
       </div>
     </section>
