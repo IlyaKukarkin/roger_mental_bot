@@ -33,6 +33,14 @@ type RateResponse = {
   update_to_review: number;
 };
 
+export type User2023Rates = {
+  // message ID
+  _id: ObjectId;
+  show: number;
+  dislikes: number;
+  likes: number;
+};
+
 const logData: APILog = {
   context: {
     stage: APILogStage.RATE,
@@ -193,7 +201,9 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
     },
   );
 
-  for await (const message of messages) {
+  const notifyUsers: { userId: string; messageText: string }[] = [];
+
+  messagesArray.forEach((message) => {
     const calculatedMessage = calculateRate(message, settings);
 
     const logCalculatedResult = {
@@ -210,30 +220,33 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
 
         log.info(`Message approved`, logCalculatedResult);
 
-        try {
-          await sendMessageToUser(
-            message.user_telegram_id,
-            `Твоё сообщение «${message.text.slice(0, 60)}${
-              message.text.length > 60 ? "..." : ""
-            }» прошло модерацию и будет показываться тем, кому это важно.%0A%0AСпасибо ❤️%0A%0AСоздать новое сообщение можно через команду /fillform`,
-          );
-        } catch (e) {
-          log.error(
-            `Error sending "Message was approved" message to the user`,
-            {
-              ...logData,
-              user: {
-                telegram_id: message.user_telegram_id,
-              },
-            },
-          );
-        }
+        notifyUsers.push({
+          userId: message.user_telegram_id,
+          messageText: message.text,
+        });
       } else {
         log.info(`Message send back to review`, logCalculatedResult);
 
         updateToReview.push(calculatedMessage._id);
       }
     }
+  });
+
+  try {
+    await Promise.all([
+      ...notifyUsers.map(({ userId, messageText }) =>
+        sendMessageToUser(
+          userId,
+          `Твоё сообщение «${messageText.slice(0, 60)}${
+            messageText.length > 60 ? "..." : ""
+          }» прошло модерацию и будет показываться тем, кому это важно.%0A%0AСпасибо ❤️%0A%0AСоздать новое сообщение можно через команду /fillform`,
+        ),
+      ),
+    ]);
+  } catch (e) {
+    log.error(`Error sending "Message was approved" message to the users`, {
+      ...logData,
+    });
   }
 
   // create a filter to update all messages to "Approve"
@@ -337,4 +350,110 @@ const calculateRate = (
     ...message,
     is_approved: false,
   };
+};
+
+export const get2023UsersRates = async (userId: ObjectId) => {
+  const client = await clientPromise;
+  const rateCol = client.db("roger-bot-db").collection("user_messages");
+
+  const rates2023Cursor: FindCursor<User2023Rates> = await rateCol.aggregate([
+    {
+      $match: {
+        time_to_send: {
+          $gte: new Date("2023-01-01T00:00:00.000+00:00"),
+          $lte: new Date("2024-01-01T00:00:00.000+00:00"),
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "messages",
+        localField: "id_message",
+        foreignField: "_id",
+        pipeline: [
+          {
+            $match: {
+              id_user: userId,
+            },
+          },
+        ],
+        as: "message",
+      },
+    },
+    {
+      $match: {
+        message: {
+          $ne: [],
+        },
+      },
+    },
+    {
+      $addFields: {
+        message: {
+          $arrayElemAt: ["$message", 0],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: "$id_message",
+        show: {
+          $sum: 1,
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "rate",
+        localField: "_id",
+        pipeline: [
+          {
+            $match: {
+              time_to_send: {
+                $gte: new Date("Sun, 01 Jan 2023 00:00:00 GMT"),
+                $lte: new Date("Mon, 01 Jan 2024 00:00:00 GMT"),
+              },
+            },
+          },
+        ],
+        foreignField: "id_message",
+        as: "rates",
+      },
+    },
+    {
+      $addFields: {
+        dislikes: {
+          $size: {
+            $filter: {
+              input: "$rates",
+              as: "item",
+              cond: {
+                $eq: ["$$item.rate", false],
+              },
+            },
+          },
+        },
+        likes: {
+          $size: {
+            $filter: {
+              input: "$rates",
+              as: "item",
+              cond: {
+                $eq: ["$$item.rate", true],
+              },
+            },
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        rates: 0,
+      },
+    },
+  ]);
+
+  const rates2023 = await rates2023Cursor.toArray();
+
+  return rates2023;
 };

@@ -88,7 +88,7 @@
     top: 50%;
     left: 50%;
     translate: -50% -50%;
-    border: 1px solid hsl(0 0% 50% / 1);
+    border: 2px solid hsl(0 0% 50% / 1);
     border-radius: 6px;
     padding: 1rem;
     width: 320px;
