@@ -7,7 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Call our API route to recalculate user rate statistics
-        run: |
-          curl --request POST \
-          --url 'https://rogerbot.tech/api/stata-cron' \
-          --header 'Authorization: Bearer ${{ secrets.CRON_API_KEY }}'
+        uses: JamesIves/fetch-api-data-action@v2
+        with:
+          endpoint: https://rogerbot.tech/api/stata-cron
+          configuration: '{ "method": "POST", "headers": {"Authorization": "Bearer ${{ secrets.CRON_API_KEY }}"} }'
+          retry: true

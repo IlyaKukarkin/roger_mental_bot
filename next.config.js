@@ -2,11 +2,12 @@ const { withLogtail } = require("@logtail/next");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  swcMinify: true,
+  i18n: {
+    locales: ["ru"],
+    defaultLocale: "ru",
+  },
   experimental: {
-    legacyBrowsers: false,
-    browsersListForSwc: true,
+    swcPlugins: [["@lingui/swc-plugin", {}]],
   },
 };
 

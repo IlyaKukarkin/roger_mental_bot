@@ -54,7 +54,7 @@ from friends import (
 
 
 # текущая версия бота
-VERSION = "2.1.0"
+VERSION = "2.1.2"
 
 # read texts from json file
 with open('texts.json', encoding="utf-8") as t:
@@ -605,6 +605,19 @@ async def settings_change_time_to_send_messages_callback(callback_query: types.C
     user = get_user_by_telegram_id(str(callback_query.from_user.id))
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await get_user_time_to_send_messages(user["_id"], callback_query.from_user.id, "settings")
+
+
+
+@botDispatcher.message_handler(commands=['newyearstata'])
+async def newyearstata_command(message: types.Message):
+    """sending new year 2023 stata by command"""
+    user = get_user_by_telegram_id(str(message.chat.id))
+    await botClient.send_message(
+        message.chat.id,
+        "Твоя статистика за 2023 год готова!\n\nПереходи по ссылке: " +
+        "https://rogerbot.tech/2023/" +
+        str(user["_id"]), disable_web_page_preview=True
+    )
 
 
 @botDispatcher.message_handler(content_types='text', state='*')
