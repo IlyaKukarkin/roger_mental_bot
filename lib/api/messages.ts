@@ -234,13 +234,13 @@ export const submitForm = async ({
   });
 
   await fetch(
-    `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend}`,
+    `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend}&disable_web_page_preview=True`,
     { method: "POST" },
   );
 
   if (mentalRates.length === 0) {
     await fetch(
-      `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend2}`,
+      `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${textToSend2}&disable_web_page_preview=True`,
       { method: "POST" },
     );
   }
