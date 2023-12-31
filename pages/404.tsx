@@ -15,13 +15,12 @@ const Page404: NextPage = () => {
           <p className="mt-4 mb-8 dark:text-gray-400">
             Но не волнуйся, вернись на главную страницу.
           </p>
-          <Link href="/">
-            <a
-              rel="noopener noreferrer"
-              className="rounded bg-gray-300 px-8 py-3 font-semibold dark:bg-violet-400 dark:text-gray-900"
-            >
-              На главную страницу
-            </a>
+          <Link
+            href="/"
+            rel="noopener noreferrer"
+            className="rounded bg-gray-300 px-8 py-3 font-semibold dark:bg-violet-400 dark:text-gray-900"
+          >
+            На главную страницу
           </Link>
         </div>
       </div>

@@ -161,11 +161,6 @@ export const update2023Statistics = async (): Promise<void> => {
 
   const prepareUsers = usersCol.aggregate([
     {
-      $match: {
-        is_active: true,
-      },
-    },
-    {
       $lookup: {
         from: "mental_rate",
         localField: "_id",
@@ -213,6 +208,9 @@ export const update2023Statistics = async (): Promise<void> => {
               time_to_send: {
                 $gte: new Date("2023-01-01T00:00:00.000+00:00"),
                 $lte: new Date("2024-01-01T00:00:00.000+00:00"),
+              },
+              rate: {
+                $eq: true,
               },
             },
           },
@@ -308,106 +306,3 @@ const subtractWeeks = (numOfWeeks: number, date = new Date()) => {
 
   return dateCopy;
 };
-
-/*
-
-[
-  {
-    $match: {
-      is_active: true,
-    },
-  },
-  {
-    $lookup: {
-      from: "mental_rate",
-      localField: "_id",
-      foreignField: "id_user",
-      pipeline: [
-        {
-          $match: {
-            rate: {
-              $ne: 0,
-            },
-          },
-        },
-      ],
-      as: "mental_rates",
-    },
-  },
-  {
-    $lookup: {
-      from: "messages",
-      localField: "_id",
-      foreignField: "id_user",
-      as: "messages",
-    },
-  },
-  {
-    $addFields: {
-      mental_rate_2023: {
-        $size: {
-          $filter: {
-            input: "$mental_rates",
-            cond: {
-              $and: [
-                {
-                  $gte: [
-                    "$$mental_rate.date",
-                    new Date(
-                      "2023-01-01T00:00:00.000+00:00"
-                    ),
-                  ],
-                },
-                {
-                  $lte: [
-                    "$$mental_rate.date",
-                    new Date(
-                      "2024-01-01T00:00:00.000+00:00"
-                    ),
-                  ],
-                },
-              ],
-            },
-            as: "mental_rate",
-          },
-        },
-      },
-      message_ids: {
-        $map: {
-          input: "$messages",
-          as: "item",
-          in: "$$item._id",
-        },
-      },
-    },
-  },
-  {
-    $lookup:
-      {
-        from: "rates",
-        let: {
-          ids: "$message_ids",
-        },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $in: ["$id_message", "$$ids"],
-              },
-            },
-          },
-        ],
-        as: "rates",
-      },
-  },
-  {
-    $unset: [
-      "messages",
-      "rates",
-      "mental_rates",
-      "message_ids",
-    ],
-  },
-]
-
-*/

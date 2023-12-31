@@ -1,58 +1,92 @@
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
+import { Trans, Plural } from "@lingui/macro";
 
 import { mapMonthToText } from "../utils";
-import { MOOD, getRateBgColor } from "../../Calendar/utils";
+import { MOOD } from "../../Calendar/utils";
 import { User2023Stata } from "../../../lib/api/users";
+import RogerLink from "./rogerLink";
 
 type Props = Pick<User2023Stata, "months">;
 
 const Calendar = ({ months }: Props) => {
+  const [showMonth, setShowMonth] = useState<number>(-1);
+
   const getMoodForMonth = (data: { [mood: number]: number }): MOOD => {
-    const rates = Object.values(data);
+    const [_, ...rates] = Object.values(data);
 
-    const max = rates.reduce((acc, currValue, index) => {
-      if (index === 0) {
-        return acc;
-      }
+    if (rates.every((rate) => rate === 0)) {
+      return 0;
+    }
 
+    const max = rates.reduce((acc, currValue) => {
       if (acc < currValue) {
         return currValue;
       }
       return acc;
     }, 0);
 
-    return rates.indexOf(max);
+    return rates.lastIndexOf(max) + 1;
+  };
+
+  const getMoodEmoji = (mood: MOOD) => {
+    switch (mood) {
+      case MOOD.SKIP:
+        return "⚫";
+      case MOOD.RED:
+        return "🔴";
+      case MOOD.ORANGE:
+        return "🟠";
+      case MOOD.YELLOW:
+        return "🟡";
+      case MOOD.GREEN:
+        return "🟢";
+      default:
+        return "⚫";
+    }
+  };
+
+  const onMonthClick = (index: number) => {
+    console.log("HERE: ", index);
+    setShowMonth(index === showMonth ? -1 : index);
   };
 
   return (
-    <>
-      <p>Как тебе запомнился каждый месяц</p>
-      <br />
-      <div className="grid grid-cols-4 grid-rows-3 gap-6">
+    <div className="flex h-full flex-col items-center justify-evenly font-bold">
+      <p className="text-3xl">
+        <Trans>Каким тебе запомнился каждый месяц</Trans>
+      </p>
+
+      <div className="grid grid-cols-4 grid-rows-3 gap-2 md:gap-6">
         {Object.entries(months).map(([month, data]) => {
           return (
-            <div key={month} className="flex flex-col items-center">
-              <div
-                className={`h-10 w-10 rounded-full opacity-80 ${
-                  getRateBgColor[getMoodForMonth(data)]
-                }`}
-              />
-              <p>
-                <b>{mapMonthToText(Number(month))}</b>
+            <div
+              key={month}
+              onClick={() => onMonthClick(Number(month))}
+              className="group relative z-50 flex flex-col items-center"
+            >
+              <p className="text-4xl">{getMoodEmoji(getMoodForMonth(data))}</p>
+              <p className="text-base md:text-xl">
+                {mapMonthToText(Number(month))}
               </p>
-              <p className="text-xs">
-                На основе{" "}
-                {Object.values(data).reduce(
-                  (acc, currValue, index) => acc + (!index ? 0 : currValue),
-                  0,
-                )}{" "}
-                оценок
+              <p className="invisible text-xs group-hover:visible">
+                <Plural
+                  value={Object.values(data).reduce(
+                    (acc, currValue, index) => acc + (!index ? 0 : currValue),
+                    0,
+                  )}
+                  one="На основе # оценки"
+                  _21="На основе # оценки"
+                  _31="На основе # оценки"
+                  other="На основе # оценок"
+                />
               </p>
             </div>
           );
         })}
       </div>
-    </>
+
+      <RogerLink />
+    </div>
   );
 };
 
