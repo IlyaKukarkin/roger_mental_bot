@@ -8,10 +8,9 @@ from db.users import get_user_by_telegram_id, update_user_is_active, insert_new_
 from states import Registration
 from keyboards import ask_for_name_kb
 from variables import botClient, botDispatcher
-from amplitude_utils import amplitude_send_start_source_event
 
 
-async def start_command(message: types.Message, args: str):
+async def start_command(message: types.Message):
     """
     Message handler for /start command
 
@@ -24,30 +23,7 @@ async def start_command(message: types.Message, args: str):
 
     user = get_user_by_telegram_id(str(message.chat.id))
 
-    if user["is_active"]:
-        await botClient.send_message(
-            message.chat.id,
-            "Кажется, мы уже знакомы, " + user['name']
-        )
-        await amplitude_send_start_source_event(str(message.chat.id), args, "started_when_active")
-        return
-
-    # это последний степ регистрации; если он задан, значит, пользователь уже
-    # зарегался
-    if user.get("timezone"):
-        await botClient.send_message(
-            message.chat.id,
-            "Здорово, что ты вернулся, " +
-            user['name'] + " 😍\n\nЯ продолжу интересоваться твоим настроением 😌"
-        )
-        update_user_is_active(user['_id'], True)
-        await amplitude_send_start_source_event(str(message.chat.id), args, "started_again")
-
-        return
-
     if user is None:
-        await amplitude_send_start_source_event(str(message.chat.id), args, "first_start")
-
         form_id = ObjectId()
         if message.from_user.username is None:
             message.from_user.username = ""
@@ -121,9 +97,26 @@ async def start_command(message: types.Message, args: str):
         await state.update_data(user_id=user_id, source="reg")
         return
 
+    if user["is_active"]:
+        await botClient.send_message(
+            message.chat.id,
+            "Кажется, мы уже знакомы, " + user['name']
+        )
+        return
+
+    # это последний степ регистрации; если он задан, значит, пользователь уже
+    # зарегался
+    if hasattr(user, "timezone"):
+        await botClient.send_message(
+            message.chat.id,
+            "Здорово, что ты вернулся, " +
+            user['name'] + " 😍\n\nЯ продолжу интересоваться твоим настроением 😌"
+        )
+        update_user_is_active(user['_id'], True)
+        return
+
     await botClient.send_message(
         message.chat.id,
-        "Ты уже начал регистрацию\n\nЗаверши ее с того места, где ты остановился, "
+        "Ты уже начал регистрацию\n\nЗаверши ее с того места, где ты остановился,"
         "а потом я начну интересоваться твоим настроением и поддерживать тебя 😌"
     )
-    await amplitude_send_start_source_event(str(message.chat.id), args, "start_while_registration")
