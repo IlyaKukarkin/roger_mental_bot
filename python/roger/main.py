@@ -1,13 +1,11 @@
 """Main module with all BOT handlers."""
 # pylint: disable=global-statement
 
-import os
 import json
 from bson import ObjectId
 from aiogram.utils import executor
 from aiogram import types, dispatcher
 from aiogram.utils.callback_data import CallbackData
-from amplitude import Amplitude
 
 from logger import logger
 from states import Recording, FriendsStates, Registration
@@ -56,22 +54,29 @@ from friends import (
 
 
 # текущая версия бота
-VERSION = "2.2.0"
+VERSION = "2.1.2"
 
 # read texts from json file
 with open('texts.json', encoding="utf-8") as t:
     texts = json.load(t)
 
-# Init Amplitude
-amplitude_api_key = os.getenv("AMPLITUDE_API_KEY")
-amplitude = Amplitude(amplitude_api_key)
-
 
 @botDispatcher.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
     """команда старт при первом запуске бота"""
-    args = message.get_args()
-    await start_command(message, args)
+    await start_command(message)
+
+# команда по отслеживанию, является ли пользак активным
+# @botDispatcher.message_handler()
+# async def process_start_command(message: types.Message):
+#     is_active = await is_user_active(message.chat.id)
+#     if (is_active == True):
+#         print ('is_active')
+#         return
+#     else:
+#         #тут отправить на степ знакомства, на котором пользователь отвалился в прошлый раз
+#         print (1)
+#         return 1 #пока просто базовая заглушка
 
 
 @botDispatcher.message_handler(commands=['version'])
