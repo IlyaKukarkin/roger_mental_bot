@@ -3,7 +3,7 @@ const { withLogtail } = require("@logtail/next");
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   i18n: {
-    locales: ["ru", "en"],
+    locales: ["ru"],
     defaultLocale: "ru",
   },
   experimental: {
