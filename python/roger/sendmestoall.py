@@ -55,7 +55,7 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
     if not admin_user["is_admin"]:
         await botClient.send_message(
             message.chat.id,
-            "Сорри, ты не админ этого бота. Не расстраивайся, ты же клиент!"
+            "Сорри, ты не админ этого бота. Не расстраивайся, ты же пользователь!"
         )
         await state.finish()
         return
@@ -92,3 +92,4 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
             ". Прочие ошибки: " + str(count_other_exceptions)
         )
     )
+
