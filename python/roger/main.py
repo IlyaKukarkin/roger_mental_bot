@@ -71,6 +71,8 @@ amplitude = Amplitude(amplitude_api_key)
 async def process_start_command(message: types.Message):
     """команда старт при первом запуске бота"""
     args = message.get_args()
+    if args is None:
+        args = ""
     await start_command(message, args)
 
 
