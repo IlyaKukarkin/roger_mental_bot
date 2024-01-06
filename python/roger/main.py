@@ -602,7 +602,6 @@ async def settings_change_time_to_send_messages_callback(callback_query: types.C
     await get_user_time_to_send_messages(user["_id"], callback_query.from_user.id, "settings")
 
 
-
 @botDispatcher.message_handler(commands=['newyearstata'])
 async def newyearstata_command(message: types.Message):
     """sending new year 2023 stata by command"""
