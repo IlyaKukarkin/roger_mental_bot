@@ -177,19 +177,59 @@ def get_all_admins():
     return admin_users
 
 
-def get_all_active_users():
+def get_all_active_users_partially(skip: int, limit: int):
     """
     Returns an array of all active users from the DataBase table "Users"
-
+    Skip: How many documents should we skip after sorting the docs
     Parameters:
 
     Returns:
     array: Users
     """
 
-    all_users = dbClient['users'].find({"is_active": True})
+    users = dbClient['users'].aggregate([
+    {
+        '$match': {
+            'is_active': True
+        }
+    }, {
+        '$sort': {
+            'telegram_id': 1
+        }
+    }, {
+        '$skip': skip
+    }, {
+        '$project': {
+            '_id': 1, 
+            'telegram_id': 1
+        }
+    }, {
+        '$limit': limit
+    }
+]
+)
+    return list(users)
 
-    return all_users
+def get_count_all_active_users():
+    """
+    Returns a count of all active users from the DataBase table "Users"
+
+    Parameters:
+
+    Returns:
+    count: Object
+    """
+
+    count = dbClient['users'].aggregate([
+    {
+        '$match': {
+            'is_active': True
+        }
+    }, {
+        '$count': 'count'
+    }
+])
+    return list(count)[0].get("count")
 
 
 def get_user_with_mental_rate(
