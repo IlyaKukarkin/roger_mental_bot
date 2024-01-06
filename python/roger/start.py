@@ -24,27 +24,6 @@ async def start_command(message: types.Message, args: str):
 
     user = get_user_by_telegram_id(str(message.chat.id))
 
-    if user["is_active"]:
-        await botClient.send_message(
-            message.chat.id,
-            "Кажется, мы уже знакомы, " + user['name']
-        )
-        await amplitude_send_start_source_event(str(message.chat.id), args, "started_when_active")
-        return
-
-    # это последний степ регистрации; если он задан, значит, пользователь уже
-    # зарегался
-    if user.get("timezone"):
-        await botClient.send_message(
-            message.chat.id,
-            "Здорово, что ты вернулся, " +
-            user['name'] + " 😍\n\nЯ продолжу интересоваться твоим настроением 😌"
-        )
-        update_user_is_active(user['_id'], True)
-        await amplitude_send_start_source_event(str(message.chat.id), args, "started_again")
-
-        return
-
     if user is None:
         await amplitude_send_start_source_event(str(message.chat.id), args, "first_start")
 
@@ -74,7 +53,7 @@ async def start_command(message: types.Message, args: str):
         await botClient.send_message(
             message.chat.id,
             (
-                "Если ты выберешь 🟠 и 🔴 настроение, тогда и начнется самое интересное 🙃 \n"
+                "Если ты выберешь 🟠 и 🔴 настроение, тогда и начнется самое интересное 🙃 \n\n"
                 "Я подберу тебе ободряющее сообщение от другого пользователя, "
                 "у которого настроение было отличным — и он захотел поделиться им с тобой"
             )
@@ -85,7 +64,7 @@ async def start_command(message: types.Message, args: str):
             message.chat.id,
             (
                 "И наоборот — если у тебя выдался 🟢 и 🟡 день, "
-                "то ты сможешь написать свое позитивное сообщение.  \n"
+                "то ты сможешь написать свое позитивное сообщение. \n\n"
                 "Когда твое сообщение пройдет модерацию, я буду показывать его тем, "
                 "кому это сейчас важно"
             )
@@ -119,6 +98,27 @@ async def start_command(message: types.Message, args: str):
         await Registration.Name.set()
         state = botDispatcher.get_current().current_state()
         await state.update_data(user_id=user_id, source="reg")
+        return
+    
+    if user["is_active"]:
+        await botClient.send_message(
+            message.chat.id,
+            "Кажется, мы уже знакомы, " + user['name']
+        )
+        await amplitude_send_start_source_event(str(message.chat.id), args, "started_when_active")
+        return
+
+    # это последний степ регистрации; если он задан, значит, пользователь уже
+    # зарегался
+    if user.get("timezone"):
+        await botClient.send_message(
+            message.chat.id,
+            "Здорово, что ты вернулся, " +
+            user['name'] + " 😍\n\nЯ продолжу интересоваться твоим настроением 😌"
+        )
+        update_user_is_active(user['_id'], True)
+        await amplitude_send_start_source_event(str(message.chat.id), args, "started_again")
+
         return
     
     if user["is_active"]:
