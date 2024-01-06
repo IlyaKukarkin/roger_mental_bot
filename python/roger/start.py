@@ -24,6 +24,27 @@ async def start_command(message: types.Message, args: str):
 
     user = get_user_by_telegram_id(str(message.chat.id))
 
+    if user["is_active"]:
+        await botClient.send_message(
+            message.chat.id,
+            "Кажется, мы уже знакомы, " + user['name']
+        )
+        await amplitude_send_start_source_event(str(message.chat.id), args, "started_when_active")
+        return
+
+    # это последний степ регистрации; если он задан, значит, пользователь уже
+    # зарегался
+    if user.get("timezone"):
+        await botClient.send_message(
+            message.chat.id,
+            "Здорово, что ты вернулся, " +
+            user['name'] + " 😍\n\nЯ продолжу интересоваться твоим настроением 😌"
+        )
+        update_user_is_active(user['_id'], True)
+        await amplitude_send_start_source_event(str(message.chat.id), args, "started_again")
+
+        return
+
     if user is None:
         await amplitude_send_start_source_event(str(message.chat.id), args, "first_start")
 
