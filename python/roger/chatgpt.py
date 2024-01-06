@@ -55,7 +55,8 @@ async def support_message(message: types.Message):
         {
             'role': 'assistant',
             'content': """Отвечай от имени Роджера.
-                Это бот, который поддерживает людей с плохим настроением"""
+                Это бот, который поддерживает людей с плохим настроением.
+                Не говори, какая ты языковая модель и что ты chatgpt"""
         }
     )
 
@@ -149,7 +150,7 @@ async def await_for_a_problem(message: types.Message, state: FSMContext):
         answer = {'role': role, 'content': mes}
         array_of_chats.add_message(message.chat.id, answer)
         completions = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             messages=array_of_chats.get_chat(message.chat.id)
         )
         message_text = str(completions.choices[0].message.content).encode(
@@ -186,15 +187,12 @@ async def await_for_a_problem(message: types.Message, state: FSMContext):
                 "Ошибка: " + str(e)
             )
         )
-    except Exception as ex:
+    except Exception:
         array_of_chats.delete_array(message.chat.id)
         await botClient.send_message(
             message.chat.id,
             "Извини, не мог бы ты повторить вопрос?"
         )
-
-        
-
 
 async def callback_after_click_on_button_support(callback_query: types.CallbackQuery, rate: bool):
     """

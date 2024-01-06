@@ -92,4 +92,3 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
             ". Прочие ошибки: " + str(count_other_exceptions)
         )
     )
-
