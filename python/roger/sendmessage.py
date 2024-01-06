@@ -71,6 +71,7 @@ from variables import (
     botClient
 )
 from ratestata import send_rate_stata
+from amplitude_utils import amplitude_send_default_source_event
 from friends import send_a_friend_message_about_bad_mood
 from db.users import (
     get_user_by_telegram_id,
@@ -227,6 +228,7 @@ async def callback_after_click_on_color_button(
                 "они помогут разобраться с проблемой 👌"
             )
         )
+        await amplitude_send_default_source_event("Error", str(callback_query.from_user.id), "callback_after_click_on_color_button", "MessageError")
 
 
 async def create_message_with_support(
@@ -334,6 +336,7 @@ async def create_message_with_support(
                 "они помогут разобраться с проблемой 👌"
             )
         )
+        await amplitude_send_default_source_event("Error", str(chat_id), "create_message_with_support", "MessageError")
 
 
 async def get_cat_gif():

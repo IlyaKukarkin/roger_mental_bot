@@ -7,6 +7,7 @@ from aiogram.utils.exceptions import MessageError
 from variables import LINK_TO_FORM, botClient
 from db.users import get_user_by_telegram_id
 from common import get_options
+from amplitude_utils import amplitude_send_default_source_event
 
 
 async def fillform_command(message: types.Message):
@@ -39,3 +40,4 @@ async def fillform_command(message: types.Message):
             ),
             parse_mode=ParseMode.MARKDOWN
         )
+        await amplitude_send_default_source_event("Error", str(message.chat.id), "fillform_command", "MessageError")

@@ -115,12 +115,6 @@ def create_friends_keyboard(requests: int, friends: int):
             'Посмотреть список друзей', callback_data='check_friend_list')
         friends_menu_kb = friends_menu_kb.add(check_friends_list_button)
 
-        # friends_delete_button = InlineKeyboardButton(
-        #     'Удалить друга',
-        #     callback_data='delete_from_friends'
-        # )
-        # friends_menu_kb = friends_menu_kb.add(friends_delete_button)
-
     info_friends_button = InlineKeyboardButton(
         'Инфо', callback_data='info_friend_list')
 
