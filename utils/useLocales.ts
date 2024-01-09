@@ -3,9 +3,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 
 export async function loadCatalog(locale: string) {
-  console.log(locale);
   const catalog = await import(`@lingui/loader!../locales/${locale}.po`);
-  console.log(catalog.messages);
   return catalog.messages;
 }
 
@@ -13,9 +11,6 @@ export function useLinguiInit(messages: Messages) {
   const router = useRouter();
   const locale = router.locale || router.defaultLocale!;
   const isClient = typeof window !== "undefined";
-
-  console.log("useLinguiInit -> locale", locale);
-  console.log("useLinguiInit -> messages", messages);
 
   if (!isClient && locale !== i18n.locale) {
     // there is single instance of i18n on the server
