@@ -12,12 +12,7 @@ class Recording(StatesGroup):
     AwaitForAnAnswerToFeedback = State()
     AwaitForAProblem = State()
     AwaitForAFriendContact = State()
-
-
-class FriendsStates(StatesGroup):
-    """Class representing a /friends states"""
-
-    AwaitForAFriendNicknameToAdd = State()
+    AwaitForASupportMessageFromFriend = State()
 
 
 class Registration(StatesGroup):

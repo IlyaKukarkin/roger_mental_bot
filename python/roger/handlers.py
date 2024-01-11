@@ -49,4 +49,7 @@ async def rate_message(callback_query: types.CallbackQuery, rate: bool):
                 "напиши разработчикам через команду /feedback"
             )
         )
-        await amplitude_send_default_source_event("Error", str(callback_query.from_user.id), "rate_message", "PyMongoError")
+        await amplitude_send_default_source_event("Error",
+                                                  str(callback_query.from_user.id),
+                                                  "rate_message",
+                                                  "PyMongoError")

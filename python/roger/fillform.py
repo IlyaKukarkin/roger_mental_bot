@@ -40,4 +40,7 @@ async def fillform_command(message: types.Message):
             ),
             parse_mode=ParseMode.MARKDOWN
         )
-        await amplitude_send_default_source_event("Error", str(message.chat.id), "fillform_command", "MessageError")
+        await amplitude_send_default_source_event("Error",
+                                                  str(message.chat.id),
+                                                  "fillform_command",
+                                                  "MessageError")

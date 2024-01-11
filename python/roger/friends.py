@@ -1,5 +1,6 @@
 """Module providing functions for friends interactions."""
 
+from aiogram import dispatcher
 from aiogram.types import (
     ParseMode,
     InlineKeyboardButton,
@@ -7,26 +8,35 @@ from aiogram.types import (
     Message,
     CallbackQuery
 )
-from aiogram.dispatcher import FSMContext
 from aiogram.utils.callback_data import CallbackData
 from aiogram.utils.markdown import link
 from aiogram.utils.exceptions import MessageError
 
-from variables import botClient
+
+from amplitude_utils import amplitude_send_default_source_event
+from variables import botClient, botDispatcher
 from db.friends import (
     get_all_friends,
     get_incoming_requests,
     insert_new_friends,
     get_friends_record,
-    update_friend_status
+    delete_friends_request,
+    add_new_friend,
+    delete_from_friends
 )
 from db.users import (
     get_user_by_id,
     get_user_by_telegram_id
 )
+from db.app_settings import App_Settings
 from common import delete_keyboard
-from states import FriendsStates
-from keyboards import create_friends_keyboard, create_back_kb
+from states import Recording
+from keyboards import (
+    create_friends_keyboard,
+    create_back_kb,
+    add_delete_from_friends_kb,
+    create_support_friend_kb
+)
 
 
 call_back_approve = CallbackData("Approve", "id", "friend")
@@ -56,6 +66,8 @@ async def get_menu_for_command(chat_id: int):
     Returns:
     None
     """
+    app_settings = App_Settings()
+    settings = app_settings.get_app_settings()
 
     user = get_user_by_telegram_id(str(chat_id))
 
@@ -63,73 +75,24 @@ async def get_menu_for_command(chat_id: int):
 
     friends_count = len(get_all_friends(user['_id']))
 
-    await botClient.send_message(
-        chat_id,
-        "Выбери действие, которое хочешь выполнить",
-        reply_markup=create_friends_keyboard(
-            friends_requests_count, friends_count)
-    )
-
-
-async def await_for_a_friend_nickname(callback_query: CallbackQuery):
-    """
-    NOT USED ANYWHERE!!!
-    Callback handler for /friends command
-
-    Parameters:
-    callback_query (TG Callback): callback to handle
-
-    Returns:
-    None
-    """
-
-    await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
-
-    await botClient.send_message(
-        callback_query.from_user.id,
-        "Введи ник своего друга в Telegram, а я проверю, знаком ли я с ним 🙃"
-    )
-    await FriendsStates.AwaitForAFriendNicknameToAdd.set()
-
-
-async def get_friend_nickname(message: Message, state: FSMContext):
-    """
-    Message handler for /friends command -> Await for a username state
-
-    Parameters:
-    message (TG Message): message to handle
-    state (TG State): current state
-
-    Returns:
-    None
-    """
-
-    if message.text == "/stop":
-        await state.finish()
-        await botClient.send_message(message.chat.id, "Ты вышел из режима ввода")
-        return
-
-    if str(message.text)[0] == '/':
+    if friends_count < settings['friends_limit']:
         await botClient.send_message(
-            message.chat.id,
-            (
-                "Ты находишься в режиме ввода никнейма друга. "
-                "Чтобы выйти из него, выбери команду /stop, "
-                "а затем повторно вызови нужную команду"
-            )
+            chat_id,
+            "Выбери действие, которое хочешь выполнить",
+            reply_markup=create_friends_keyboard(
+                friends_requests_count, friends_count, friends_count < settings['friends_limit'])
         )
-        await FriendsStates.AwaitForAFriendNicknameToAdd.set()
-        return
 
-    if str(message.text)[0] != '@':
-        message.text = "@" + message.text
-
-    if message.text == '@':
+    else:
         await botClient.send_message(
-            message.chat.id,
-            "Это ник Павла Дурова? Перепроверь и введи корректный ник еще раз 🙃"
+            chat_id,
+            "Выбери действие, которое хочешь выполнить\\.\n\n"
+            "Обрати внимание\\: ты достиг лимита по числу друзей\\. "
+            f"Сократи число друзей до {settings['friends_limit'] - 1}, чтобы получить возможность добавить нового друга\\.",
+            reply_markup=create_friends_keyboard(
+                friends_requests_count, friends_count, friends_count < settings['friends_limit']),
+            parse_mode=ParseMode.MARKDOWN_V2
         )
-        await FriendsStates.AwaitForAFriendNicknameToAdd.set()
 
 
 async def send_request_to_a_friend(message: Message):
@@ -142,96 +105,154 @@ async def send_request_to_a_friend(message: Message):
     Returns:
     None
     """
+    try:
 
-    friend = get_user_by_telegram_id(str(message.user_shared.user_id))
+        friend = get_user_by_telegram_id(str(message.user_shared.user_id))
 
-    if friend is None:
-        await botClient.send_message(
-            message.chat.id,
-            (
-                "Я не знаю такого пользователя, но буду рад познакомиться! "
-                "Отправь своему другу ссылку на @RogerMentalBot и "
-                "повтори отправку заявки, когда твой друг зарегистрируется 🙃"
+        if friend is None:
+            await botClient.send_message(
+                message.chat.id,
+                (
+                    "Я не знаю такого пользователя, но буду рад познакомиться\\!\n\n"
+                    "Отправь своему другу ссылку на меня "
+                    "https://t\\.me/rogermentalbot\\?start\\=friends и "
+                    "повтори отправку заявки, когда твой друг зарегистрируется 🙃"
+                ),
+                parse_mode=ParseMode.MARKDOWN_V2,
+                disable_web_page_preview=True,
+                reply_markup=create_back_kb("friends_menu")
             )
-        )
-        return
+            return
 
-    user_from = get_user_by_telegram_id(str(message.chat.id))
+        user_from = get_user_by_telegram_id(str(message.chat.id))
 
-    user_request_sent = get_friends_record(user_from['_id'], friend['_id'])
+        if not friend["is_active"]:
+            await botClient.send_message(
+                message.chat.id,
+                (
+                    "Я знаю этого пользователя, но он перестал замерять настроение со мной 🥲\n\n"
+                    "Попроси его перейти по ссылке https://t\\.me/rogermentalbot\\?start\\=friends "
+                    "и зарегистрироваться в Роджере, чтобы ты смог подружиться с ним"
+                ),
+                parse_mode=ParseMode.MARKDOWN_V2,
+                disable_web_page_preview=True,
+                reply_markup=create_back_kb("friends_menu")
+            )
+            return
 
-    if user_request_sent is not None:
-        if user_request_sent['status'] == 0:
+        if user_from["_id"] == friend["_id"]:
+            await botClient.send_message(
+                message.chat.id,
+                (
+                    "Себя пока нельзя добавлять в друзья 😁"
+                ),
+                reply_markup=create_back_kb("friends_menu")
+            )
+            return
+
+        if "friends" in user_from:
+            for f in user_from["friends"]:
+                if f == friend["_id"]:
+                    await botClient.send_message(
+                        message.chat.id,
+                        (
+                            "Вы уже дружите 😸"
+                        ),
+                        reply_markup=create_back_kb("friends_menu")
+                    )
+                    return
+
+        user_request_sent = get_friends_record(user_from['_id'], friend['_id'])
+
+        if user_request_sent is not None:
             await botClient.send_message(
                 message.chat.id,
                 (
                     "Ты уже отправлял заявку этому пользователю. "
                     "Подожди, пока твой друг примет заявку 🕖"
-                )
+                ),
+                reply_markup=create_back_kb("friends_menu")
             )
             return
-        if user_request_sent['status'] == 1:
-            await botClient.send_message(message.chat.id, "Вы уже дружите 😄")
-            return
 
-    user_to = get_user_by_telegram_id(str(message.chat.id))
+        user_got_request = get_friends_record(friend['_id'], user_from['_id'])
 
-    user_got_request = get_friends_record(friend['_id'], user_to['_id'])
-
-    if user_got_request is not None:
-        if user_got_request['status'] == 0:
+        if user_got_request is not None:
             await botClient.send_message(
                 message.chat.id,
                 (
-                    "Тебе этот друг уже отправлял заявку. "
+                    "Этот друг уже отправил тебе заявку. "
                     "Посмотри, кто уже отправил тебе заявки в друзья: /friends_requests"
-                )
+                ),
+                reply_markup=create_back_kb("friends_menu")
             )
             return
-        if user_got_request['status'] == 1:
-            await botClient.send_message(message.chat.id, "Вы уже дружите 😄")
-            return
 
-    user = get_user_by_telegram_id(str(message.chat.id))
-    insert_new_friends(
-        user['_id'],
-        friend['_id'],
-        0
-    )
+        if not check_if_user_has_username(user_from):
+            user_from['telegram_username'] = change_empty_username_to_a_link(
+                int(user_from['telegram_id']), user_from['name'])
 
-    if not check_if_user_has_username(user):
-        user['telegram_username'] = change_empty_username_to_a_link(
-            int(user['telegram_id']), user['name'])
+        friend_request_kb = InlineKeyboardMarkup()
+        friend_request_kb_approve = InlineKeyboardButton(
+            '✅', callback_data=call_back_approve.new(id='friend_approve',
+                                                     friend=user_from['telegram_id']))
+        friend_request_kb_decline = InlineKeyboardButton(
+            '❌', callback_data=call_back_decline.new(id='friend_decline',
+                                                     friend=user_from['telegram_id']))
 
-    friend_request_kb = InlineKeyboardMarkup()
-    friend_request_kb_approve = InlineKeyboardButton(
-        '✅', callback_data=call_back_approve.new(id='friend_approve', friend=user['telegram_id']))
-    friend_request_kb_decline = InlineKeyboardButton(
-        '❌', callback_data=call_back_decline.new(id='friend_decline', friend=user['telegram_id']))
+        friend_request_kb.add(
+            friend_request_kb_approve,
+            friend_request_kb_decline)
 
-    friend_request_kb.add(friend_request_kb_approve, friend_request_kb_decline)
+        mes = "Тебе пришел запрос на дружбу от пользователя " + \
+            user_from['telegram_username'] + "\\.\n\n" + \
+              "Если ты примешь этот запрос, твой друг начнет получать уведомления, когда ты отметишь 🔴 или 🟠 настроение"
+        mes = mes.replace("@", "\\@")
+        mes = mes.replace("_", "\\_")
 
-    await botClient.send_message(
-        int(friend['telegram_id']),
-        (
-            "Тебе пришел запрос на дружбу от пользователя " + user['name'] +
-            " \\(" + user['telegram_username'] + "\\)"
-        ),
-        reply_markup=friend_request_kb, parse_mode=ParseMode.MARKDOWN_V2
-    )
+        await botClient.send_message(
+            int(friend['telegram_id']),
+            mes,
+            reply_markup=friend_request_kb, parse_mode=ParseMode.MARKDOWN_V2
+        )
 
-    if not check_if_user_has_username(user):
-        friend["telegram_username"] = change_empty_username_to_a_link(
-            int(friend['telegram_id']), friend['name'])
+        insert_new_friends(
+            user_from['_id'],
+            friend['_id']
+        )
 
-    await botClient.send_message(
-        message.chat.id,
-        (
-            "Отправил запрос дружбы пользователю " + friend["telegram_username"] +
-            "\\. Когда твой друг примет запрос в друзья, "
-            "ты будешь получать информацию о его настроении"
-        ), parse_mode=ParseMode.MARKDOWN_V2
-    )
+        if not check_if_user_has_username(friend):
+            friend["telegram_username"] = change_empty_username_to_a_link(
+                int(friend['telegram_id']), friend['name'])
+
+        mes = "Отправил запрос дружбы пользователю " + friend["telegram_username"] + \
+              "\\. Когда твой друг примет запрос в друзья, " + \
+              "ты начнешь получать информацию о его 🔴 или 🟠 настроении"
+        mes = mes.replace("@", "\\@")
+        mes = mes.replace("_", "\\_")
+
+        await botClient.send_message(
+            message.chat.id,
+            mes,
+            parse_mode=ParseMode.MARKDOWN_V2,
+            disable_web_page_preview=True,
+            reply_markup=create_back_kb("friends_menu")
+        )
+    except Exception:
+        # на случай, если friend в процессе оформления заявки задизейблил бота
+        await botClient.send_message(
+            message.chat.id,
+            (
+                "Я не знаю такого пользователя, но буду рад познакомиться\\!\n\n"
+                "Отправь своему другу ссылку на Роджера "
+                "https://t\\.me/rogermentalbot\\?start\\=friends и "
+                "повтори отправку заявки, когда твой друг зарегистрируется 🙃"
+            ),
+            parse_mode=ParseMode.MARKDOWN_V2,
+            disable_web_page_preview=True,
+            reply_markup=create_back_kb("friends_menu")
+        )
+        return
 
 
 async def show_active_friends(callback_query: CallbackQuery):
@@ -264,24 +285,30 @@ async def show_active_friends(callback_query: CallbackQuery):
     friend_list = []
 
     for friend_id in friends_id_list:
+
         friend = get_user_by_id(friend_id)
 
         if not check_if_user_has_username(friend):
             friend["telegram_username"] = change_empty_username_to_a_link(
                 int(friend['telegram_id']), friend['name'])
 
-        friend_list.append(friend)
+        friend_list.append(friend['telegram_username'])
 
-    usernames = ['😸' + ' ' + friend['telegram_username']
+    usernames = ['😸 ' + friend
                  for friend in friend_list]
+
     mes = 'Список друзей, которым доступна информация о твоем настроении:\n\n' + \
         '\n'.join(usernames)
+
+    mes = mes.replace("@", "\\@")
+    mes = mes.replace("_", "\\_")
 
     await botClient.send_message(
         callback_query.from_user.id,
         mes,
         disable_web_page_preview=True,
         reply_markup=create_back_kb("friends_menu"),
+        parse_mode=ParseMode.MARKDOWN_V2
     )
 
 
@@ -296,16 +323,24 @@ async def show_info(callback_query: CallbackQuery):
     None
     """
 
+    app_settings = App_Settings()
+    settings = app_settings.get_app_settings()
+
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
 
-    mes = """Рассказываю подробнее о режиме «Друзья»
+    mes = f"""Рассказываю подробнее о режиме «Друзья».
 
 Друзья — это пользователи, которым доступна информация о твоем настроении. Список друзей определяешь только ты.
 
-Как только ты отмечаешь 🔴 или 🟠 настроение, твои друзья получают сообщение об этом —  они смогут написать и поддержать тебя
+Как только ты отмечаешь 🔴 или 🟠 настроение, твои друзья получают сообщение об этом — они смогут написать и поддержать тебя.
+
+Обрати внимание: всего ты можешь добавить не более {settings['friends_limit']} друзей. Добавляй только самых близких!
     """
 
-    await botClient.send_message(callback_query.from_user.id, mes, parse_mode=ParseMode.MARKDOWN)
+    await botClient.send_message(callback_query.from_user.id,
+                                 mes,
+                                 parse_mode=ParseMode.MARKDOWN,
+                                 reply_markup=create_back_kb("friends_menu"))
 
 
 async def watch_friends_internal_requests(
@@ -331,7 +366,7 @@ async def watch_friends_internal_requests(
     incoming_requests = get_incoming_requests(user['_id'])
 
     if len(incoming_requests) == 0:
-        await botClient.send_message(user_tg_id, "У тебя нет новых заявкок в друзья")
+        await botClient.send_message(user_tg_id, "У тебя нет новых заявок в друзья")
         return
 
     for request_user_id in incoming_requests:
@@ -358,16 +393,24 @@ async def watch_friends_internal_requests(
             friend_user["telegram_username"] = change_empty_username_to_a_link(
                 int(friend_user['telegram_id']), friend_user['name'])
 
+        mes = f"""Новый запрос в друзья от пользователя {friend_user['telegram_username']}\\.
+
+Если ты примешь этот запрос, твой друг начнет получать уведомления, когда ты отметишь 🔴 или 🟠 настроение"""
+
+        mes = mes.replace("@", "\\@")
+        mes = mes.replace("_", "\\_")
+
         await botClient.send_message(
             user_tg_id,
-            f"Новый запрос в друзья от пользователя {friend_user['telegram_username']}",
-            reply_markup=friend_request_kb
+            mes,
+            reply_markup=friend_request_kb,
+            parse_mode=ParseMode.MARKDOWN_V2
         )
 
 
 async def friends_internal_request(callback_query: CallbackQuery, friend: str, approve: bool):
     """
-    Callback handler for /friends command -> "friend_approve" or "friend_approve"
+    Callback handler for /friends command -> "friend_approve" or "friend_approve" or decline
 
     Parameters:
     callback_query (TG Callback): callback to handle
@@ -378,40 +421,45 @@ async def friends_internal_request(callback_query: CallbackQuery, friend: str, a
 
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
 
-    if approve:
-        status = 1
-    else:
-        status = 2
-
     user_to = get_user_by_telegram_id(str(callback_query.from_user.id))
     user_from = get_user_by_telegram_id(friend)
-
-    friends_record = get_friends_record(user_from["_id"], user_to['_id'])
-    update_friend_status(friends_record['_id'], status)
 
     if not check_if_user_has_username(user_from):
         user_from["telegram_username"] = change_empty_username_to_a_link(
             int(user_from['telegram_id']), user_from['name'])
 
+    delete_friends_request(user_to["_id"], user_from["_id"])
+
     if approve:
+
+        add_new_friend(user_to["_id"], user_from["_id"])
+
+        mes = "Теперь ты дружишь с " + user_from['telegram_username'] + "\\. " + \
+              "Когда твой друг отметит 🔴 или 🟠 настроение, я скажу тебе об этом"
+
+        mes = mes.replace("@", "\\@")
+        mes = mes.replace("_", "\\_")
+
         await botClient.send_message(
             callback_query.from_user.id,
-            (
-                "Теперь ты дружишь с " + user_from['telegram_username'] + "\\. " +
-                "Когда твой друг отметит 🔴 или 🟠 настроение, я скажу тебе об этом"
-            ), parse_mode=ParseMode.MARKDOWN_V2
+            mes,
+            parse_mode=ParseMode.MARKDOWN_V2
         )
 
         if not check_if_user_has_username(user_to):
             user_to["telegram_username"] = change_empty_username_to_a_link(
                 int(user_to['telegram_id']), user_to['name'])
 
+        mes = "Теперь ты дружишь с " + user_to['telegram_username'] + "\\. " + \
+              "Когда твой друг отметит 🔴 или 🟠 настроение, я скажу тебе об этом"
+
+        mes = mes.replace("@", "\\@")
+        mes = mes.replace("_", "\\_")
+
         await botClient.send_message(
             user_from["telegram_id"],
-            (
-                "Теперь ты дружишь с " + user_to['telegram_username'] + "\\. " +
-                "Когда твой друг отметит 🔴 или 🟠 настроение, я скажу тебе об этом"
-            ), parse_mode=ParseMode.MARKDOWN_V2
+            mes,
+            parse_mode=ParseMode.MARKDOWN_V2
         )
         return
 
@@ -446,77 +494,174 @@ async def send_a_friend_message_about_bad_mood(tg_id_user: int, color: str):
         if not check_if_user_has_username(user):
             user["telegram_username"] = change_empty_username_to_a_link(
                 int(user['telegram_id']), user['name'])
-    try:
-        await botClient.send_message(
-            friend["telegram_id"],
-            (
-                "Твой друг " + user['telegram_username'] + " отметил, что сегодня у него " +
-                mood_dict[color] +
-                " настроение. Ты можешь написать ему напрямую"
-            ),
-            parse_mode="Markdown",
-            disable_web_page_preview=True
-        )
-    except MessageError:
-        print(
-            "Не удалось отправить сообщение пользователю " +
-            user['telegram_username'])
+        try:
+            print(2)
+            mes = "Твой друг " + user['telegram_username'] + \
+                  " отметил, что сегодня у него " + \
+                mood_dict[color] + \
+                  " настроение\\. Ты можешь написать ему по кнопке ниже"
+
+            mes = mes.replace("@", "\\@")
+            mes = mes.replace("_", "\\_")
+            print(mes)
+            await botClient.send_message(
+                int(friend["telegram_id"]),
+                mes,
+                parse_mode=ParseMode.MARKDOWN_V2,
+                disable_web_page_preview=True,
+                reply_markup=create_support_friend_kb(str(tg_id_user))
+            )
+        except MessageError:
+            print(
+                "Не удалось отправить сообщение пользователю " +
+                user['telegram_username'])
+        except Exception as e:
+            print(e)
+            await amplitude_send_default_source_event("Error",
+                                                      friend["telegram_id"],
+                                                      "send_a_friend_message_about_bad_mood",
+                                                      e)
 
 
-async def delete_friends(callback_query: CallbackQuery):
-    """
-    Callback handler for /friends command -> "friend_delete"
-
-    Parameters:
-    callback_query (TG Callback): callback to handle
-
-    Returns:
-    None
-    """
+async def delete_from_friends_message(callback_query: CallbackQuery, index: int):
+    "main function to delete friends"
 
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
+
+    user = get_user_by_telegram_id(str(callback_query.from_user.id))
+
+    friends = get_all_friends(user['_id'])
+
+    current_friend = get_user_by_id(friends[index])
+
+    if not check_if_user_has_username(current_friend):
+        current_friend['telegram_username'] = change_empty_username_to_a_link(
+            int(current_friend['telegram_id']), current_friend['name'])
+
+    left_index, right_index = calculating_indexes_for_delete_kb_friends(
+        index, len(friends))
+
+    mes = f"""*Друг {index+1} из {len(friends)}*\n
+Удалить пользователя {current_friend['telegram_username']} из друзей\\?\n
+Если ты удалишь друга, он больше не сможет получать информацию о твоем настроении"""
+    mes = mes.replace("@", "\\@")
+    mes = mes.replace("_", "\\_")
+
     await botClient.send_message(
         callback_query.from_user.id,
-        'ToDo: доделать удаление друзей'
+        mes,
+        parse_mode=ParseMode.MARKDOWN_V2,
+        reply_markup=add_delete_from_friends_kb(
+            len(friends), index, left_index, right_index, str(
+                current_friend["telegram_id"]))
     )
 
-    # friends_list = await find_all_friends(
-    #     await get_user_by_telegram_id(callback_query.from_user.id),
-    # )
-    # await delete_friends_message(callback_query.from_user.id, friends_list,
-    # 0, 0)
+
+def calculating_indexes_for_delete_kb_friends(index: int, len_array: int):
+    "индексы чисто для фронта, для обращения через них к массиву сделай -1"
+    index += 1
+
+    left_index = index - 1
+    right_index = index + 1
+
+    if left_index < 1:
+        left_index = len_array
+
+    if right_index > len_array:
+        right_index = 1
+
+    return left_index, right_index
 
 
-# Тут пиздец полный, две неиспользуемые переменные и что вообще происходит в функции
-# В конце забыл send_mesasge отправить?? Нет записи в БД о удалении??
+async def delete_from_friends_go(callback_query: CallbackQuery,
+                                 index: int,
+                                 number_of_friends: int,
+                                 direction: str):
+    """allows user to choose which friend should be deleted"""
 
-# async def delete_friends_message(
-#     id_user: int,
-#     friends_list: list,
-#     index_to_show: int,
-#     id_message: int
-# ):
-#     if len(friends_list) == 0:
-#         await botClient.send_message(
-#             id_user,
-#             "У тебя не осталось друзей 🥲",
-#             reply_markup=create_back_kb("friends_menu")
-#         )
-#         return
-#     friends_delete_message_kb = InlineKeyboardMarkup(one_time_keyboard=True)
-#     mes = "😻 Твой друг: /n/n"
-#     friend = await search_user_by_object_id(friends_list[index_to_show])
-#     if check_if_user_has_username(friend['telegram_username']):
-#         mes += friend['telegram_username']
-#     else:
-#         change_empty_username_to_a_link(friend['telegram_id'], friend['name'])
-#     friends_button_delete = InlineKeyboardButton(
-#         '😿 Удалить друга',
-#         callback_data=call_back_decline.new(
-#             id='friend_delete',
-#             friend_to_delete=friend['_id']
-#         )
-#     )
+    if direction == "left":
+        index = index - 1
+
+    if direction == "right":
+        index = index + 1
+
+    if index < 0:
+        index = number_of_friends - 1
+
+    if index == number_of_friends:
+        index = 0
+
+    await delete_from_friends_message(callback_query, index)
 
 
-# ебануть навигацию везде
+async def delete_friend(callback_query: CallbackQuery, friend_id: str):
+    """finishes deletion a friend"""
+
+    user = get_user_by_telegram_id(str(callback_query.from_user.id))
+
+    current_friend = get_user_by_telegram_id(friend_id)
+
+    delete_from_friends(user["_id"], current_friend["_id"])
+
+    if not check_if_user_has_username(current_friend):
+        current_friend['telegram_username'] = change_empty_username_to_a_link(
+            int(current_friend['telegram_id']), current_friend['name'])
+
+    mes = f"Удалил пользователя {current_friend['telegram_username']} из твоих друзей 🙌"
+    mes = mes.replace("@", "\\@")
+    mes = mes.replace("_", "\\_")
+
+    await botClient.send_message(
+        callback_query.from_user.id,
+        mes,
+        parse_mode=ParseMode.MARKDOWN_V2
+    )
+
+    await delete_from_friends_message(callback_query, 0)
+
+
+async def support_friend(callback_query: CallbackQuery, friend_id: str):
+    """
+    start to create a support mes for friend
+    """
+    await botClient.send_message(
+        callback_query.from_user.id,
+        ("""Напиши сообщение ниже, а я передам его твоему другу.
+
+Не отправляй медиафайлы, я умею передавать только текстовые сообщения"""),
+        reply_markup=create_back_kb("main")
+    )
+    await Recording.AwaitForASupportMessageFromFriend.set()
+    state = botDispatcher.get_current().current_state()
+    await state.update_data(friend_id=friend_id)
+
+
+async def sendmes_to_support_friend(friend_id: str, message: Message, state: dispatcher.FSMContext):
+    """
+    function sends a message to a user's friend
+    """
+    user = get_user_by_telegram_id(str(message.chat.id))
+
+    if not check_if_user_has_username(user):
+        user['telegram_username'] = change_empty_username_to_a_link(
+            int(user['telegram_id']), user['name'])
+
+    mes = f"""Твой друг {user['telegram_username']} поддерживает тебя\\.
+
+Вот его сообщение\\: """
+    mes = mes.replace("@", "\\@")
+    mes = mes.replace("_", "\\_")
+
+    await botClient.send_message(
+        int(friend_id),
+        mes,
+        parse_mode=ParseMode.MARKDOWN_V2
+    )
+
+    await botClient.send_message(
+        int(friend_id), message.text)
+
+    await botClient.send_message(
+        int(user["telegram_id"]), "Твое сообщение доставлено другу 💙")
+
+    await state.finish()

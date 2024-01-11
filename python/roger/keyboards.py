@@ -1,6 +1,18 @@
 """Module with keyboards and functions to generate keyboards."""
 
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import (
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    ReplyKeyboardMarkup,
+    KeyboardButton,
+    KeyboardButtonRequestUser
+)
+from aiogram.utils.callback_data import CallbackData
+
+callback_friends_left = CallbackData("L", "id", "index", "len")
+callback_friends_right = CallbackData("R", "id", "index", "len")
+callback_current_friend_to_delete = CallbackData("D", "id", "friend_id")
+callback_friends_support_message = CallbackData("S", "id", "friend_id")
 
 green_button_answer = InlineKeyboardButton(
     '🟢', callback_data='green_button_answer')
@@ -87,7 +99,27 @@ approve_friends_request = InlineKeyboardButton(
     'Добавить в друзья', callback_data='approve_request')
 
 
-def create_friends_keyboard(requests: int, friends: int):
+def create_support_friend_kb(friend_id: str):
+    """Returns a keyboard to support a friend (with 1 button "Поддержать")
+
+    Parameters:
+    friend_id (str): telegram_id of a friend
+
+    Returns:
+    TG InlineKeyboardMarkup
+    """
+
+    sendmes_to_friend_button = InlineKeyboardButton(
+        'Поддержать', callback_data=callback_friends_support_message.new(
+            id='sendmes_to_friend', friend_id=friend_id))
+
+    sendmes_to_friend_kb = InlineKeyboardMarkup(row_width=1).add(
+        sendmes_to_friend_button)
+
+    return sendmes_to_friend_kb
+
+
+def create_friends_keyboard(requests: int, friends: int, add_friends: bool):
     """
     Function to create /friends keyboard
 
@@ -106,21 +138,50 @@ def create_friends_keyboard(requests: int, friends: int):
             '(' + str(requests) + (') Входящие заявки'), callback_data='friends_requests')
         friends_menu_kb = friends_menu_kb.add(friends_requests_button)
 
-    add_friends_button = InlineKeyboardButton(
-        'Добавить нового друга', callback_data='add_friends')
-    friends_menu_kb = friends_menu_kb.add(add_friends_button)
+    if add_friends:
+        add_friends_button = InlineKeyboardButton(
+            'Добавить нового друга', callback_data='add_friends')
+
+        friends_menu_kb = friends_menu_kb.add(add_friends_button)
 
     if friends > 0:
         check_friends_list_button = InlineKeyboardButton(
             'Посмотреть список друзей', callback_data='check_friend_list')
         friends_menu_kb = friends_menu_kb.add(check_friends_list_button)
 
+        delete_friends_list_button = InlineKeyboardButton(
+            'Удалить друга', callback_data='delete_friend')
+        friends_menu_kb = friends_menu_kb.add(delete_friends_list_button)
+
     info_friends_button = InlineKeyboardButton(
         'Инфо', callback_data='info_friend_list')
 
-    friends_menu_kb = friends_menu_kb.add(info_friends_button, back_button)
+    friends_menu_kb = friends_menu_kb.add(info_friends_button)
+
+    exit_button = InlineKeyboardButton(
+        'Выйти', callback_data='friends_menu')
+
+    friends_menu_kb = friends_menu_kb.add(exit_button)
 
     return friends_menu_kb
+
+
+def create_user_shared_keyboard():
+    """
+    Function to create user_shared keyboard
+
+    Parameters:
+
+    Returns:
+    TG InlineKeyboardMarkup
+    """
+    keyboard = ReplyKeyboardMarkup(
+        resize_keyboard=True,
+        one_time_keyboard=True)
+    keyboard.add(KeyboardButton("Выбрать контакт",
+                 request_user=KeyboardButtonRequestUser(1, user_is_bot=False)))
+    keyboard.add(KeyboardButton("⬅️ Назад", callback_data='friends_menu'))
+    return keyboard
 
 
 def create_back_kb(callback_info: str):
@@ -157,10 +218,50 @@ def add_back_button(kb: InlineKeyboardMarkup, callback_info: str):
     return kb
 
 
-# ask_for_rate_messages_support = add_back_button(ask_for_rate_messages_support, 'main')
+def add_delete_from_friends_kb(friends_length: int, index: int,
+                               left_index: int, right_index: int, current_friend_id: str):
+    """Returns a keyboard to delete friends (for 1 or many)
 
-# async def create_delete_friends_kb(callback_info: str):
-#     delete_friends_kb = InlineKeyboardMarkup(row_width=1, one_time_keyboard=True)
-#     delete_button = InlineKeyboardButton('😿 Удалить из друзей', callback_data=callback_info)
-#     delete_friends_kb = delete_friends_kb.add(delete_button)
-#     return delete_friends_kb
+    Parameters:
+    friends_length (int): how many friends user has
+    index (int): index of array which indicates what friend is supposed to be shown
+    left_index (int): index of array to which user might switch
+        (usually index-1, but not necessarily)
+    right_index (int): index of array to which user might switch
+        (usually index+1, but not necessarily)
+    current_friend_id (str): telegram_id of shown friend
+
+    Returns:
+    TG InlineKeyboardMarkup (Perfect motherfucking keyboard)
+    """
+    delete_from_friends_kb = InlineKeyboardMarkup(one_time_keyboard=True)
+
+    delete_from_friends_button = InlineKeyboardButton(
+        '❌ Удалить из друзей', callback_data=callback_current_friend_to_delete.new(
+            id='friend_to_del', friend_id=current_friend_id))
+    delete_from_friends_kb = delete_from_friends_kb.row(
+        delete_from_friends_button)
+
+    left_move_button = InlineKeyboardButton(
+        f'⬅️ {left_index} из {friends_length}', callback_data=callback_friends_left.new(
+            id='go_left', index=index, len=friends_length))
+    right_move_button = InlineKeyboardButton(
+        f'➡️ {right_index} из {friends_length}', callback_data=callback_friends_right.new(
+            id='go_right', index=index, len=friends_length))
+
+    if friends_length == 2 and index == 0:
+        delete_from_friends_kb = delete_from_friends_kb.row(right_move_button)
+
+    if friends_length == 2 and index == 1:
+        delete_from_friends_kb = delete_from_friends_kb.row(left_move_button)
+
+    if friends_length > 2:
+        delete_from_friends_kb = delete_from_friends_kb.row(
+            left_move_button, right_move_button)
+
+    exit_button = InlineKeyboardButton(
+        'Выйти', callback_data='friends_menu')
+
+    delete_from_friends_kb = delete_from_friends_kb.row(exit_button)
+
+    return delete_from_friends_kb
