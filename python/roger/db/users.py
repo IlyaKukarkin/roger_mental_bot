@@ -180,8 +180,10 @@ def get_all_admins():
 def get_all_active_users_partially(skip: int, limit: int):
     """
     Returns an array of all active users from the DataBase table "Users"
-    Skip: How many documents should we skip after sorting the docs
+
     Parameters:
+    Skip: How many documents should we skip after sorting the docs
+    Limit: How many users we'll send a message per iteration
 
     Returns:
     array: Users
@@ -217,7 +219,7 @@ def get_count_all_active_users():
     Parameters:
 
     Returns:
-    count: Object
+    count: Int
     """
 
     count = dbClient['users'].aggregate([
