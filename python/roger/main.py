@@ -8,10 +8,15 @@ from aiogram.utils import executor
 from aiogram import types, dispatcher
 from aiogram.utils.callback_data import CallbackData
 from amplitude import Amplitude
-
 from logger import logger
-from states import Recording, FriendsStates, Registration
-from db.users import update_user_is_active, get_user_by_telegram_id
+
+from db.setup import dbClient
+from db.users import (
+    update_user_is_active,
+    get_user_by_telegram_id
+)
+from singleton import SingletonClass
+from states import Recording, Registration
 from common import delete_keyboard
 from feedback import feedback_start, feedback_get_text_from_user, feedback_get_photo_from_user
 from version import version_command
@@ -44,16 +49,30 @@ from chatgpt import (
     support_callback
 )
 from friends import (
-    get_friend_nickname,
     get_menu_for_command,
     show_active_friends,
     show_info,
     watch_friends_internal_requests,
     send_request_to_a_friend,
     friends_internal_request,
+    delete_from_friends_message,
+    delete_from_friends_go,
+    delete_friend,
+    support_friend,
+    sendmes_to_support_friend,
     call_back_approve,
+    call_back_decline
+)
+from keyboards import (
+    create_user_shared_keyboard,
+    callback_friends_left,
+    callback_friends_right,
+    callback_current_friend_to_delete,
+    callback_friends_support_message
 )
 
+singleton = SingletonClass()
+singleton.collection_name = dbClient
 
 # текущая версия бота
 VERSION = "2.3.0"
@@ -91,14 +110,20 @@ async def process_restart_command(message: types.Message):
 @botDispatcher.message_handler(commands=['friends'])
 async def friends_command(message: types.Message):
     """друзья"""
-    await amplitude_send_default_source_event("Friends. Command Called", str(message.chat.id), "", "")
+    await amplitude_send_default_source_event("Friends. Command Called",
+                                              str(message.chat.id),
+                                              "",
+                                              "")
     await get_menu_for_command(message.chat.id)
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data == 'main', state='*')
 async def any_state_main_handler(callback_query: types.CallbackQuery, state: dispatcher.FSMContext):
     """дефолтный хандлер любого стейта"""
-    await amplitude_send_default_source_event("Back Button. Pressed", str(callback_query.from_user.id), "", "")
+    await amplitude_send_default_source_event("Back Button. Pressed",
+                                              str(callback_query.from_user.id),
+                                              "",
+                                              "")
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await state.finish()
     await botClient.answer_callback_query(
@@ -110,7 +135,10 @@ async def any_state_main_handler(callback_query: types.CallbackQuery, state: dis
 @botDispatcher.callback_query_handler(lambda c: c.data == 'friends_menu')
 async def show_menu(callback_query: types.CallbackQuery):
     """показать меню друзей"""
-    await amplitude_send_default_source_event("Friends. Menu Called", str(callback_query.from_user.id), "", "")
+    await amplitude_send_default_source_event("Friends. Menu Called",
+                                              str(callback_query.from_user.id),
+                                              "",
+                                              "")
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await get_menu_for_command(callback_query.from_user.id)
 
@@ -118,17 +146,16 @@ async def show_menu(callback_query: types.CallbackQuery):
 @botDispatcher.callback_query_handler(lambda c: c.data == 'add_friends')
 async def add_friends_handler(callback_query: types.CallbackQuery):
     """хандлер добавить друзей"""
-    await amplitude_send_default_source_event("Friends. Add Friends. Command Called", str(callback_query.from_user.id), "", "")
+    await amplitude_send_default_source_event("Friends. Add Friends. Command Called",
+                                              str(callback_query.from_user.id),
+                                              "",
+                                              "")
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
-
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(types.KeyboardButton("Выбрать контакт",
-                 request_user=types.KeyboardButtonRequestUser(1, user_is_bot=False)))
 
     await botClient.send_message(
         callback_query.from_user.id,
         "Выбери контакт в Telegram, который хочешь добавить в друзья",
-        reply_markup=keyboard
+        reply_markup=create_user_shared_keyboard()
     )
     await Recording.AwaitForAFriendContact.set()
 
@@ -137,12 +164,27 @@ async def add_friends_handler(callback_query: types.CallbackQuery):
                                state=Recording.AwaitForAFriendContact)
 async def contacts(msg: types.Message, state: dispatcher.FSMContext):
     """хандлер для шеринга контакта друга"""
-    await amplitude_send_default_source_event("Friends Sharing Contact", str(msg.chat.id), "", "")
+    await amplitude_send_default_source_event("Friends Sharing Contact",
+                                              str(msg.chat.id),
+                                              "",
+                                              "")
     await msg.answer(
         "Вычисляю, знаком ли я с твоим другом...",
         reply_markup=types.ReplyKeyboardRemove()
     )
     await send_request_to_a_friend(msg)
+    await state.finish()
+
+
+@botDispatcher.message_handler(lambda message: message.text == '⬅️ Назад',
+                               state=Recording.AwaitForAFriendContact)
+async def back_from_sharing_friends(msg: types.Message, state: dispatcher.FSMContext):
+    """выход из режима шеринга контакта друга"""
+    await amplitude_send_default_source_event("Friends. Sharing Contact. Back Button",
+                                              str(msg.chat.id),
+                                              "",
+                                              "")
+    await get_menu_for_command(msg.chat.id)
     await state.finish()
 
 
@@ -153,65 +195,108 @@ async def process_callback_friend_request_approve_button(
     callback_data: dict
 ):
     """аппрув друга"""
-    await amplitude_send_default_source_event("Friends Request. Button Pressed", str(callback_query.from_user.id), "Approve", "")
+    await amplitude_send_default_source_event("Friends Request. Button Pressed",
+                                              str(callback_query.from_user.id),
+                                              "Approve",
+                                              "")
     friend = callback_data.get("friend")
     await friends_internal_request(callback_query, friend, True)
 
 
-@botDispatcher.callback_query_handler(lambda c: c.data == 'friend_decline')
+@botDispatcher.callback_query_handler(
+    call_back_decline.filter(id='friend_decline'))
 async def process_callback_friend_request_decline_button(
     callback_query: types.CallbackQuery,
     callback_data: dict
 ):
     """отказ от друга"""
-    await amplitude_send_default_source_event("Friends Request. Button Pressed", str(callback_query.from_user.id), "Decline", "")
+    await amplitude_send_default_source_event("Friends Request. Button Pressed",
+                                              str(callback_query.from_user.id),
+                                              "Decline",
+                                              "")
     friend = callback_data.get("friend")
     await friends_internal_request(callback_query, friend, False)
-
-
-@botDispatcher.callback_query_handler(lambda c: c.data == 'friend_delete')
-async def process_callback_friend_request_delete_button(
-    callback_query: types.CallbackQuery,
-    callback_data: dict
-):
-    """будущее удаление друга"""
-    # Передай норм данные в функцию, чё это такое, бро
-    # Почему ещё у нас два удаления друзей?
-    # await delete_friends_message(1, [], 1, 1)
-    await amplitude_send_default_source_event("Friends Delete. Command Called", str(callback_query.from_user.id), "", "")
-    print('FRIENDS!')
-    print(callback_query.from_user.id)  # чисто чтоб линтер не ругался
-    print(callback_data)  # чисто чтоб линтер не ругался
-
-
-@botDispatcher.message_handler(
-    state=FriendsStates.AwaitForAFriendNicknameToAdd)
-async def process_callback_await_for_a_message_button(
-    message: types.Message,
-    state: dispatcher.FSMContext
-):
-    """ввод никнейма для добавки друга"""
-    await get_friend_nickname(message, state)
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data == 'check_friend_list')
 async def friends_list_handler(callback_query: types.CallbackQuery):
     """вывод списка активных друзей"""
-    await amplitude_send_default_source_event("Active Friends List. Command Called", str(callback_query.from_user.id), "", "")
+    await amplitude_send_default_source_event("Active Friends List. Command Called",
+                                              str(callback_query.from_user.id),
+                                              "",
+                                              "")
     await show_active_friends(callback_query)
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data == 'info_friend_list')
 async def friends_info_handler(callback_query: types.CallbackQuery):
     """вывод информации о режиме друзья"""
-    await amplitude_send_default_source_event("Friends Info. Command Called", str(callback_query.from_user.id), "", "")
+    await amplitude_send_default_source_event("Friends Info. Command Called",
+                                              str(callback_query.from_user.id),
+                                              "",
+                                              "")
     await show_info(callback_query)
+
+
+@botDispatcher.callback_query_handler(lambda c: c.data == 'delete_friend')
+async def friends_delete_handler(callback_query: types.CallbackQuery):
+    """удалить из друзей"""
+    await amplitude_send_default_source_event("Friends. Delete Command Called",
+                                              str(callback_query.from_user.id),
+                                              "",
+                                              "")
+    await delete_from_friends_message(callback_query, 0)
+
+
+@botDispatcher.callback_query_handler(
+    callback_friends_left.filter(id='go_left'))
+async def delete_from_friends_go_left_callback(callback_query: types.CallbackQuery,
+                                               callback_data: dict):
+    """удаление из друзей go left"""
+    index = callback_data.get("index")
+    number_of_friends = callback_data.get("len")
+    await amplitude_send_default_source_event("Friends. Delete. Go left called",
+                                              str(callback_query.from_user.id),
+                                              "",
+                                              "")
+    await delete_from_friends_go(callback_query, int(index), int(number_of_friends), 'left')
+
+
+@botDispatcher.callback_query_handler(
+    callback_friends_right.filter(id='go_right'))
+async def delete_from_friends_go_right_callback(callback_query: types.CallbackQuery,
+                                                callback_data: dict):
+    """удаление из друзей go right"""
+    index = callback_data.get("index")
+    number_of_friends = callback_data.get("len")
+    await amplitude_send_default_source_event("Friends. Delete. Go right called",
+                                              str(callback_query.from_user.id),
+                                              "",
+                                              "")
+    await delete_from_friends_go(callback_query, int(index), int(number_of_friends), 'right')
+
+
+@botDispatcher.callback_query_handler(
+    callback_current_friend_to_delete.filter(id='friend_to_del'))
+async def delete_from_friends_callback(callback_query: types.CallbackQuery,
+                                       callback_data: dict):
+    """удаление друга"""
+    await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
+    friend_id = callback_data.get("friend_id")
+    await amplitude_send_default_source_event("Friends. Delete. Delete Button Pressed",
+                                              str(callback_query.from_user.id),
+                                              str(friend_id),
+                                              "")
+    await delete_friend(callback_query, friend_id)
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data == 'friends_requests')
 async def friends_request_handler(callback_query: types.CallbackQuery):
     """добавить друга"""
-    await amplitude_send_default_source_event("Friends Requests. Button Pressed", str(callback_query.from_user.id), "", "")
+    await amplitude_send_default_source_event("Friends Requests. Button Pressed",
+                                              str(callback_query.from_user.id),
+                                              "",
+                                              "")
     await watch_friends_internal_requests(
         callback_query.from_user.id,
         callback_query.message.message_id,
@@ -219,10 +304,42 @@ async def friends_request_handler(callback_query: types.CallbackQuery):
     )
 
 
+@botDispatcher.callback_query_handler(
+    callback_friends_support_message.filter(id='sendmes_to_friend'))
+async def sendmes_to_friend_callback(callback_query: types.CallbackQuery,
+                                     callback_data: dict):
+    """отправка сообщения другу со словами поддержки"""
+    await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
+    friend_id = callback_data.get("friend_id")
+    await amplitude_send_default_source_event("Friends. Support Button Pressed",
+                                              str(callback_query.from_user.id),
+                                              "",
+                                              "")
+    await support_friend(callback_query, friend_id)
+
+
+@botDispatcher.message_handler(
+    state=Recording.AwaitForASupportMessageFromFriend)
+async def sendmes_support_to_a_friend(
+    message: types.Message,
+    state: dispatcher.FSMContext
+):
+    """отправка сообщения другу со словами поддержки"""
+    data = await state.get_data()
+    await amplitude_send_default_source_event("Friends. Support Button Pressed",
+                                              str(message.chat.id),
+                                              data["friend_id"],
+                                              message.text)
+    await sendmes_to_support_friend(data["friend_id"], message, state)
+
+
 @botDispatcher.message_handler(commands=['friends_requests'])
 async def friends_request_command(message: types.Message):
     """запросы на добавление друзей"""
-    await amplitude_send_default_source_event("Friends Requests. Command Called", str(message.chat.id), "", "")
+    await amplitude_send_default_source_event("Friends Requests. Command Called",
+                                              str(message.chat.id),
+                                              "",
+                                              "")
     await watch_friends_internal_requests(message.chat.id, message.message_id, False)
 
 # вывод статистики по созданному пользователем сообщению
@@ -233,7 +350,10 @@ cart_cb = CallbackData("q", "id", "button_parameter")
 @botDispatcher.message_handler(commands=['stata'])
 async def process_stata_command(message: types.Message):
     """вывод статистики по сообщению поддержки"""
-    await amplitude_send_default_source_event("Stata. Command Called", str(message.chat.id), "", "")
+    await amplitude_send_default_source_event("Stata. Command Called",
+                                              str(message.chat.id),
+                                              "",
+                                              "")
     await botClient.send_message(message.chat.id, "Произвожу вычисления, немного терпения 😌")
     await stata_show_mes(message)
 
@@ -242,14 +362,17 @@ async def process_stata_command(message: types.Message):
     cart_cb.filter(button_parameter=["kb_mes"]))
 async def delete_from_cart_handler(call: types.CallbackQuery, callback_data: dict):
     """коллбек с сообщением для запроса статистики"""
-    await botClient.send_message(call.from_user.id, "Подгружаю статистику, немного терпения")
+    await botClient.send_message(call.from_user.id, "Подгружаю статистику, немного терпения 😌")
     await delete_from_cart_handler1(call, callback_data)
 
 
 @botDispatcher.message_handler(commands=['mentalstata'])
 async def process_rate_stata_command(message: types.Message):
     """вывод статистики по замерам настроения"""
-    await amplitude_send_default_source_event("MentalStata. Command Called", str(message.chat.id), "", "")
+    await amplitude_send_default_source_event("MentalStata. Command Called",
+                                              str(message.chat.id),
+                                              "",
+                                              "")
     await get_rate_stata(message)
 
 
@@ -260,7 +383,10 @@ async def rate_stata_handler_month(
     state: dispatcher.FSMContext
 ):
     """вывод статистики настроения за месяц"""
-    await amplitude_send_default_source_event("MentalStata. Button Month Pressed", str(callback_query.from_user.id), "Month", "")
+    await amplitude_send_default_source_event("MentalStata. Button Month Pressed",
+                                              str(callback_query.from_user.id),
+                                              "Month",
+                                              "")
     await state.finish()
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await send_rate_stata(callback_query.from_user.id, 'month')
@@ -273,7 +399,10 @@ async def rate_stata_handler_week2(
     state: dispatcher.FSMContext
 ):
     """вывод статистики настроения за две недели"""
-    await amplitude_send_default_source_event("MentalStata. Button TwoWeeks Pressed", str(callback_query.from_user.id), "Two Weeks", "")
+    await amplitude_send_default_source_event("MentalStata. Button TwoWeeks Pressed",
+                                              str(callback_query.from_user.id),
+                                              "Two Weeks",
+                                              "")
     await state.finish()
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await send_rate_stata(callback_query.from_user.id, 'week2')
@@ -286,7 +415,10 @@ async def rate_stata_handler_week(
     state: dispatcher.FSMContext
 ):
     """вывод статистики настроения за неделю"""
-    await amplitude_send_default_source_event("MentalStata. Button Week Pressed", str(callback_query.from_user.id), "Week", "")
+    await amplitude_send_default_source_event("MentalStata. Button Week Pressed",
+                                              str(callback_query.from_user.id),
+                                              "Week",
+                                              "")
     await state.finish()
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await send_rate_stata(callback_query.from_user.id, 'week')
@@ -295,7 +427,10 @@ async def rate_stata_handler_week(
 @botDispatcher.message_handler(commands=['fillform'])
 async def process_fillform_command(message: types.Message):
     """заполняем форму по команде"""
-    await amplitude_send_default_source_event("Fillform. Command Called", str(message.chat.id), "", "")
+    await amplitude_send_default_source_event("Fillform. Command Called",
+                                              str(message.chat.id),
+                                              "",
+                                              "")
     await fillform_command(message)
 
 # отправляем сообщение всем пользователям от имени бота, доступно только
@@ -323,7 +458,10 @@ async def process_callback_awaitforamessage_button(
 @botDispatcher.message_handler(commands=['feedback'])
 async def process_feedback_command(message: types.Message):
     """получаем фидбек от пользователя"""
-    await amplitude_send_default_source_event("Feedback. Command Called", str(message.chat.id), "", "")
+    await amplitude_send_default_source_event("Feedback. Command Called",
+                                              str(message.chat.id),
+                                              "",
+                                              "")
     await feedback_start(message)
 
 
@@ -361,7 +499,10 @@ async def process_sendmes_command(message: types.Message):
 @botDispatcher.message_handler(commands=['support'])
 async def process_support_command(message: types.Message):
     """вход в общение с чатом поддержки"""
-    await amplitude_send_default_source_event("Support. Command Called", str(message.chat.id), "", "")
+    await amplitude_send_default_source_event("Support. Command Called",
+                                              str(message.chat.id),
+                                              "",
+                                              "")
     await support_message(message)
 
 
@@ -381,7 +522,10 @@ async def support_stop_dialog(message: types.Message, state: dispatcher.FSMConte
             "Чтобы вернуться в него снова, вызови команду /support"
         )
     )
-    await amplitude_send_default_source_event("Stop. Command Called", str(message.chat.id), "", "")
+    await amplitude_send_default_source_event("Stop. Command Called",
+                                              str(message.chat.id),
+                                              "",
+                                              "")
     await state.finish()
 
 
@@ -402,7 +546,10 @@ async def donate_handler(message: types.Message):
         ),
         disable_web_page_preview=True
     )
-    await amplitude_send_default_source_event("Donate. Command Called", str(message.chat.id), "", "")
+    await amplitude_send_default_source_event("Donate. Command Called",
+                                              str(message.chat.id),
+                                              "",
+                                              "")
 
 
 # регистрация пользователя
@@ -416,7 +563,10 @@ async def process_callback_yesname_button1(
     state: dispatcher.FSMContext
 ):
     """регистрация пользователя, имя верно - ДА"""
-    await amplitude_send_default_source_event("Registration. Name Button YES Pressed", str(callback_query.from_user.id), "Name", "Button YES")
+    await amplitude_send_default_source_event("Registration. Name Button YES Pressed",
+                                              str(callback_query.from_user.id),
+                                              "Name",
+                                              "Button YES")
     data = await state.get_data()
     await get_user_name(data["user_id"], callback_query)
     await state.finish()
@@ -430,7 +580,10 @@ async def process_callback_noname_button1(
     state: dispatcher.FSMContext
 ):
     """регистрация пользователя, имя верно - НЕТ"""
-    await amplitude_send_default_source_event("Registration. Name Button NO Pressed", str(callback_query.from_user.id), "Name", "Button NO")
+    await amplitude_send_default_source_event("Registration. Name Button NO Pressed",
+                                              str(callback_query.from_user.id),
+                                              "Name",
+                                              "Button NO")
     data = await state.get_data()
     await get_printed_user_name(data["user_id"], callback_query, data["source"])
 
@@ -438,7 +591,10 @@ async def process_callback_noname_button1(
 @botDispatcher.message_handler(state=Registration.AwaitForAName)
 async def customer_name(message: types.Message, state: dispatcher.FSMContext):
     """регистрация пользователя, вводим имя вручную"""
-    await amplitude_send_default_source_event("Registration. Name Input Success", str(message.chat.id), "", "")
+    await amplitude_send_default_source_event("Registration. Name Input Success",
+                                              str(message.chat.id),
+                                              "",
+                                              "")
     data = await state.get_data()
     username = await get_customer_name(data["user_id"], message, state, data["source"])
     if username is None:
@@ -459,12 +615,19 @@ async def process_callback_askfortime20_button(
     state: dispatcher.FSMContext
 ):
     """ввод времени для отправки сообщений, 8 вечера"""
-    await amplitude_send_default_source_event("Registration. TimeToSendMessages Pressed", str(callback_query.from_user.id), "TimeToSendMessages", "20")
     data = await state.get_data()
     await user_time_20(data["user_id"], callback_query, state)
     if data["source"] == "reg":
+        await amplitude_send_default_source_event("Registration. TimeToSendMessages Pressed",
+                                                  str(callback_query.from_user.id),
+                                                  "TimeToSendMessages",
+                                                  "20")
         await get_user_time_zone(data["user_id"], callback_query.from_user.id)
     if data["source"] == "settings":
+        await amplitude_send_default_source_event("Settings. TimeToSendMessages Pressed",
+                                                  str(callback_query.from_user.id),
+                                                  "TimeToSendMessages",
+                                                  "20")
         await check_to_send_mes(callback_query.from_user.id)
 
 
@@ -475,12 +638,19 @@ async def process_callback_askfortime21_button(
     state: dispatcher.FSMContext
 ):
     """ввод времени для отправки сообщений, 9 вечера"""
-    await amplitude_send_default_source_event("Registration. TimeToSendMessages Pressed", str(callback_query.from_user.id), "TimeToSendMessages", "21")
     data = await state.get_data()
     await user_time_21(data["user_id"], callback_query, state)
     if data["source"] == "reg":
+        await amplitude_send_default_source_event("Registration. TimeToSendMessages Pressed",
+                                                  str(callback_query.from_user.id),
+                                                  "TimeToSendMessages",
+                                                  "21")
         await get_user_time_zone(data["user_id"], callback_query.from_user.id)
     if data["source"] == "settings":
+        await amplitude_send_default_source_event("Settings. TimeToSendMessages Pressed",
+                                                  str(callback_query.from_user.id),
+                                                  "TimeToSendMessages",
+                                                  "21")
         await check_to_send_mes(callback_query.from_user.id)
 
 
@@ -491,12 +661,19 @@ async def process_callback_askfortime22_button(
     state: dispatcher.FSMContext
 ):
     """ввод времени для отправки сообщений, 10 вечера"""
-    await amplitude_send_default_source_event("Registration. TimeToSendMessages Pressed", str(callback_query.from_user.id), "TimeToSendMessages", "22")
     data = await state.get_data()
     await user_time_22(data["user_id"], callback_query, state)
     if data["source"] == "reg":
+        await amplitude_send_default_source_event("Registration. TimeToSendMessages Pressed",
+                                                  str(callback_query.from_user.id),
+                                                  "TimeToSendMessages",
+                                                  "22")
         await get_user_time_zone(data["user_id"], callback_query.from_user.id)
     if data["source"] == "settings":
+        await amplitude_send_default_source_event("Settings. TimeToSendMessages Pressed",
+                                                  str(callback_query.from_user.id),
+                                                  "TimeToSendMessages",
+                                                  "22")
         await check_to_send_mes(callback_query.from_user.id)
 
 
@@ -507,12 +684,19 @@ async def process_callback_askfortime23_button1(
     state: dispatcher.FSMContext
 ):
     """ввод времени для отправки сообщений, 11 вечера"""
-    await amplitude_send_default_source_event("Registration. TimeToSendMessages Pressed", str(callback_query.from_user.id), "TimeToSendMessages", "23")
     data = await state.get_data()
     await user_time_23(data["user_id"], callback_query, state)
     if data["source"] == "reg":
+        await amplitude_send_default_source_event("Registration. TimeToSendMessages Pressed",
+                                                  str(callback_query.from_user.id),
+                                                  "TimeToSendMessages",
+                                                  "23")
         await get_user_time_zone(data["user_id"], callback_query.from_user.id)
     if data["source"] == "settings":
+        await amplitude_send_default_source_event("Settings. TimeToSendMessages Pressed",
+                                                  str(callback_query.from_user.id),
+                                                  "TimeToSendMessages",
+                                                  "23")
         await check_to_send_mes(callback_query.from_user.id)
 
 
@@ -527,14 +711,20 @@ async def customer(message: types.Message, state: dispatcher.FSMContext):
     data = await state.get_data()
     time_zone = await customer_timezone(data["user_id"], message, state, data["source"])
     if time_zone is not None and data["source"] == "reg":
-        await amplitude_send_default_source_event("Registration. Timezone Input Success", str(message.chat.id), "TimezoneInput", "")
+        await amplitude_send_default_source_event("Registration. Timezone Input Success",
+                                                  str(message.chat.id),
+                                                  "TimezoneInput",
+                                                  "")
         await state.finish()
         update_user_is_active(data["user_id"], True)
         await botClient.send_message(message.chat.id,
                                      "Отлично! 😍")
         await create_new_message_after_registration(data["user_id"], message.chat.id)
     if data["source"] == "settings":
-        await amplitude_send_default_source_event("Settings. Timezone Changed Success", str(message.chat.id), "", "")
+        await amplitude_send_default_source_event("Settings. Timezone Changed Success",
+                                                  str(message.chat.id),
+                                                  "",
+                                                  "")
         await botClient.send_message(message.chat.id,
                                      "Обновил твой часовой пояс на UTC" + time_zone)
         await check_to_send_mes(message.chat.id)
@@ -600,16 +790,21 @@ async def process_callback_redbutton_button1(callback_query: types.CallbackQuery
 @botDispatcher.message_handler(commands=['settings'])
 async def settings_main_command(message: types.Message):
     """update user settings by themselves"""
-    await amplitude_send_default_source_event("Settings. Command Called", str(message.chat.id), "", "")
+    await amplitude_send_default_source_event("Settings. Command Called",
+                                              str(message.chat.id),
+                                              "",
+                                              "")
     await settings_main(message.chat.id)
-    
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
                                       'settings_name')
 async def settings_change_name_callback(callback_query: types.CallbackQuery):
     """update user name by themselves"""
-    await amplitude_send_default_source_event("Settings. Name Change Pressed", str(callback_query.from_user.id), "Change Name", "")
+    await amplitude_send_default_source_event("Settings. Name Change Pressed",
+                                              str(callback_query.from_user.id),
+                                              "Change Name",
+                                              "")
     user = get_user_by_telegram_id(str(callback_query.from_user.id))
     await get_printed_user_name(user["_id"], callback_query, "settings")
 
@@ -618,7 +813,10 @@ async def settings_change_name_callback(callback_query: types.CallbackQuery):
                                       'settings_timezone')
 async def settings_change_timezone_callback(callback_query: types.CallbackQuery):
     """update user timezone by themselves"""
-    await amplitude_send_default_source_event("Settings. Timezone Change Pressed", str(callback_query.from_user.id), "Change Timezone", "")
+    await amplitude_send_default_source_event("Settings. Timezone Change Pressed",
+                                              str(callback_query.from_user.id),
+                                              "Change Timezone",
+                                              "")
     user = get_user_by_telegram_id(str(callback_query.from_user.id))
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await get_user_timezone(user["_id"], callback_query.from_user.id, "settings")
@@ -628,7 +826,10 @@ async def settings_change_timezone_callback(callback_query: types.CallbackQuery)
                                       'settings_time_to_send_messages_button')
 async def settings_change_time_to_send_messages_callback(callback_query: types.CallbackQuery):
     """update time to send messages by themselves"""
-    await amplitude_send_default_source_event("Settings. TimeToSendMessages Change Pressed", str(callback_query.from_user.id), "Change Time To Send Messages", "")
+    await amplitude_send_default_source_event("Settings. TimeToSendMessages Change Pressed",
+                                              str(callback_query.from_user.id),
+                                              "Change Time To Send Messages",
+                                              "")
     user = get_user_by_telegram_id(str(callback_query.from_user.id))
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await get_user_time_to_send_messages(user["_id"], callback_query.from_user.id, "settings")
@@ -653,7 +854,10 @@ async def process_any_command(message: types.Message):
         message.chat.id,
         "Не знаю эту команду. Попробуй написать что-нибудь другое"
     )
-    await amplitude_send_default_source_event("Unknown Command Called", str(message.chat.id), message.text, "")
+    await amplitude_send_default_source_event("Unknown Command Called",
+                                              str(message.chat.id),
+                                              message.text,
+                                              "")
 
 
 if __name__ == "__main__":

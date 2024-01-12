@@ -194,6 +194,7 @@ async def await_for_a_problem(message: types.Message, state: FSMContext):
             "Извини, не мог бы ты повторить вопрос?"
         )
 
+
 async def callback_after_click_on_button_support(callback_query: types.CallbackQuery, rate: bool):
     """
     Handler for a "rate" callback data in /support command

@@ -217,6 +217,7 @@ async def callback_after_click_on_color_button(
         # отключил чатжпт в колбеках
         # await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
         if color in ('red', 'orange'):
+            print(1)
             await send_a_friend_message_about_bad_mood(callback_query.from_user.id, color)
 
     except MessageError:
@@ -228,7 +229,10 @@ async def callback_after_click_on_color_button(
                 "они помогут разобраться с проблемой 👌"
             )
         )
-        await amplitude_send_default_source_event("Error", str(callback_query.from_user.id), "callback_after_click_on_color_button", "MessageError")
+        await amplitude_send_default_source_event("Error",
+                                                  str(callback_query.from_user.id),
+                                                  "callback_after_click_on_color_button",
+                                                  "MessageError")
 
 
 async def create_message_with_support(
@@ -336,7 +340,10 @@ async def create_message_with_support(
                 "они помогут разобраться с проблемой 👌"
             )
         )
-        await amplitude_send_default_source_event("Error", str(chat_id), "create_message_with_support", "MessageError")
+        await amplitude_send_default_source_event("Error",
+                                                  str(chat_id),
+                                                  "create_message_with_support",
+                                                  "MessageError")
 
 
 async def get_cat_gif():

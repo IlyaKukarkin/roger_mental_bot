@@ -99,7 +99,7 @@ async def start_command(message: types.Message, args: str):
         state = botDispatcher.get_current().current_state()
         await state.update_data(user_id=user_id, source="reg")
         return
-    
+
     if user["is_active"]:
         await botClient.send_message(
             message.chat.id,
@@ -120,7 +120,7 @@ async def start_command(message: types.Message, args: str):
         await amplitude_send_start_source_event(str(message.chat.id), args, "started_again")
 
         return
-    
+
     if user["is_active"]:
         await botClient.send_message(
             message.chat.id,

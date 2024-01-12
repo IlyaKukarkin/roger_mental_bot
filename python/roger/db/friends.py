@@ -8,8 +8,7 @@ from db.setup import dbClient
 
 def insert_new_friends(
     from_user_id: ObjectId,
-    to_user_id: ObjectId,
-    status: int = 0
+    to_user_id: ObjectId
 ):
     """
     Adds a new user record to the DataBase table "Friends"
@@ -26,33 +25,11 @@ def insert_new_friends(
     None
     """
 
-    dbClient['friends'].insert_one({
+    dbClient['friends_requests'].insert_one({
         "from": from_user_id,
         "to": to_user_id,
-        "status": status,
         "request_sent_time": datetime.now(),
     })
-
-
-def update_friend_status(
-    _id: ObjectId,
-    status: int = 0
-):
-    """
-    Updates the "status" field for friends record by "_id"
-
-    Parameters:
-    _id (ObjectId): ID for the friends record to update
-    status (int): value for "status" to set
-
-    Returns:
-    None
-    """
-
-    dbClient['friends'].find_one_and_update(
-        {'_id': _id},
-        {"$set": {'status': status}}
-    )
 
 
 def get_friends_record(
@@ -67,10 +44,10 @@ def get_friends_record(
     to_user_id (ObjectId): _id of user that request sent to
 
     Returns:
-    dict: Frineds or None
+    dict: Friends or None
     """
 
-    friends = dbClient['friends'].find_one({
+    friends = dbClient['friends_requests'].find_one({
         "from": from_user_id,
         "to": to_user_id
     })
@@ -78,7 +55,6 @@ def get_friends_record(
     return friends
 
 
-# Update with new Friends architecture
 def get_all_friends(
     user_id: ObjectId,
 ):
@@ -92,23 +68,15 @@ def get_all_friends(
     list: ObjectId
     """
 
-    friends_id = []
-
-    friends_from_user = dbClient['friends'].find(
-        {"from": user_id, "status": 1}
+    friends_ids = dbClient['users'].find(
+        {"_id": user_id}, {"_id": 0, "friends": 1}
     )
+    friends_ids = list(friends_ids)
 
-    friends_to_user = dbClient['friends'].find(
-        {"to": user_id, "status": 1}
-    )
+    if friends_ids[0] == {}:
+        return []
 
-    for friend in friends_from_user:
-        friends_id.append(friend['to'])
-
-    for friend in friends_to_user:
-        friends_id.append(friend['from'])
-
-    return friends_id
+    return friends_ids[0].get("friends")
 
 
 def get_incoming_requests(
@@ -126,8 +94,8 @@ def get_incoming_requests(
 
     friends_requests_id = []
 
-    friends_to_user = dbClient['friends'].find(
-        {"to": user_id, "status": 0}
+    friends_to_user = dbClient['friends_requests'].find(
+        {"to": user_id}
     )
 
     for friend in friends_to_user:
@@ -151,11 +119,50 @@ def get_outcoming_requests(
 
     friends_requests_id = []
 
-    friends_from_user = dbClient['friends'].find(
-        {"from": user_id, "status": 0}
+    friends_from_user = dbClient['friends_requests'].find(
+        {"from": user_id}
     )
 
     for friend in friends_from_user:
         friends_requests_id.append(friend['to'])
 
     return friends_requests_id
+
+
+def delete_friends_request(user_to: ObjectId, user_from: ObjectId):
+
+    dbClient["friends_requests"].delete_one({'from': user_to, 'to': user_from})
+    dbClient["friends_requests"].delete_one({'from': user_from, 'to': user_to})
+
+
+def add_new_friend(user_to: ObjectId, user_from: ObjectId):
+
+    friends_of_user_to = get_all_friends(user_to)
+    friends_of_user_to.append(user_from)
+
+    dbClient["users"].find_one_and_update(
+        {'_id': user_to}, {"$set": {'friends': friends_of_user_to}})
+
+    friends_of_user_from = get_all_friends(user_from)
+    friends_of_user_from.append(user_to)
+
+    dbClient["users"].find_one_and_update(
+        {'_id': user_from}, {"$set": {'friends': friends_of_user_from}})
+
+
+def delete_from_friends(user_to: ObjectId, user_from: ObjectId):
+
+    friends_of_user_to = get_all_friends(user_to)
+    print(friends_of_user_to)
+    print(user_to)
+    print(user_from)
+    friends_of_user_to.remove(user_from)
+
+    dbClient["users"].find_one_and_update(
+        {'_id': user_to}, {"$set": {'friends': friends_of_user_to}})
+
+    friends_of_user_from = get_all_friends(user_from)
+    friends_of_user_from.remove(user_to)
+
+    dbClient["users"].find_one_and_update(
+        {'_id': user_from}, {"$set": {'friends': friends_of_user_from}})
