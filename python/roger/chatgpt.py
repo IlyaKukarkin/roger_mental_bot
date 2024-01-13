@@ -23,7 +23,7 @@ array_of_chats = ArrayOfChats()
 
 async def support_message(message: types.Message):
     """
-    Handler for /support command
+    Handler for /chat command
 
     Parameters:
     message (TG Message): message to handle
@@ -36,7 +36,7 @@ async def support_message(message: types.Message):
         message.chat.id,
         (
             "Ты перешел в режим диалога. Чтобы выйти из него, введи команду /stop. "
-            "Оставить фидбек или пожаловаться на бота можно по команде /feedback\n\n"
+            "Оставить фидбек или пожаловаться на бота можно по команде /support\n\n"
             "Дисклеймер: ответы генерируются автоматически и могут быть несовершенны. "
             "Если у тебя возникли серьезные проблемы, "
             "пожалуйста, обратись к следующим организациям:\n\n"
@@ -65,7 +65,7 @@ async def support_message(message: types.Message):
 
 async def support_callback(callback_query: types.CallbackQuery):
     """
-    Handler for callback data in /support command
+    Handler for callback data in /chat command
 
     Parameters:
     callback_query (TG Callback): callback to handle
@@ -80,7 +80,7 @@ async def support_callback(callback_query: types.CallbackQuery):
         (
             "Ты перешел в тестовый режим диалога. "
             "Чтобы выйти из него, введи команду /stop. "
-            "Оставить фидбек или пожаловаться можно по команде /feedback"
+            "Оставить фидбек или пожаловаться можно по команде /support"
         )
     )
     await botClient.send_message(callback_query.from_user.id, "Что стряслось, друг?")
@@ -101,7 +101,7 @@ async def support_callback(callback_query: types.CallbackQuery):
 
 async def await_for_a_problem(message: types.Message, state: FSMContext):
     """
-    Handler for messages in /support command
+    Handler for messages in /chat command
 
     Parameters:
     message (TG Message): message to handle
@@ -118,7 +118,7 @@ async def await_for_a_problem(message: types.Message, state: FSMContext):
         array_of_chats.delete_array(message.chat.id)
         await botClient.send_message(
             message.chat.id,
-            "Ты вышел из режима диалога. Чтобы вернуться в него снова, вызови команду /support"
+            "Ты вышел из режима диалога. Чтобы вернуться в него снова, вызови команду /chat"
         )
         return
 
@@ -197,7 +197,7 @@ async def await_for_a_problem(message: types.Message, state: FSMContext):
 
 async def callback_after_click_on_button_support(callback_query: types.CallbackQuery, rate: bool):
     """
-    Handler for a "rate" callback data in /support command
+    Handler for a "rate" callback data in /chat command
 
     Parameters:
     callback_query (TG Callback): callback to handle

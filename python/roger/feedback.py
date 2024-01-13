@@ -15,7 +15,7 @@ from db.users import (
 
 async def feedback_start(message: Message):
     """
-    Message handler for /feedback command
+    Message handler for /support command
 
     Parameters:
     message (TG Message): message to handle
@@ -27,8 +27,8 @@ async def feedback_start(message: Message):
     await botClient.send_message(
         message.chat.id,
         (
-            "Отлично! Приступаем к созданию фидбека?\n"
-            "Если ты передумал отправлять фидбек, просто не нажимай на кнопку ниже"
+            "Отлично! Приступаем к созданию обращения?\n"
+            "Если ты передумал писать разработчикам, просто не нажимай на кнопку ниже"
         ),
         parse_mode=ParseMode.MARKDOWN,
         reply_markup=feedback_keyboard
@@ -38,7 +38,7 @@ async def feedback_start(message: Message):
 @botDispatcher.callback_query_handler(lambda c: c.data == 'feedback_start')
 async def feedback_start_callback(callback_query: CallbackQuery):
     """
-    Callback handler for /feedback -> "feedback_start"
+    Callback handler for /support -> "feedback_start"
 
     Parameters:
     callback_query (TG Callback): callback to handle
@@ -53,7 +53,7 @@ async def feedback_start_callback(callback_query: CallbackQuery):
     await botClient.send_message(
         callback_query.from_user.id,
         (
-            "Ты перешел в режим отправки фидбека. "
+            "Ты перешел в режим отправки обращения. "
             "Ниже отправь любое сообщение (текст или фото) — "
             "и я перешлю его разработчикам"
         ),
@@ -70,7 +70,7 @@ async def feedback_start_callback(callback_query: CallbackQuery):
 )
 async def feedback_finish_def(callback_query: CallbackQuery, state: FSMContext):
     """
-    Callback handler for /feedback -> "feedback_finish"
+    Callback handler for /support -> "feedback_finish"
 
     Parameters:
     callback_query (TG Callback): callback to handle
@@ -84,9 +84,9 @@ async def feedback_finish_def(callback_query: CallbackQuery, state: FSMContext):
     await botClient.send_message(
         callback_query.from_user.id,
         (
-            "Ты вышел из режима отправки фидбека. "
-            "Если захочешь вернуться и написать фидбек разработчикам, "
-            "вызови команду /feedback"
+            "Ты вышел из режима отправки обращения. "
+            "Если захочешь вернуться и написать что-нибудь разработчикам, "
+            "вызови команду /support"
         )
     )
     await state.finish()
@@ -95,7 +95,7 @@ async def feedback_finish_def(callback_query: CallbackQuery, state: FSMContext):
 @botDispatcher.callback_query_handler(lambda c: c.data == 'feedback_finish')
 async def feedback_finish_def_without_message(callback_query: CallbackQuery):
     """
-    Callback handler for /feedback -> "feedback_finish"
+    Callback handler for /support -> "feedback_finish"
 
     Parameters:
     callback_query (TG Callback): callback to handle
@@ -109,7 +109,7 @@ async def feedback_finish_def_without_message(callback_query: CallbackQuery):
 
 async def feedback_get_text_from_user(message: Message, state: FSMContext):
     """
-    Message handler for /feedback
+    Message handler for /support
 
     Parameters:
     message (TG Message): message to handle
@@ -127,7 +127,7 @@ async def feedback_get_text_from_user(message: Message, state: FSMContext):
     for admin in admins:
         await botClient.send_message(
             admin["telegram_id"],
-            "Новый фидбек от пользователя " + user['telegram_username'] +
+            "Новое обращение от пользователя " + user['telegram_username'] +
             ' из RogerMentalBot.\n\nchat_id: ' + str(message.chat.id) +
             '.\nmessage_id: ' + str(message.message_id) +
             '.\n\nТекст сообщения:\n"' + message.text + '"'
@@ -139,7 +139,7 @@ async def feedback_get_text_from_user(message: Message, state: FSMContext):
 
 async def feedback_get_photo_from_user(message: Message, state: FSMContext):
     """
-    Message handler for /feedback
+    Message handler for /support
 
     Parameters:
     message (TG Message): message to handle
