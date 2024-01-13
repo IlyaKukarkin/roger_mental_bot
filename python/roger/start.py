@@ -30,7 +30,7 @@ async def start_command(message: types.Message, args: str):
         form_id = ObjectId()
 
         if message.from_user.username is None:
-            message.from_user.username = " "
+            message.from_user.username = ""
 
         user_id = insert_new_empty_user(
             "@" + message.from_user.username, str(
