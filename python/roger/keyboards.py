@@ -159,7 +159,7 @@ def create_friends_keyboard(requests: int, friends: int, add_friends: bool):
     friends_menu_kb = friends_menu_kb.add(info_friends_button)
 
     exit_button = InlineKeyboardButton(
-        'Выйти', callback_data='friends_menu')
+        'Выйти', callback_data='main')
 
     friends_menu_kb = friends_menu_kb.add(exit_button)
 
@@ -197,6 +197,23 @@ def create_back_kb(callback_info: str):
 
     back_kb = InlineKeyboardMarkup(row_width=1, one_time_keyboard=True)
     return add_back_button(back_kb, callback_info)
+
+def create_exit_kb():
+    """
+    Function to create exit keyboard
+
+    Parameters:
+    callback_info (str): callback to return to
+
+    Returns:
+    TG InlineKeyboardMarkup
+    """
+
+    exit_kb = InlineKeyboardMarkup(row_width=1, one_time_keyboard=True)
+    exit_button = InlineKeyboardButton(
+        'Выйти', callback_data="friends_menu")
+    exit_kb = exit_kb.add(exit_button)
+    return exit_kb
 
 
 def add_back_button(kb: InlineKeyboardMarkup, callback_info: str):

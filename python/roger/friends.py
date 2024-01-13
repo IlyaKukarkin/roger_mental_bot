@@ -22,7 +22,8 @@ from db.friends import (
     get_friends_record,
     delete_friends_request,
     add_new_friend,
-    delete_from_friends
+    delete_from_friends,
+    count_all_user_friends_request
 )
 from db.users import (
     get_user_by_id,
@@ -35,7 +36,8 @@ from keyboards import (
     create_friends_keyboard,
     create_back_kb,
     add_delete_from_friends_kb,
-    create_support_friend_kb
+    create_support_friend_kb,
+    create_exit_kb
 )
 
 
@@ -88,7 +90,7 @@ async def get_menu_for_command(chat_id: int):
             chat_id,
             "Выбери действие, которое хочешь выполнить\\.\n\n"
             "Обрати внимание\\: ты достиг лимита по числу друзей\\. "
-            f"Сократи число друзей до {settings['friends_limit'] - 1}, чтобы получить возможность добавить нового друга\\.",
+            f"Текущий лимит: {settings['friends_limit']} друга\\.",
             reply_markup=create_friends_keyboard(
                 friends_requests_count, friends_count, friends_count < settings['friends_limit']),
             parse_mode=ParseMode.MARKDOWN_V2
@@ -123,9 +125,51 @@ async def send_request_to_a_friend(message: Message):
                 reply_markup=create_back_kb("friends_menu")
             )
             return
+        
+        app_settings = App_Settings()
+        settings = app_settings.get_app_settings()
 
         user_from = get_user_by_telegram_id(str(message.chat.id))
+        
+        if count_all_user_friends_request(user_from) + len(user_from["friends"]) >= settings['friends_limit']:
+            await botClient.send_message(
+                message.chat.id,
+                (
+                    f"""Ты превысил лимит на число друзей и заявок в друзья 🥲
+                    
+    Вот что ты можешь сделать: 
+    1. Проверь входящие заявки в друзья по команде /friends_requests
+    2. Подожди, пока друзья примут отправленные тобой заявки
+    3. Удали друзей, если считаешь нужным
 
+    Всего ты можешь иметь не более {settings['friends_limit']} друзей и активных заявок в друзья"""
+                ),
+                reply_markup=create_back_kb("friends_menu")
+            )
+            return
+
+        if len(friend["friends"]) >= settings['friends_limit']: 
+            await botClient.send_message(
+                message.chat.id,
+                (
+                    f"""Твой друг уже добавил себе {settings['friends_limit']} друга 🥲
+
+    Ты сможешь подружиться с ним, если он удалит кого-нибудь из своих друзей"""
+                ),
+                reply_markup=create_back_kb("friends_menu")
+            )
+            return
+        
+        if len(friend["friends"]) + count_all_user_friends_request(friend) >= settings['friends_limit']: 
+            await botClient.send_message(
+                message.chat.id,
+                (
+                    """Твой друг уже израсходовал свой лимит на число друзей и активных заявок в друзья 🥲"""
+                ),
+                reply_markup=create_back_kb("friends_menu")
+            )
+            return
+        
         if not friend["is_active"]:
             await botClient.send_message(
                 message.chat.id,
@@ -195,10 +239,10 @@ async def send_request_to_a_friend(message: Message):
         friend_request_kb = InlineKeyboardMarkup()
         friend_request_kb_approve = InlineKeyboardButton(
             '✅', callback_data=call_back_approve.new(id='friend_approve',
-                                                     friend=user_from['telegram_id']))
+                                                    friend=user_from['telegram_id']))
         friend_request_kb_decline = InlineKeyboardButton(
             '❌', callback_data=call_back_decline.new(id='friend_decline',
-                                                     friend=user_from['telegram_id']))
+                                                    friend=user_from['telegram_id']))
 
         friend_request_kb.add(
             friend_request_kb_approve,
@@ -206,7 +250,7 @@ async def send_request_to_a_friend(message: Message):
 
         mes = "Тебе пришел запрос на дружбу от пользователя " + \
             user_from['telegram_username'] + "\\.\n\n" + \
-              "Если ты примешь этот запрос, твой друг начнет получать уведомления, когда ты отметишь 🔴 или 🟠 настроение"
+            "Если ты примешь этот запрос, твой друг начнет получать уведомления, когда ты отметишь 🔴 или 🟠 настроение"
         mes = mes.replace("@", "\\@")
         mes = mes.replace("_", "\\_")
 
@@ -226,8 +270,8 @@ async def send_request_to_a_friend(message: Message):
                 int(friend['telegram_id']), friend['name'])
 
         mes = "Отправил запрос дружбы пользователю " + friend["telegram_username"] + \
-              "\\. Когда твой друг примет запрос в друзья, " + \
-              "ты начнешь получать информацию о его 🔴 или 🟠 настроении"
+            "\\. Когда твой друг примет запрос в друзья, " + \
+            "ты начнешь получать информацию о его 🔴 или 🟠 настроении"
         mes = mes.replace("@", "\\@")
         mes = mes.replace("_", "\\_")
 
@@ -238,8 +282,12 @@ async def send_request_to_a_friend(message: Message):
             disable_web_page_preview=True,
             reply_markup=create_back_kb("friends_menu")
         )
-    except Exception:
-        # на случай, если friend в процессе оформления заявки задизейблил бота
+    except Exception as e:
+        #на случай, если friend в процессе оформления заявки задизейблил бота
+        await amplitude_send_default_source_event("Error",
+                                                  str(message.chat.id),
+                                                  "Friends. Exception While Adding Friend",
+                                                  e)
         await botClient.send_message(
             message.chat.id,
             (
@@ -463,9 +511,15 @@ async def friends_internal_request(callback_query: CallbackQuery, friend: str, a
         )
         return
 
+    mes = "Ты отклонил заявку в друзья от " + user_from['telegram_username'] + " 🙌"
+
+    mes = mes.replace("@", "\\@")
+    mes = mes.replace("_", "\\_")
+
     await botClient.send_message(
         callback_query.from_user.id,
-        f"Ты отклонил заявку в друзья от {user_from['telegram_username']} 🙌"
+        mes,
+        parse_mode=ParseMode.MARKDOWN_V2
     )
 
 
@@ -595,7 +649,7 @@ async def delete_from_friends_go(callback_query: CallbackQuery,
 
 
 async def delete_friend(callback_query: CallbackQuery, friend_id: str):
-    """finishes deletion a friend"""
+    """finishes delete a friend"""
 
     user = get_user_by_telegram_id(str(callback_query.from_user.id))
 
@@ -610,6 +664,16 @@ async def delete_friend(callback_query: CallbackQuery, friend_id: str):
     mes = f"Удалил пользователя {current_friend['telegram_username']} из твоих друзей 🙌"
     mes = mes.replace("@", "\\@")
     mes = mes.replace("_", "\\_")
+
+    if (len(user["friends"])) == 1:
+        #1, потому что не обновляем переменную после удаления
+        await botClient.send_message(
+        callback_query.from_user.id,
+        mes,
+        parse_mode=ParseMode.MARKDOWN_V2,
+        reply_markup=create_exit_kb()
+        )
+        return
 
     await botClient.send_message(
         callback_query.from_user.id,
