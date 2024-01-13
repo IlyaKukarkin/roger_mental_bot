@@ -28,10 +28,12 @@ async def start_command(message: types.Message, args: str):
         await amplitude_send_start_source_event(str(message.chat.id), args, "first_start")
 
         form_id = ObjectId()
+
         if message.from_user.username is None:
-            message.from_user.username = ""
+            message.from_user.username = " "
+
         user_id = insert_new_empty_user(
-            message.from_user.username, str(
+            "@" + message.from_user.username, str(
                 message.chat.id), form_id)
         await botClient.send_message(
             message.chat.id,
@@ -75,7 +77,7 @@ async def start_command(message: types.Message, args: str):
             message.chat.id,
             "Вот такая простая магия ✨"
         )
-        time.sleep(3)
+        time.sleep(2)
 
         await botClient.send_message(
             message.chat.id,
