@@ -11,4 +11,4 @@ jobs:
         with:
           endpoint: https://rogerbot.tech/api/ask-mood-cron
           configuration: '{ "method": "POST", "headers": {"Authorization": "Bearer ${{ secrets.CRON_API_KEY }}"} }'
-          retry: true
+          retry: false
