@@ -1,7 +1,7 @@
 name: mood-cron
 on:
   schedule:
-    - cron: "0 0 * * MON-FRI"
+    - cron: "0 0 * * *"
 jobs:
   cron:
     runs-on: ubuntu-latest

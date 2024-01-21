@@ -8,6 +8,7 @@ const nextConfig = {
   },
   experimental: {
     swcPlugins: [["@lingui/swc-plugin", {}]],
+    serverMinification: false,
   },
   async redirects() {
     return [

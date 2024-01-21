@@ -255,6 +255,13 @@
     "@babel/helper-validator-identifier" "^7.22.20"
     to-fast-properties "^2.0.0"
 
+"@defer/client@^1.15.0":
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/@defer/client/-/client-1.15.0.tgz#c4db671ee018b6501d9f826423c3db259277287b"
+  integrity sha512-zXvtMEu0XdicpUn5HTAT9UO7+m6H2CpT7JYIGEQqqaZer3IZKDV1bTnEKXKMp/IXTYf5prgJbk+/CM/N98rkmw==
+  dependencies:
+    parse-duration "^1.1.0"
+
 "@edge-runtime/format@1.1.0-beta.33":
   version "1.1.0-beta.33"
   resolved "https://registry.yarnpkg.com/@edge-runtime/format/-/format-1.1.0-beta.33.tgz#bfba333b47167b0deb09b3df0d5e60d8c72d7c62"
@@ -4097,6 +4104,11 @@ parent-module@^1.0.0:
   integrity sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==
   dependencies:
     callsites "^3.0.0"
+
+parse-duration@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/parse-duration/-/parse-duration-1.1.0.tgz#5192084c5d8f2a3fd676d04a451dbd2e05a1819c"
+  integrity sha512-z6t9dvSJYaPoQq7quMzdEagSFtpGu+utzHqqxmpVWNNZRIXnvqyCvn9XsTdh7c/w0Bqmdz3RB3YnRaKtpRtEXQ==
 
 parse-json@^5.0.0, parse-json@^5.2.0:
   version "5.2.0"

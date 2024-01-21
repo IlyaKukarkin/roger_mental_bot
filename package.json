@@ -2,6 +2,9 @@
   "name": "roger_mental_bot",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "yarn lang:extract && next build",
@@ -12,6 +15,7 @@
   },
   "dependencies": {
     "@amplitude/analytics-browser": "^2.3.3",
+    "@defer/client": "^1.15.0",
     "@lingui/core": "^4.6.0",
     "@lingui/react": "^4.6.0",
     "@logtail/next": "^0.1.0",
