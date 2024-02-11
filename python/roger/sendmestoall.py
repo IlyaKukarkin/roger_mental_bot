@@ -63,7 +63,7 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
 
     # Do we need this? Not sure atm
     await state.finish()
-    
+
     limit = 10
     skip = 0
 
@@ -72,9 +72,10 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
     count_received_messages = 0
     count_bot_blocked = 0
     count_other_exceptions = 0
-    
-    for i in range(int(count_all_active_users // limit) + (count_all_active_users % limit > 0)): 
-        
+
+    for _ in range(int(count_all_active_users // limit) +
+                   (count_all_active_users % limit > 0)):
+
         users = get_all_active_users_partially(skip, limit)
         skip += limit
 
@@ -82,7 +83,7 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
             try:
                 await botClient.send_message(int(user["telegram_id"]), message.text)
                 print(user["telegram_id"])
-                count_received_messages += 1    
+                count_received_messages += 1
 
             except (BotBlocked, ChatNotFound):  # если юзер заблочил бота, не падаем
                 print("Юзер " + user["telegram_id"] + " пидор, заблочил бота")
@@ -90,12 +91,17 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
                 count_bot_blocked += 1
 
             except MessageError as e:
-                print("Failed to send a message to a user " + user['telegram_id'])
+                print(
+                    "Failed to send a message to a user " +
+                    user['telegram_id'])
                 print(e)
                 count_other_exceptions += 1
-        
+
+            # pylint: disable=broad-exception-caught
             except Exception as exc:
-                print("Failed to send a message to a user " + user['telegram_id'])
+                print(
+                    "Failed to send a message to a user " +
+                    user['telegram_id'])
                 print(exc)
                 count_other_exceptions += 1
 

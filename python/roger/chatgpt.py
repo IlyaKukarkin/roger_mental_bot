@@ -187,6 +187,8 @@ async def await_for_a_problem(message: types.Message, state: FSMContext):
                 "Ошибка: " + str(e)
             )
         )
+
+    # pylint: disable=broad-exception-caught
     except Exception:
         array_of_chats.delete_array(message.chat.id)
         await botClient.send_message(

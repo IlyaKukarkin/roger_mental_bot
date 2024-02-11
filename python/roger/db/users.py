@@ -190,27 +190,28 @@ def get_all_active_users_partially(skip: int, limit: int):
     """
 
     users = dbClient['users'].aggregate([
-    {
-        '$match': {
-            'is_active': True
+        {
+            '$match': {
+                'is_active': True
+            }
+        }, {
+            '$sort': {
+                'telegram_id': 1
+            }
+        }, {
+            '$skip': skip
+        }, {
+            '$project': {
+                '_id': 1,
+                'telegram_id': 1
+            }
+        }, {
+            '$limit': limit
         }
-    }, {
-        '$sort': {
-            'telegram_id': 1
-        }
-    }, {
-        '$skip': skip
-    }, {
-        '$project': {
-            '_id': 1, 
-            'telegram_id': 1
-        }
-    }, {
-        '$limit': limit
-    }
-]
-)
+    ]
+    )
     return list(users)
+
 
 def get_count_all_active_users():
     """
@@ -223,14 +224,14 @@ def get_count_all_active_users():
     """
 
     count = dbClient['users'].aggregate([
-    {
-        '$match': {
-            'is_active': True
+        {
+            '$match': {
+                'is_active': True
+            }
+        }, {
+            '$count': 'count'
         }
-    }, {
-        '$count': 'count'
-    }
-])
+    ])
     return list(count)[0].get("count")
 
 

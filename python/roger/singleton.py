@@ -1,6 +1,8 @@
 # From https://python-patterns.guide/gang-of-four/singleton/
 "Singleton for app_settings"
 
+# pylint: disable=too-few-public-methods
+
 
 class SingletonClass():
     "it's just a singleton class for app_settings"

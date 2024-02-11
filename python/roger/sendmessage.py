@@ -275,7 +275,9 @@ async def create_message_with_support(
                 # Пробовал attach_video тут, но почему-то крашится
                 media.attach_photo(picture_url)
             else:
-                media.attach_photo(picture_url + '?fm=jpg')
+                # Максимальный размер изображения в пикселях 2000 на 2000
+                # Качество чуть сжал, чтоб картинки грузились быстрее
+                media.attach_photo(picture_url + '?fm=jpg&w=2000&h=2000&q=80')
 
         await botClient.send_media_group(chat_id, media=media)
     else:

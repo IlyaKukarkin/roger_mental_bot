@@ -198,6 +198,7 @@ def create_back_kb(callback_info: str):
     back_kb = InlineKeyboardMarkup(row_width=1, one_time_keyboard=True)
     return add_back_button(back_kb, callback_info)
 
+
 def create_exit_kb():
     """
     Function to create exit keyboard

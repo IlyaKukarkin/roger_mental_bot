@@ -164,24 +164,25 @@ def delete_from_friends(user_to: ObjectId, user_from: ObjectId):
     dbClient["users"].find_one_and_update(
         {'_id': user_from}, {"$set": {'friends': friends_of_user_from}})
 
+
 def count_all_user_friends_request(user: ObjectId):
     "Returns number of internal and external friends requests"
 
     count_requests = dbClient["friends_requests"].aggregate([
-    {
-        '$match': {
-            '$or': [
-                {
-                    'from': user["_id"]
-                }, {
-                    'to': user["_id"]
-                }
-            ]
+        {
+            '$match': {
+                '$or': [
+                    {
+                        'from': user["_id"]
+                    }, {
+                        'to': user["_id"]
+                    }
+                ]
+            }
+        }, {
+            '$count': 'count'
         }
-    }, {
-        '$count': 'count'
-    }
-]
+    ]
     )
     count_requests = list(count_requests)
     if not count_requests:

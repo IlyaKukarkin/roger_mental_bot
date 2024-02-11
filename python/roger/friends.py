@@ -96,6 +96,9 @@ async def get_menu_for_command(chat_id: int):
             parse_mode=ParseMode.MARKDOWN_V2
         )
 
+# Починить: очень много if-ов, нужне переформатировать
+# pylint: disable=too-many-branches
+
 
 async def send_request_to_a_friend(message: Message):
     """
@@ -111,123 +114,88 @@ async def send_request_to_a_friend(message: Message):
 
         friend = get_user_by_telegram_id(str(message.user_shared.user_id))
 
+        reply_message = ''
+
         if friend is None:
-            await botClient.send_message(
-                message.chat.id,
-                (
-                    "Я не знаю такого пользователя, но буду рад познакомиться\\!\n\n"
-                    "Отправь своему другу ссылку на меня "
-                    "https://t\\.me/rogermentalbot\\?start\\=friends и "
-                    "повтори отправку заявки, когда твой друг зарегистрируется 🙃"
-                ),
-                parse_mode=ParseMode.MARKDOWN_V2,
-                disable_web_page_preview=True,
-                reply_markup=create_back_kb("friends_menu")
+            reply_message = (
+                "Я не знаю такого пользователя, но буду рад познакомиться\\!\n\n"
+                "Отправь своему другу ссылку на меня "
+                "https://t\\.me/rogermentalbot\\?start\\=friends и "
+                "повтори отправку заявки, когда твой друг зарегистрируется 🙃"
             )
-            return
-        
+
         app_settings = App_Settings()
         settings = app_settings.get_app_settings()
 
         user_from = get_user_by_telegram_id(str(message.chat.id))
-        
-        if count_all_user_friends_request(user_from) + len(user_from["friends"]) >= settings['friends_limit']:
-            await botClient.send_message(
-                message.chat.id,
-                (
-                    f"""Ты превысил лимит на число друзей и заявок в друзья 🥲
-                    
-    Вот что ты можешь сделать: 
-    1. Проверь входящие заявки в друзья по команде /friends_requests
-    2. Подожди, пока друзья примут отправленные тобой заявки
-    3. Удали друзей, если считаешь нужным
 
-    Всего ты можешь иметь не более {settings['friends_limit']} друзей и активных заявок в друзья"""
-                ),
-                reply_markup=create_back_kb("friends_menu")
-            )
-            return
+        if reply_message != "" and count_all_user_friends_request(
+                user_from) + len(user_from["friends"]) >= settings['friends_limit']:
+            reply_message = (
+                f"""Ты превысил лимит на число друзей и заявок в друзья 🥲
 
-        if len(friend["friends"]) >= settings['friends_limit']: 
-            await botClient.send_message(
-                message.chat.id,
-                (
-                    f"""Твой друг уже добавил себе {settings['friends_limit']} друга 🥲
+                Вот что ты можешь сделать:
+                1. Проверь входящие заявки в друзья по команде /friends_requests
+                2. Подожди, пока друзья примут отправленные тобой заявки
+                3. Удали друзей, если считаешь нужным
 
-    Ты сможешь подружиться с ним, если он удалит кого-нибудь из своих друзей"""
-                ),
-                reply_markup=create_back_kb("friends_menu")
+Всего ты можешь иметь не более {settings['friends_limit']} друзей и активных заявок в друзья"""
             )
-            return
-        
-        if len(friend["friends"]) + count_all_user_friends_request(friend) >= settings['friends_limit']: 
-            await botClient.send_message(
-                message.chat.id,
-                (
-                    """Твой друг уже израсходовал свой лимит на число друзей и активных заявок в друзья 🥲"""
-                ),
-                reply_markup=create_back_kb("friends_menu")
-            )
-            return
-        
-        if not friend["is_active"]:
-            await botClient.send_message(
-                message.chat.id,
-                (
-                    "Я знаю этого пользователя, но он перестал замерять настроение со мной 🥲\n\n"
-                    "Попроси его перейти по ссылке https://t\\.me/rogermentalbot\\?start\\=friends "
-                    "и зарегистрироваться в Роджере, чтобы ты смог подружиться с ним"
-                ),
-                parse_mode=ParseMode.MARKDOWN_V2,
-                disable_web_page_preview=True,
-                reply_markup=create_back_kb("friends_menu")
-            )
-            return
 
-        if user_from["_id"] == friend["_id"]:
-            await botClient.send_message(
-                message.chat.id,
-                (
-                    "Себя пока нельзя добавлять в друзья 😁"
-                ),
-                reply_markup=create_back_kb("friends_menu")
-            )
-            return
+        if reply_message != "" and len(
+                friend["friends"]) >= settings['friends_limit']:
+            reply_message = (
+                f"""Твой друг уже добавил себе {settings['friends_limit']} друга 🥲
 
-        if "friends" in user_from:
+                Ты сможешь подружиться с ним, если он удалит кого-нибудь из своих друзей"""
+            )
+
+        if reply_message != "" and len(friend["friends"]) + \
+                count_all_user_friends_request(friend) >= settings['friends_limit']:
+            reply_message = (
+                "Твой друг уже израсходовал свой лимит на число друзей"
+                "и активных заявок в друзья 🥲"
+            )
+
+        if reply_message != "" and not friend["is_active"]:
+            reply_message = (
+                "Я знаю этого пользователя, но он перестал замерять настроение со мной 🥲\n\n"
+                "Попроси его перейти по ссылке https://t\\.me/rogermentalbot\\?start\\=friends "
+                "и зарегистрироваться в Роджере, чтобы ты смог подружиться с ним"
+            )
+
+        if reply_message != "" and user_from["_id"] == friend["_id"]:
+            reply_message = (
+                "Себя пока нельзя добавлять в друзья 😁"
+            )
+
+        if reply_message != "" and "friends" in user_from:
             for f in user_from["friends"]:
                 if f == friend["_id"]:
-                    await botClient.send_message(
-                        message.chat.id,
-                        (
-                            "Вы уже дружите 😸"
-                        ),
-                        reply_markup=create_back_kb("friends_menu")
+                    reply_message = (
+                        "Вы уже дружите 😸"
                     )
-                    return
 
         user_request_sent = get_friends_record(user_from['_id'], friend['_id'])
 
-        if user_request_sent is not None:
-            await botClient.send_message(
-                message.chat.id,
-                (
-                    "Ты уже отправлял заявку этому пользователю. "
-                    "Подожди, пока твой друг примет заявку 🕖"
-                ),
-                reply_markup=create_back_kb("friends_menu")
+        if reply_message != "" and user_request_sent is not None:
+            reply_message = (
+                "Ты уже отправлял заявку этому пользователю. "
+                "Подожди, пока твой друг примет заявку 🕖"
             )
-            return
 
         user_got_request = get_friends_record(friend['_id'], user_from['_id'])
 
-        if user_got_request is not None:
+        if reply_message != "" and user_got_request is not None:
+            reply_message = (
+                "Этот друг уже отправил тебе заявку. "
+                "Посмотри, кто уже отправил тебе заявки в друзья: /friends_requests"
+            )
+
+        if reply_message:
             await botClient.send_message(
                 message.chat.id,
-                (
-                    "Этот друг уже отправил тебе заявку. "
-                    "Посмотри, кто уже отправил тебе заявки в друзья: /friends_requests"
-                ),
+                reply_message,
                 reply_markup=create_back_kb("friends_menu")
             )
             return
@@ -239,10 +207,10 @@ async def send_request_to_a_friend(message: Message):
         friend_request_kb = InlineKeyboardMarkup()
         friend_request_kb_approve = InlineKeyboardButton(
             '✅', callback_data=call_back_approve.new(id='friend_approve',
-                                                    friend=user_from['telegram_id']))
+                                                     friend=user_from['telegram_id']))
         friend_request_kb_decline = InlineKeyboardButton(
             '❌', callback_data=call_back_decline.new(id='friend_decline',
-                                                    friend=user_from['telegram_id']))
+                                                     friend=user_from['telegram_id']))
 
         friend_request_kb.add(
             friend_request_kb_approve,
@@ -250,7 +218,8 @@ async def send_request_to_a_friend(message: Message):
 
         mes = "Тебе пришел запрос на дружбу от пользователя " + \
             user_from['telegram_username'] + "\\.\n\n" + \
-            "Если ты примешь этот запрос, твой друг начнет получать уведомления, когда ты отметишь 🔴 или 🟠 настроение"
+            "Если ты примешь этот запрос, твой друг начнет получать уведомления," + \
+            " когда ты отметишь 🔴 или 🟠 настроение"
         mes = mes.replace("@", "\\@")
         mes = mes.replace("_", "\\_")
 
@@ -282,8 +251,11 @@ async def send_request_to_a_friend(message: Message):
             disable_web_page_preview=True,
             reply_markup=create_back_kb("friends_menu")
         )
+
+    # Починить: отлавливать ошибку по блокировке бота, прежде чем ловить общую ошибку
+    # pylint: disable=broad-exception-caught
     except Exception as e:
-        #на случай, если friend в процессе оформления заявки задизейблил бота
+        # на случай, если friend в процессе оформления заявки задизейблил бота
         await amplitude_send_default_source_event("Error",
                                                   str(message.chat.id),
                                                   "Friends. Exception While Adding Friend",
@@ -441,9 +413,9 @@ async def watch_friends_internal_requests(
             friend_user["telegram_username"] = change_empty_username_to_a_link(
                 int(friend_user['telegram_id']), friend_user['name'])
 
-        mes = f"""Новый запрос в друзья от пользователя {friend_user['telegram_username']}\\.
-
-Если ты примешь этот запрос, твой друг начнет получать уведомления, когда ты отметишь 🔴 или 🟠 настроение"""
+        mes = f"Новый запрос в друзья от пользователя {friend_user['telegram_username']}\\.\n\n" + \
+            "Если ты примешь этот запрос, твой друг начнет " + \
+            "получать уведомления, когда ты отметишь 🔴 или 🟠 настроение"
 
         mes = mes.replace("@", "\\@")
         mes = mes.replace("_", "\\_")
@@ -511,7 +483,8 @@ async def friends_internal_request(callback_query: CallbackQuery, friend: str, a
         )
         return
 
-    mes = "Ты отклонил заявку в друзья от " + user_from['telegram_username'] + " 🙌"
+    mes = "Ты отклонил заявку в друзья от " + \
+        user_from['telegram_username'] + " 🙌"
 
     mes = mes.replace("@", "\\@")
     mes = mes.replace("_", "\\_")
@@ -569,6 +542,7 @@ async def send_a_friend_message_about_bad_mood(tg_id_user: int, color: str):
             print(
                 "Не удалось отправить сообщение пользователю " +
                 user['telegram_username'])
+        # pylint: disable=broad-exception-caught
         except Exception as e:
             print(e)
             await amplitude_send_default_source_event("Error",
@@ -666,12 +640,12 @@ async def delete_friend(callback_query: CallbackQuery, friend_id: str):
     mes = mes.replace("_", "\\_")
 
     if (len(user["friends"])) == 1:
-        #1, потому что не обновляем переменную после удаления
+        # 1, потому что не обновляем переменную после удаления
         await botClient.send_message(
-        callback_query.from_user.id,
-        mes,
-        parse_mode=ParseMode.MARKDOWN_V2,
-        reply_markup=create_exit_kb()
+            callback_query.from_user.id,
+            mes,
+            parse_mode=ParseMode.MARKDOWN_V2,
+            reply_markup=create_exit_kb()
         )
         return
 
