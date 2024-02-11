@@ -16,16 +16,15 @@ async def amplitude_send_default_source_event(event_type: str,
     """Function to send events to Amplitude"""
 
     amplitude.track(
-         BaseEvent(
-             event_type=event_type,
-             user_id=user_id,
-             event_properties={
-                 "message": message,
-                 "extra": extra
-             }
-         )
-     )
-
+        BaseEvent(
+            event_type=event_type,
+            user_id=user_id,
+            event_properties={
+                "message": message,
+                "extra": extra
+            }
+        )
+    )
 
 
 async def amplitude_send_start_source_event(user_id: str, source: str, extra: str):
