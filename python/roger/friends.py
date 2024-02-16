@@ -134,10 +134,10 @@ async def send_request_to_a_friend(message: Message):
             reply_message = (
                 f"""Ты превысил лимит на число друзей и заявок в друзья 🥲
 
-                Вот что ты можешь сделать:
-                1. Проверь входящие заявки в друзья по команде /friends_requests
-                2. Подожди, пока друзья примут отправленные тобой заявки
-                3. Удали друзей, если считаешь нужным
+Вот что ты можешь сделать:
+1. Проверь входящие заявки в друзья по команде /friends_requests
+2. Подожди, пока друзья примут отправленные тобой заявки
+3. Удали друзей, если считаешь нужным
 
 Всего ты можешь иметь не более {settings['friends_limit']} друзей и активных заявок в друзья"""
             )
@@ -147,14 +147,14 @@ async def send_request_to_a_friend(message: Message):
             reply_message = (
                 f"""Твой друг уже добавил себе {settings['friends_limit']} друга 🥲
 
-                Ты сможешь подружиться с ним, если он удалит кого-нибудь из своих друзей"""
+Ты сможешь подружиться с ним, если он удалит кого-нибудь из своих друзей"""
             )
 
         if not reply_message and len(friend["friends"]) + \
                 count_all_user_friends_request(friend) >= settings['friends_limit']:
             reply_message = (
                 "Твой друг уже израсходовал свой лимит на число друзей"
-                "и активных заявок в друзья 🥲"
+                " и активных заявок в друзья 🥲"
             )
 
         if not reply_message and not friend["is_active"]:
@@ -522,7 +522,6 @@ async def send_a_friend_message_about_bad_mood(tg_id_user: int, color: str):
             user["telegram_username"] = change_empty_username_to_a_link(
                 int(user['telegram_id']), user['name'])
         try:
-            print(2)
             mes = "Твой друг " + user['telegram_username'] + \
                   " отметил, что сегодня у него " + \
                 mood_dict[color] + \
@@ -530,7 +529,6 @@ async def send_a_friend_message_about_bad_mood(tg_id_user: int, color: str):
 
             mes = mes.replace("@", "\\@")
             mes = mes.replace("_", "\\_")
-            print(mes)
             await botClient.send_message(
                 int(friend["telegram_id"]),
                 mes,
@@ -544,7 +542,6 @@ async def send_a_friend_message_about_bad_mood(tg_id_user: int, color: str):
                 user['telegram_username'])
         # pylint: disable=broad-exception-caught
         except Exception as e:
-            print(e)
             await amplitude_send_default_source_event("Error",
                                                       friend["telegram_id"],
                                                       "send_a_friend_message_about_bad_mood",
@@ -662,16 +659,16 @@ async def support_friend(callback_query: CallbackQuery, friend_id: str):
     """
     start to create a support mes for friend
     """
-    await botClient.send_message(
+    message_with_button = await botClient.send_message(
         callback_query.from_user.id,
         ("""Напиши сообщение ниже, а я передам его твоему другу.
 
-Не отправляй медиафайлы, я умею передавать только текстовые сообщения"""),
+Не отправляй медиафайлы, я пока умею передавать только текстовые сообщения"""),
         reply_markup=create_back_kb("main")
     )
     await Recording.AwaitForASupportMessageFromFriend.set()
     state = botDispatcher.get_current().current_state()
-    await state.update_data(friend_id=friend_id)
+    await state.update_data(friend_id=friend_id, message_with_button_id=message_with_button.message_id)
 
 
 async def sendmes_to_support_friend(friend_id: str, message: Message, state: dispatcher.FSMContext):
