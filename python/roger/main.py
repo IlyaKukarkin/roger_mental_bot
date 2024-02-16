@@ -325,8 +325,8 @@ async def sendmes_support_to_a_friend(
     state: dispatcher.FSMContext
 ):
     """отправка сообщения другу со словами поддержки"""
-    await delete_keyboard(message.chat.id, message.message_id)
     data = await state.get_data()
+    await delete_keyboard(message.chat.id, data["message_with_button_id"])
     await amplitude_send_default_source_event("Friends. Support to a Friend Sent",
                                               str(message.chat.id),
                                               data["friend_id"],
