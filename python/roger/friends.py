@@ -129,7 +129,7 @@ async def send_request_to_a_friend(message: Message):
 
         user_from = get_user_by_telegram_id(str(message.chat.id))
 
-        if reply_message != "" and count_all_user_friends_request(
+        if not reply_message and count_all_user_friends_request(
                 user_from) + len(user_from["friends"]) >= settings['friends_limit']:
             reply_message = (
                 f"""Ты превысил лимит на число друзей и заявок в друзья 🥲
@@ -142,7 +142,7 @@ async def send_request_to_a_friend(message: Message):
 Всего ты можешь иметь не более {settings['friends_limit']} друзей и активных заявок в друзья"""
             )
 
-        if reply_message != "" and len(
+        if not reply_message and len(
                 friend["friends"]) >= settings['friends_limit']:
             reply_message = (
                 f"""Твой друг уже добавил себе {settings['friends_limit']} друга 🥲
@@ -150,26 +150,26 @@ async def send_request_to_a_friend(message: Message):
                 Ты сможешь подружиться с ним, если он удалит кого-нибудь из своих друзей"""
             )
 
-        if reply_message != "" and len(friend["friends"]) + \
+        if not reply_message and len(friend["friends"]) + \
                 count_all_user_friends_request(friend) >= settings['friends_limit']:
             reply_message = (
                 "Твой друг уже израсходовал свой лимит на число друзей"
                 "и активных заявок в друзья 🥲"
             )
 
-        if reply_message != "" and not friend["is_active"]:
+        if not reply_message and not friend["is_active"]:
             reply_message = (
                 "Я знаю этого пользователя, но он перестал замерять настроение со мной 🥲\n\n"
                 "Попроси его перейти по ссылке https://t\\.me/rogermentalbot\\?start\\=friends "
                 "и зарегистрироваться в Роджере, чтобы ты смог подружиться с ним"
             )
 
-        if reply_message != "" and user_from["_id"] == friend["_id"]:
+        if not reply_message and user_from["_id"] == friend["_id"]:
             reply_message = (
                 "Себя пока нельзя добавлять в друзья 😁"
             )
 
-        if reply_message != "" and "friends" in user_from:
+        if not reply_message and "friends" in user_from:
             for f in user_from["friends"]:
                 if f == friend["_id"]:
                     reply_message = (
@@ -178,7 +178,7 @@ async def send_request_to_a_friend(message: Message):
 
         user_request_sent = get_friends_record(user_from['_id'], friend['_id'])
 
-        if reply_message != "" and user_request_sent is not None:
+        if not reply_message and user_request_sent is not None:
             reply_message = (
                 "Ты уже отправлял заявку этому пользователю. "
                 "Подожди, пока твой друг примет заявку 🕖"
@@ -186,7 +186,7 @@ async def send_request_to_a_friend(message: Message):
 
         user_got_request = get_friends_record(friend['_id'], user_from['_id'])
 
-        if reply_message != "" and user_got_request is not None:
+        if not reply_message and user_got_request is not None:
             reply_message = (
                 "Этот друг уже отправил тебе заявку. "
                 "Посмотри, кто уже отправил тебе заявки в друзья: /friends_requests"
