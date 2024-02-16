@@ -668,7 +668,8 @@ async def support_friend(callback_query: CallbackQuery, friend_id: str):
     )
     await Recording.AwaitForASupportMessageFromFriend.set()
     state = botDispatcher.get_current().current_state()
-    await state.update_data(friend_id=friend_id, message_with_button_id=message_with_button.message_id)
+    await state.update_data(friend_id=friend_id, 
+                            message_with_button_id=message_with_button.message_id)
 
 
 async def sendmes_to_support_friend(friend_id: str, message: Message, state: dispatcher.FSMContext):
