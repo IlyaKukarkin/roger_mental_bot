@@ -115,7 +115,7 @@ async def send_request_to_a_friend(message: Message):
 
         friend = get_user_by_telegram_id(str(message.user_shared.user_id))
 
-        if not hasattr(friend, "friends"):
+        if not 'friends' in friend:
             add_array_friends(friend["_id"])
             friend = get_user_by_telegram_id(str(message.user_shared.user_id))
 
@@ -134,7 +134,7 @@ async def send_request_to_a_friend(message: Message):
 
         user_from = get_user_by_telegram_id(str(message.chat.id))
 
-        if not hasattr(user_from, "friends"):
+        if not 'friends' in user_from:
             add_array_friends(user_from["_id"])
             user_from = get_user_by_telegram_id(str(message.chat.id))
 
