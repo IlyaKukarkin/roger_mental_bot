@@ -551,6 +551,22 @@ async def donate_handler(message: types.Message):
                                               str(message.chat.id),
                                               "",
                                               "")
+    
+@botDispatcher.message_handler(commands=['money'])
+async def donate_handler(message: types.Message):
+    """команда задонатить боту, пожалуйста закиьте деньги на пончики 🙏🍩"""
+    await botClient.send_message(
+        message.chat.id,
+        (
+            "Задонатить Роджеру: https://www.tinkoff.ru/cf/9KODrlaoPCR.\n\n"
+            "Деньги будут потрачены на более мощный сервер 🔥"
+        ),
+        disable_web_page_preview=True
+    )
+    await amplitude_send_default_source_event("Donate. Command Called",
+                                              str(message.chat.id),
+                                              "",
+                                              "")
 
 
 # регистрация пользователя
