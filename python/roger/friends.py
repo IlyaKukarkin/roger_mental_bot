@@ -23,7 +23,8 @@ from db.friends import (
     delete_friends_request,
     add_new_friend,
     delete_from_friends,
-    count_all_user_friends_request
+    count_all_user_friends_request,
+    add_array_friends
 )
 from db.users import (
     get_user_by_id,
@@ -114,6 +115,10 @@ async def send_request_to_a_friend(message: Message):
 
         friend = get_user_by_telegram_id(str(message.user_shared.user_id))
 
+        if not hasattr(friend, "friends"):
+            add_array_friends(friend["_id"])
+            friend = get_user_by_telegram_id(str(message.user_shared.user_id))
+
         reply_message = ''
 
         if friend is None:
@@ -129,6 +134,10 @@ async def send_request_to_a_friend(message: Message):
 
         user_from = get_user_by_telegram_id(str(message.chat.id))
 
+        if not hasattr(user_from, "friends"):
+            add_array_friends(user_from["_id"])
+            user_from = get_user_by_telegram_id(str(message.chat.id))
+
         if not reply_message and count_all_user_friends_request(
                 user_from) + len(user_from["friends"]) >= settings['friends_limit']:
             reply_message = (
@@ -141,6 +150,7 @@ async def send_request_to_a_friend(message: Message):
 
 Всего ты можешь иметь не более {settings['friends_limit']} друзей и активных заявок в друзья"""
             )
+
 
         if not reply_message and len(
                 friend["friends"]) >= settings['friends_limit']:
@@ -207,10 +217,10 @@ async def send_request_to_a_friend(message: Message):
         friend_request_kb = InlineKeyboardMarkup()
         friend_request_kb_approve = InlineKeyboardButton(
             '✅', callback_data=call_back_approve.new(id='friend_approve',
-                                                     friend=user_from['telegram_id']))
+                                                        friend=user_from['telegram_id']))
         friend_request_kb_decline = InlineKeyboardButton(
             '❌', callback_data=call_back_decline.new(id='friend_decline',
-                                                     friend=user_from['telegram_id']))
+                                                        friend=user_from['telegram_id']))
 
         friend_request_kb.add(
             friend_request_kb_approve,
@@ -277,6 +287,10 @@ async def send_request_to_a_friend(message: Message):
 
 async def show_active_friends(callback_query: CallbackQuery):
     """
+
+
+
+
     Callback handler for /friends command -> "check_friend_list"
 
     Parameters:

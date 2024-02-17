@@ -188,3 +188,7 @@ def count_all_user_friends_request(user: ObjectId):
     if not count_requests:
         return 0
     return count_requests[0].get("count")
+
+def add_array_friends(user: ObjectId): 
+    dbClient["users"].find_one_and_update(
+        {'_id': user}, {"$set": {'friends': []}})
