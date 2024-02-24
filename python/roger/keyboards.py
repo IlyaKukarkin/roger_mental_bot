@@ -13,6 +13,8 @@ callback_friends_left = CallbackData("L", "id", "index", "len")
 callback_friends_right = CallbackData("R", "id", "index", "len")
 callback_current_friend_to_delete = CallbackData("D", "id", "friend_id")
 callback_friends_support_message = CallbackData("S", "id", "friend_id")
+callback_friends_like_support_message = CallbackData(
+    "Like", "id", "friend_id", "message_id")
 
 green_button_answer = InlineKeyboardButton(
     '🟢', callback_data='green_button_answer')
@@ -283,3 +285,23 @@ def add_delete_from_friends_kb(friends_length: int, index: int,
     delete_from_friends_kb = delete_from_friends_kb.row(exit_button)
 
     return delete_from_friends_kb
+
+
+def create_kb_for_message_like(friend_id: str, message_id: int):
+    """Returns a keyboard to like a support message from a friend
+
+    Parameters:
+    friend_id (str): telegram_id of a friend
+
+    Returns:
+    TG InlineKeyboardMarkup
+    """
+
+    like_message_from_friend_button = InlineKeyboardButton(
+        '❤️', callback_data=callback_friends_like_support_message.new(
+            id='like_mes_from_friend', friend_id=friend_id, message_id=message_id))
+
+    like_message_from_friend_kb = InlineKeyboardMarkup(row_width=1).add(
+        like_message_from_friend_button)
+
+    return like_message_from_friend_kb

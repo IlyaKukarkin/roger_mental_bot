@@ -60,6 +60,7 @@ from friends import (
     delete_friend,
     support_friend,
     sendmes_to_support_friend,
+    like_on_support_friend,
     call_back_approve,
     call_back_decline
 )
@@ -68,14 +69,15 @@ from keyboards import (
     callback_friends_left,
     callback_friends_right,
     callback_current_friend_to_delete,
-    callback_friends_support_message
+    callback_friends_support_message,
+    callback_friends_like_support_message
 )
 
 singleton = SingletonClass()
 singleton.collection_name = dbClient
 
 # текущая версия бота
-VERSION = "2.4.0"
+VERSION = "2.5.0"
 
 # read texts from json file
 with open('texts.json', encoding="utf-8") as t:
@@ -318,6 +320,25 @@ async def sendmes_to_friend_callback(callback_query: types.CallbackQuery,
     await support_friend(callback_query, friend_id)
 
 
+@botDispatcher.callback_query_handler(
+    callback_friends_like_support_message.filter(id='like_mes_from_friend'))
+async def like_mes_from_friend_callback(callback_query: types.CallbackQuery,
+                                        callback_data: dict):
+    """лайк на сообщение со словами поддержки от друга"""
+    await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
+    friend_id = callback_data.get("friend_id")
+    message_id = callback_data.get("message_id")
+    await amplitude_send_default_source_event("Friends. Like on Button with Support Pressed",
+                                              str(callback_query.from_user.id),
+                                              "",
+                                              "")
+    await botClient.answer_callback_query(
+        callback_query.id,
+        'Отправил другу твой лайк ❤️'
+    )
+    await like_on_support_friend(callback_query, friend_id, message_id)
+
+
 @botDispatcher.message_handler(
     state=Recording.AwaitForASupportMessageFromFriend)
 async def sendmes_support_to_a_friend(
@@ -551,9 +572,10 @@ async def donate_handler(message: types.Message):
                                               str(message.chat.id),
                                               "",
                                               "")
-    
+
+
 @botDispatcher.message_handler(commands=['money'])
-async def donate_handler(message: types.Message):
+async def money_handler(message: types.Message):
     """команда задонатить боту, пожалуйста закиьте деньги на пончики 🙏🍩"""
     await botClient.send_message(
         message.chat.id,

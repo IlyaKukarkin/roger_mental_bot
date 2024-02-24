@@ -38,7 +38,8 @@ from keyboards import (
     create_back_kb,
     add_delete_from_friends_kb,
     create_support_friend_kb,
-    create_exit_kb
+    create_exit_kb,
+    create_kb_for_message_like
 )
 
 
@@ -99,8 +100,6 @@ async def get_menu_for_command(chat_id: int):
 
 # Починить: очень много if-ов, нужне переформатировать
 # pylint: disable=too-many-branches
-
-
 async def send_request_to_a_friend(message: Message):
     """
     Message handler for /friends command -> share contact
@@ -150,7 +149,6 @@ async def send_request_to_a_friend(message: Message):
 
 Всего ты можешь иметь не более {settings['friends_limit']} друзей и активных заявок в друзья"""
             )
-
 
         if not reply_message and len(
                 friend["friends"]) >= settings['friends_limit']:
@@ -682,7 +680,7 @@ async def support_friend(callback_query: CallbackQuery, friend_id: str):
     )
     await Recording.AwaitForASupportMessageFromFriend.set()
     state = botDispatcher.get_current().current_state()
-    await state.update_data(friend_id=friend_id, 
+    await state.update_data(friend_id=friend_id,
                             message_with_button_id=message_with_button.message_id)
 
 
@@ -709,9 +707,26 @@ async def sendmes_to_support_friend(friend_id: str, message: Message, state: dis
     )
 
     await botClient.send_message(
-        int(friend_id), message.text)
+        int(friend_id), message.text,
+        reply_markup=create_kb_for_message_like(user["telegram_id"], message.message_id))
 
     await botClient.send_message(
         int(user["telegram_id"]), "Твое сообщение доставлено другу 💙")
 
     await state.finish()
+
+
+async def like_on_support_friend(callback_query: CallbackQuery, friend_id: str, message_id: int):
+    """press like on message with support from a friend"""
+
+    user = get_user_by_telegram_id(str(callback_query.from_user.id))
+
+    if not check_if_user_has_username(user):
+        user['telegram_username'] = change_empty_username_to_a_link(
+            int(user['telegram_id']), user['name'])
+
+    await botClient.send_message(
+        int(friend_id),
+        f"Твой друг {user['telegram_username']} поставил лайк на твое сообщение с поддержкой ❤️",
+        reply_to_message_id=message_id,
+        parse_mode=ParseMode.MARKDOWN_V2)
