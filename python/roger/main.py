@@ -168,7 +168,7 @@ async def contacts(msg: types.Message, state: dispatcher.FSMContext):
     """хандлер для шеринга контакта друга"""
     await amplitude_send_default_source_event("Friends Sharing Contact",
                                               str(msg.chat.id),
-                                              "",
+                                              str(msg.user_shared.user_id),
                                               "")
     await msg.answer(
         "Вычисляю, знаком ли я с твоим другом...",

@@ -101,6 +101,7 @@ async def get_menu_for_command(chat_id: int):
 # Починить: очень много if-ов, нужне переформатировать
 # pylint: disable=too-many-branches
 async def send_request_to_a_friend(message: Message):
+    
     """
     Message handler for /friends command -> share contact
 
@@ -264,10 +265,11 @@ async def send_request_to_a_friend(message: Message):
     # pylint: disable=broad-exception-caught
     except Exception as e:
         # на случай, если friend в процессе оформления заявки задизейблил бота
+
         await amplitude_send_default_source_event("Error",
                                                   str(message.chat.id),
                                                   "Friends. Exception While Adding Friend",
-                                                  e)
+                                                  str(e))
         await botClient.send_message(
             message.chat.id,
             (
