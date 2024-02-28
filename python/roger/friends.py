@@ -559,7 +559,7 @@ async def send_a_friend_message_about_bad_mood(tg_id_user: int, color: str):
             await amplitude_send_default_source_event("Error",
                                                       friend["telegram_id"],
                                                       "send_a_friend_message_about_bad_mood",
-                                                      e)
+                                                      str(e))
 
 
 async def delete_from_friends_message(callback_query: CallbackQuery, index: int):
