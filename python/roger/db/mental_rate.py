@@ -129,7 +129,7 @@ def get_mental_rates_period(
 
     mental_rates = dbClient["mental_rate"].find({
         'id_user': id_user,
-        'date': {'$gt': period_start, '$lt': period_end},
+        'date': {'$gt': period_start, '$lte': period_end},
         'rate': {'$gt': 0}
     })
 
