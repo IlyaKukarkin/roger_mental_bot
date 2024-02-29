@@ -73,9 +73,7 @@ export default async function handler(req: NextRequest) {
             return (
               <>
                 <div
-                  tw={`inline w-6 h-6 mx-2 rounded-xl ${
-                    getRateBgColor[mood.mood]
-                  }`}
+                  tw={`w-6 h-6 mx-2 rounded-xl ${getRateBgColor[mood.mood]}`}
                 />
                 <span>{`- ${mood.title}`}</span>
               </>
@@ -227,7 +225,7 @@ export default async function handler(req: NextRequest) {
           <div tw="flex">
             {countGoodDays.map((el, index, arr) => {
               if (el === max) {
-                if (index === arr.indexOf(max)) {
+                if (index === arr.lastIndexOf(max)) {
                   return (
                     <p
                       key={index}
@@ -247,7 +245,7 @@ export default async function handler(req: NextRequest) {
                       getRateColor[MOOD.GREEN]
                     }`}
                   >
-                    , {getShortDayOfTheWeek[index]}
+                    {getShortDayOfTheWeek[index]},{" "}
                   </p>
                 );
               }
@@ -317,7 +315,7 @@ export default async function handler(req: NextRequest) {
           <div tw="flex">
             {countBadDays.map((el, index, arr) => {
               if (el === max) {
-                if (index === arr.indexOf(max)) {
+                if (index === arr.lastIndexOf(max)) {
                   return (
                     <p
                       key={index}
@@ -337,7 +335,7 @@ export default async function handler(req: NextRequest) {
                       getRateColor[MOOD.RED]
                     }`}
                   >
-                    , {getShortDayOfTheWeek[index]}
+                    {getShortDayOfTheWeek[index]},
                   </p>
                 );
               }
