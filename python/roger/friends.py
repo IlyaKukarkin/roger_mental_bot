@@ -100,8 +100,11 @@ async def get_menu_for_command(chat_id: int):
 
 # Починить: очень много if-ов, нужне переформатировать
 # pylint: disable=too-many-branches
+# pylint: disable=too-many-statements
+
+
 async def send_request_to_a_friend(message: Message):
-    
+
     """
     Message handler for /friends command -> share contact
 
