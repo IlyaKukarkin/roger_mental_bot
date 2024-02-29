@@ -217,7 +217,6 @@ async def callback_after_click_on_color_button(
         # отключил чатжпт в колбеках
         # await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
         if color in ('red', 'orange'):
-            print(1)
             await send_a_friend_message_about_bad_mood(callback_query.from_user.id, color)
 
     except MessageError:
@@ -586,4 +585,5 @@ async def sunday_send_rate_stata(chat_id: int, rate_date: datetime):
     # as mentioned before, rate date is in UTC+00 timezone,
     # but send_rate_stata expects a function that takes a
     # pytz.BaseTzInfo instance as its single parameter
+
     await send_rate_stata(str(chat_id), 'week', lambda ptz_utc: rate_date)
