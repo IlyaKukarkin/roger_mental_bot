@@ -335,7 +335,7 @@ export default async function handler(req: NextRequest) {
                       getRateColor[MOOD.RED]
                     }`}
                   >
-                    {getShortDayOfTheWeek[index]},
+                    {getShortDayOfTheWeek[index]},{" "}
                   </p>
                 );
               }
