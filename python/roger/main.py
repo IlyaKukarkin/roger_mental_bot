@@ -369,10 +369,10 @@ async def friends_request_command(message: types.Message):
 cart_cb = CallbackData("q", "id", "button_parameter")
 
 
-@botDispatcher.message_handler(commands=['stata'])
+@botDispatcher.message_handler(commands=['message'])
 async def process_stata_command(message: types.Message):
     """вывод статистики по сообщению поддержки"""
-    await amplitude_send_default_source_event("Stata. Command Called",
+    await amplitude_send_default_source_event("Message. Command Called",
                                               str(message.chat.id),
                                               "",
                                               "")
@@ -477,10 +477,10 @@ async def process_callback_awaitforamessage_button(
     await send_message_to_all(message, state)
 
 
-@botDispatcher.message_handler(commands=['feedback'])
+@botDispatcher.message_handler(commands=['support'])
 async def process_feedback_command(message: types.Message):
     """получаем фидбек от пользователя"""
-    await amplitude_send_default_source_event("Feedback. Command Called",
+    await amplitude_send_default_source_event("Support. Command Called",
                                               str(message.chat.id),
                                               "",
                                               "")
@@ -500,7 +500,7 @@ async def send_to_admin_photo(message: types.Message, state: dispatcher.FSMConte
     await feedback_get_photo_from_user(message, state)
 
 
-@botDispatcher.message_handler(commands=['feedbackanswer'])
+@botDispatcher.message_handler(commands=['supportanswer'])
 async def process_feedback_answer_command(message: types.Message):
     """отвечаем на сообщение фидбека от пользователя, только админы"""
     await feedback_answer_start(message)
@@ -518,10 +518,10 @@ async def process_sendmes_command(message: types.Message):
     await sendmes(message.from_user.id)
 
 
-@botDispatcher.message_handler(commands=['support'])
+@botDispatcher.message_handler(commands=['chat'])
 async def process_support_command(message: types.Message):
     """вход в общение с чатом поддержки"""
-    await amplitude_send_default_source_event("Support. Command Called",
+    await amplitude_send_default_source_event("Chat. Command Called",
                                               str(message.chat.id),
                                               "",
                                               "")
@@ -541,7 +541,7 @@ async def support_stop_dialog(message: types.Message, state: dispatcher.FSMConte
         message.chat.id,
         (
             "Ты вышел из режима диалога с ботом. "
-            "Чтобы вернуться в него снова, вызови команду /support"
+            "Чтобы вернуться в него снова, вызови команду /chat"
         )
     )
     await amplitude_send_default_source_event("Stop. Command Called",
@@ -874,16 +874,16 @@ async def settings_change_time_to_send_messages_callback(callback_query: types.C
     await get_user_time_to_send_messages(user["_id"], callback_query.from_user.id, "settings")
 
 
-@botDispatcher.message_handler(commands=['newyearstata'])
-async def newyearstata_command(message: types.Message):
-    """sending new year 2023 stata by command"""
-    user = get_user_by_telegram_id(str(message.chat.id))
-    await botClient.send_message(
-        message.chat.id,
-        "Твоя статистика за 2023 год готова!\n\nПереходи по ссылке: " +
-        "https://rogerbot.tech/2023/" +
-        str(user["_id"]), disable_web_page_preview=True
-    )
+# @botDispatcher.message_handler(commands=['newyearstata'])
+# async def newyearstata_command(message: types.Message):
+#     """sending new year 2023 stata by command"""
+#     user = get_user_by_telegram_id(str(message.chat.id))
+#     await botClient.send_message(
+#         message.chat.id,
+#         "Твоя статистика за 2023 год готова!\n\nПереходи по ссылке: " +
+#         "https://rogerbot.tech/2023/" +
+#         str(user["_id"]), disable_web_page_preview=True
+#     )
 
 
 @botDispatcher.message_handler(content_types='text', state='*')

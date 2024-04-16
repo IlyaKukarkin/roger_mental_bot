@@ -15,7 +15,7 @@ from db.users import (
 
 async def feedback_answer_start(message: types.Message):
     """
-    Callback handler for /feedbackanswer command
+    Callback handler for /supportanswer command
 
     Parameters:
     message (TG Message): message to handle
@@ -37,7 +37,7 @@ async def feedback_answer_start(message: types.Message):
     await botClient.send_message(
         message.chat.id,
         (
-            "Жду от тебя ответа на фидбек. Пиши его ниже. "
+            "Жду от тебя ответа на обращение. Пиши его ниже. "
             "Не забудь прикрепить реплай, на что именно отвечаем"
         )
     )
@@ -69,13 +69,13 @@ async def feedback_send_text_to_user(message: types.Message, state: FSMContext):
 
         await botClient.send_message(
             int(feedback_chat_id),
-            text(bold("Разработчик прислал ответ на твой фидбек: \n\n")) +
+            text(bold("Разработчик прислал ответ на твое обращение: \n\n")) +
             message.text,
             reply_to_message_id=int(feedback_message_id),
             parse_mode=ParseMode.MARKDOWN
         )
 
-        await botClient.send_message(message.chat.id, "Ответ на фидбек отправлен")
+        await botClient.send_message(message.chat.id, "Ответ на обращение отправлен")
     except MessageError:
         await botClient.send_message(message.chat.id, "Не получилось отправить. Сделай все заново")
 

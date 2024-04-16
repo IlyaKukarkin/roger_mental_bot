@@ -47,7 +47,7 @@ def kb_for_stata(messages: list):
 
 async def stata_show_mes(message: types.Message):
     """
-    Message handler for /stata command
+    Message handler for /message command
 
     Parameters:
     message (TG Message): message to handle
@@ -93,7 +93,7 @@ async def stata_show_mes(message: types.Message):
 
 async def delete_from_cart_handler1(call: CallbackQuery, callback_data: dict):
     """
-    Callback handler for /stata -> with "message" _id
+    Callback handler for /message -> with "message" _id
 
     Parameters:
     callback_query (TG Callback): callback to handle
