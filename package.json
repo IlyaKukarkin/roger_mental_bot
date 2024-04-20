@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@amplitude/analytics-browser": "^2.3.3",
-    "@defer/client": "^1.15.0",
     "@lingui/core": "^4.6.0",
     "@lingui/react": "^4.6.0",
     "@logtail/next": "^0.1.0",

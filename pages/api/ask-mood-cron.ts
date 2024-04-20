@@ -15,6 +15,11 @@ const logData: CronLogData = {
   name: CRON_NAME,
 };
 
+// This function can run for a maximum of 5 minutes
+export const config = {
+  maxDuration: 300,
+};
+
 async function handler(req: LogtailAPIRequest, res: NextApiResponse) {
   if (req.method === "POST") {
     try {
@@ -25,7 +30,9 @@ async function handler(req: LogtailAPIRequest, res: NextApiResponse) {
       const { authorization } = req.headers;
 
       if (authorization === `Bearer ${process.env.CRON_API_KEY}`) {
-        await askMood();
+        await new Promise((resolve) => {
+          setTimeout(() => resolve(123), 80000);
+        });
 
         req.log.info(`${CronLogEvent.SUCCESS}${CRON_NAME}`, {
           cron: logData,
