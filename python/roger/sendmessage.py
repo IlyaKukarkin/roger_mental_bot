@@ -495,7 +495,7 @@ async def row_message(chat_id: int):
     """
 
     count = how_many_days_user_with_us(chat_id)
-    s = " раза! " if words_formatting(count) else " раз! " 
+    s = " раза! " if words_formatting(count) else " раз! "
 
     await botClient.send_message(
         chat_id,

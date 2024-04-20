@@ -266,9 +266,7 @@ def words_formatting(x: int):
     if last_two_digits in [11, 12, 13, 14]:
         return False
     
-    else:
-        last_digit = x % 10
-        if last_digit in [1, 5, 6, 7, 8, 9, 0]:
-            return False
-        return True
-
+    last_digit = x % 10
+    if last_digit in [1, 5, 6, 7, 8, 9, 0]:
+        return False
+    return True
