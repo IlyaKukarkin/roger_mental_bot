@@ -15,7 +15,7 @@ const logData: CronLogData = {
   name: CRON_NAME,
 };
 
-// This function can run for a maximum of 3 minutes
+// This function can run for a maximum of 5 minutes
 export const config = {
   maxDuration: 300,
 };
