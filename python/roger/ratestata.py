@@ -9,7 +9,6 @@ from dateutil.relativedelta import relativedelta
 from aiogram import types
 
 from variables import botClient
-from states import Recording
 from keyboards import ask_for_rate_stata_kb
 from volunteers import is_mental_rate_threashhold_reached
 from db.users import get_user_by_telegram_id
@@ -42,7 +41,6 @@ async def get_rate_stata(message: types.Message):
         "За какой период хочешь получить статистику?",
         reply_markup=ask_for_rate_stata_kb
     )
-    await Recording.AwaitForARateStata.set()
 
 
 async def send_rate_stata(

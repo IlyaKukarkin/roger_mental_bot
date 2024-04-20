@@ -255,3 +255,18 @@ def any_ratings_in_previous_n_days(id_user: ObjectId, n: int = 6) -> bool:
     )
 
     return bool(past_week_ratings)
+
+
+def words_formatting(x: int):
+    """False - for the words like раз
+    True - for the words like раза"""
+
+    last_two_digits = x % 100
+
+    if last_two_digits in [11, 12, 13, 14]:
+        return False
+
+    last_digit = x % 10
+    if last_digit in [1, 5, 6, 7, 8, 9, 0]:
+        return False
+    return True

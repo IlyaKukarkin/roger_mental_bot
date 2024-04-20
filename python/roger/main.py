@@ -77,7 +77,7 @@ singleton = SingletonClass()
 singleton.collection_name = dbClient
 
 # текущая версия бота
-VERSION = "2.5.0"
+VERSION = "2.5.1"
 
 # read texts from json file
 with open('texts.json', encoding="utf-8") as t:
@@ -399,49 +399,43 @@ async def process_rate_stata_command(message: types.Message):
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
-                                      'month', state=Recording.AwaitForARateStata)
+                                      'month')
 async def rate_stata_handler_month(
-    callback_query: types.CallbackQuery,
-    state: dispatcher.FSMContext
+    callback_query: types.CallbackQuery
 ):
     """вывод статистики настроения за месяц"""
     await amplitude_send_default_source_event("MentalStata. Button Month Pressed",
                                               str(callback_query.from_user.id),
                                               "Month",
                                               "")
-    await state.finish()
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await send_rate_stata(callback_query.from_user.id, 'month')
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
-                                      'week2', state=Recording.AwaitForARateStata)
+                                      'week2')
 async def rate_stata_handler_week2(
-    callback_query: types.CallbackQuery,
-    state: dispatcher.FSMContext
+    callback_query: types.CallbackQuery
 ):
     """вывод статистики настроения за две недели"""
     await amplitude_send_default_source_event("MentalStata. Button TwoWeeks Pressed",
                                               str(callback_query.from_user.id),
                                               "Two Weeks",
                                               "")
-    await state.finish()
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await send_rate_stata(callback_query.from_user.id, 'week2')
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
-                                      'week', state=Recording.AwaitForARateStata)
+                                      'week')
 async def rate_stata_handler_week(
-    callback_query: types.CallbackQuery,
-    state: dispatcher.FSMContext
+    callback_query: types.CallbackQuery
 ):
     """вывод статистики настроения за неделю"""
     await amplitude_send_default_source_event("MentalStata. Button Week Pressed",
                                               str(callback_query.from_user.id),
                                               "Week",
                                               "")
-    await state.finish()
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await send_rate_stata(callback_query.from_user.id, 'week')
 
@@ -874,17 +868,16 @@ async def settings_change_time_to_send_messages_callback(callback_query: types.C
     await get_user_time_to_send_messages(user["_id"], callback_query.from_user.id, "settings")
 
 
-@botDispatcher.message_handler(commands=['newyearstata'])
-async def newyearstata_command(message: types.Message):
-    """sending new year 2023 stata by command"""
-    user = get_user_by_telegram_id(str(message.chat.id))
-    await botClient.send_message(
-        message.chat.id,
-        "Твоя статистика за 2023 год готова!\n\nПереходи по ссылке: " +
-        "https://rogerbot.tech/2023/" +
-        str(user["_id"]), disable_web_page_preview=True
-    )
-
+# @botDispatcher.message_handler(commands=['newyearstata'])
+# async def newyearstata_command(message: types.Message):
+#     """sending new year 2023 stata by command"""
+#     user = get_user_by_telegram_id(str(message.chat.id))
+#     await botClient.send_message(
+#         message.chat.id,
+#         "Твоя статистика за 2023 год готова!\n\nПереходи по ссылке: " +
+#         "https://rogerbot.tech/2023/" +
+#         str(user["_id"]), disable_web_page_preview=True
+#     )
 
 @botDispatcher.message_handler(content_types='text', state='*')
 async def process_any_command(message: types.Message):
