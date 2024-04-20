@@ -557,7 +557,7 @@ async def donate_handler(message: types.Message):
     await botClient.send_message(
         message.chat.id,
         (
-            "Задонатить Роджеру: https://www.tinkoff.ru/cf/9KODrlaoPCR.\n\n"
+            "Задонатить Роджеру: https://www.tinkoff.ru/cf/2ihm5UElRfV.\n\n"
             "Деньги будут потрачены на более мощный сервер 🔥"
         ),
         disable_web_page_preview=True
@@ -574,7 +574,7 @@ async def money_handler(message: types.Message):
     await botClient.send_message(
         message.chat.id,
         (
-            "Задонатить Роджеру: https://www.tinkoff.ru/cf/9KODrlaoPCR.\n\n"
+            "Задонатить Роджеру: https://www.tinkoff.ru/cf/2ihm5UElRfV.\n\n"
             "Деньги будут потрачены на более мощный сервер 🔥"
         ),
         disable_web_page_preview=True
