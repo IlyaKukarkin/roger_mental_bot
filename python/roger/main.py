@@ -399,49 +399,43 @@ async def process_rate_stata_command(message: types.Message):
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
-                                      'month', state=Recording.AwaitForARateStata)
+                                      'month')
 async def rate_stata_handler_month(
-    callback_query: types.CallbackQuery,
-    state: dispatcher.FSMContext
+    callback_query: types.CallbackQuery
 ):
     """вывод статистики настроения за месяц"""
     await amplitude_send_default_source_event("MentalStata. Button Month Pressed",
                                               str(callback_query.from_user.id),
                                               "Month",
                                               "")
-    await state.finish()
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await send_rate_stata(callback_query.from_user.id, 'month')
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
-                                      'week2', state=Recording.AwaitForARateStata)
+                                      'week2')
 async def rate_stata_handler_week2(
-    callback_query: types.CallbackQuery,
-    state: dispatcher.FSMContext
+    callback_query: types.CallbackQuery
 ):
     """вывод статистики настроения за две недели"""
     await amplitude_send_default_source_event("MentalStata. Button TwoWeeks Pressed",
                                               str(callback_query.from_user.id),
                                               "Two Weeks",
                                               "")
-    await state.finish()
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await send_rate_stata(callback_query.from_user.id, 'week2')
 
 
 @botDispatcher.callback_query_handler(lambda c: c.data ==
-                                      'week', state=Recording.AwaitForARateStata)
+                                      'week')
 async def rate_stata_handler_week(
-    callback_query: types.CallbackQuery,
-    state: dispatcher.FSMContext
+    callback_query: types.CallbackQuery
 ):
     """вывод статистики настроения за неделю"""
     await amplitude_send_default_source_event("MentalStata. Button Week Pressed",
                                               str(callback_query.from_user.id),
                                               "Week",
                                               "")
-    await state.finish()
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
     await send_rate_stata(callback_query.from_user.id, 'week')
 
