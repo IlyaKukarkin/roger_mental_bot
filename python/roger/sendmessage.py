@@ -55,7 +55,8 @@ from common import (
     rand_select_obj_texts,
     Weekdays,
     n_days_since_date,
-    any_ratings_in_previous_n_days
+    any_ratings_in_previous_n_days,
+    words_formatting
 )
 from keyboards import (
     kb_for_mental_poll,
@@ -493,11 +494,14 @@ async def row_message(chat_id: int):
     None
     """
 
+    count = how_many_days_user_with_us(chat_id)
+    s = " раза! " if words_formatting(count) else " раз! "
+
     await botClient.send_message(
         chat_id,
         (
-            "Ты уже замерил свое настроение " + str(how_many_days_user_with_us(chat_id)) +
-            " раз! Продолжай в том же духе 😎"
+            "Ты уже замерил свое настроение " + str(count) + str(s) +
+            "Продолжай в том же духе 😎"
         )
     )
 
