@@ -81,7 +81,12 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
 
         for user in users:
             try:
-                await botClient.send_message(int(user["telegram_id"]), message.text, disable_web_page_preview=True)
+                await botClient.send_message(
+                    int(user["telegram_id"]),
+                    message.text,
+                    disable_web_page_preview=True
+                )
+
                 print(user["telegram_id"])
                 count_received_messages += 1
 

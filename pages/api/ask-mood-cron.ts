@@ -1,7 +1,7 @@
 import type { NextApiResponse } from "next";
 import { withLogtail, LogtailAPIRequest } from "@logtail/next";
 
-import askMoodDefer from "../../defer/ask-mood";
+import { askMood } from "../../lib/api/ask-mood";
 import {
   CronLogData,
   CronLogError,
@@ -15,6 +15,11 @@ const logData: CronLogData = {
   name: CRON_NAME,
 };
 
+// This function can run for a maximum of 3 minutes
+export const config = {
+  maxDuration: 300,
+};
+
 async function handler(req: LogtailAPIRequest, res: NextApiResponse) {
   if (req.method === "POST") {
     try {
@@ -25,7 +30,7 @@ async function handler(req: LogtailAPIRequest, res: NextApiResponse) {
       const { authorization } = req.headers;
 
       if (authorization === `Bearer ${process.env.CRON_API_KEY}`) {
-        await askMoodDefer();
+        await askMood();
 
         req.log.info(`${CronLogEvent.SUCCESS}${CRON_NAME}`, {
           cron: logData,
