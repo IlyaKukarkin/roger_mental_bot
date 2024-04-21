@@ -31,7 +31,7 @@ async function handler(req: LogtailAPIRequest, res: NextApiResponse) {
 
       if (authorization === `Bearer ${process.env.CRON_API_KEY}`) {
         await new Promise((resolve) => {
-          // 3 minutes
+          // 3 minutes test
           setTimeout(() => resolve(123), 180000);
         });
 
