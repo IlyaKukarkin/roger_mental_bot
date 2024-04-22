@@ -17,13 +17,13 @@ callback_friends_like_support_message = CallbackData(
     "Like", "id", "friend_id", "message_id")
 
 green_button_answer = InlineKeyboardButton(
-    '🟢', callback_data='green_button_answer')
+    '💚', callback_data='green_button_answer')
 yellow_button_answer = InlineKeyboardButton(
-    '🟡', callback_data='yellow_button_answer')
+    '💛', callback_data='yellow_button_answer')
 orange_button_answer = InlineKeyboardButton(
-    '🟠', callback_data='orange_button_answer')
+    '🧡', callback_data='orange_button_answer')
 red_button_answer = InlineKeyboardButton(
-    '🔴', callback_data='red_button_answer')
+    '❤️', callback_data='red_button_answer')
 kb_for_mental_poll = InlineKeyboardMarkup(row_width=4).add(
     green_button_answer, yellow_button_answer, orange_button_answer, red_button_answer)
 

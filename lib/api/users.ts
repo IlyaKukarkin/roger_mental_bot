@@ -185,19 +185,19 @@ export const sendMoodMessage = async (
     inline_keyboard: [
       [
         {
-          text: "🟢",
+          text: "💚",
           callback_data: "green_button_answer",
         },
         {
-          text: "🟡",
+          text: "💛",
           callback_data: "yellow_button_answer",
         },
         {
-          text: "🟠",
+          text: "🧡",
           callback_data: "orange_button_answer",
         },
         {
-          text: "🔴",
+          text: "❤️",
           callback_data: "red_button_answer",
         },
       ],
