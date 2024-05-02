@@ -77,7 +77,7 @@ singleton = SingletonClass()
 singleton.collection_name = dbClient
 
 # текущая версия бота
-VERSION = "2.5.2"
+VERSION = "2.5.3"
 
 # read texts from json file
 with open('texts.json', encoding="utf-8") as t:
