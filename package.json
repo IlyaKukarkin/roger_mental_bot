@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "yarn lang:extract && next build",
+    "build:standalone": "STANDALONE=true yarn lang:extract && STANDALONE=true next build",
     "start": "next start",
     "lint": "next lint",
     "format": "prettier \"**/*.{ts,tsx,md}\" --write",
