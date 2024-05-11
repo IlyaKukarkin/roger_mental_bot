@@ -3,10 +3,15 @@ services:
   roger:
     image: "ikukarkin/roger:roger"
     environment:
-    - DOPPLER_TOKEN=${DOPPLER_TOKEN}
+      - DOPPLER_TOKEN=${DOPPLER_TOKEN}
     restart: on-failure
   jimmy:
     image: "ikukarkin/roger:jimmy"
     environment:
-    - DOPPLER_TOKEN=${DOPPLER_TOKEN}
+      - DOPPLER_TOKEN=${DOPPLER_TOKEN}
+    restart: on-failure
+  nextjs:
+    image: "ikukarkin/roger:nextjs"
+    environment:
+      - DOPPLER_TOKEN=${DOPPLER_TOKEN}
     restart: on-failure
