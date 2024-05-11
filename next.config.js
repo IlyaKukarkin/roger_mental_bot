@@ -1,5 +1,4 @@
 const { withLogtail } = require("@logtail/next");
-const { log } = require("console");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -21,8 +20,6 @@ const nextConfig = {
     ];
   },
 };
-
-log("STANDALONE", process.env.STANDALONE);
 
 if (process.env.STANDALONE === "true") {
   nextConfig.output = "standalone";
