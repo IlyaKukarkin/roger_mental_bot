@@ -17,3 +17,8 @@ services:
     environment:
       - DOPPLER_TOKEN=${DOPPLER_TOKEN}
     restart: on-failure
+  vpnbot:
+    image: "ikukarkin/vpnbot:latest"
+    environment:
+      - DOPPLER_TOKEN=${DOPPLER_TOKEN}
+    restart: on-failure
