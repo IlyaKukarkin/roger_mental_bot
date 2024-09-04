@@ -17,7 +17,7 @@ const logData: CronLogData = {
 
 // This function can run for a maximum of 3 minutes
 export const config = {
-  maxDuration: 300,
+  maxDuration: 60,
 };
 
 async function handler(req: LogtailAPIRequest, res: NextApiResponse) {
