@@ -3,10 +3,10 @@ import { Trans, Plural } from "@lingui/macro";
 
 import { mapMonthToText } from "../utils";
 import { MOOD } from "../../Calendar/utils";
-import { User2023Stata } from "../../../lib/api/users";
+import { UserYearlyStata } from "../../../lib/api/users";
 import RogerLink from "./rogerLink";
 
-type Props = Pick<User2023Stata, "months">;
+type Props = Pick<UserYearlyStata, "months">;
 
 const Calendar = ({ months }: Props) => {
   const [showMonth, setShowMonth] = useState<number>(-1);
@@ -46,7 +46,7 @@ const Calendar = ({ months }: Props) => {
   };
 
   const onMonthClick = (index: number) => {
-    console.log("HERE: ", index);
+    // console.log("HERE: ", index);
     setShowMonth(index === showMonth ? -1 : index);
   };
 

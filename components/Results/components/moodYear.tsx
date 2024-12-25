@@ -1,10 +1,10 @@
 import React, { memo, useMemo } from "react";
 import { Trans } from "@lingui/macro";
 
-import { User2023Stata } from "../../../lib/api/users";
+import { UserYearlyStata } from "../../../lib/api/users";
 import RogerLink from "./rogerLink";
 
-type Props = Pick<User2023Stata, "months">;
+type Props = Pick<UserYearlyStata, "months">;
 
 const MoodYear = ({ months }: Props) => {
   const getYearMood = useMemo((): number => {
@@ -84,7 +84,7 @@ const MoodYear = ({ months }: Props) => {
   return (
     <div className="flex h-full flex-col items-center justify-evenly font-bold">
       <p className="text-3xl">
-        <Trans>Смайлик, описывающий твой 2023 год</Trans>
+        <Trans>Смайлик, описывающий твой 2024 год</Trans>
       </p>
 
       <p className="-my-24 text-[250px]">{getYearEmoji}</p>

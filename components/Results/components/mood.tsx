@@ -1,11 +1,11 @@
 import React, { useMemo, memo } from "react";
 import { Trans, Plural } from "@lingui/macro";
 
-import { User2023Stata } from "../../../lib/api/users";
+import { UserYearlyStata } from "../../../lib/api/users";
 import RogerLink from "./rogerLink";
 
 type Props = Pick<
-  User2023Stata["general"],
+  UserYearlyStata["general"],
   "totalRates" | "totalRatesWithMood" | "userMentalRating"
 >;
 
@@ -36,7 +36,7 @@ const Mood = ({ totalRates, totalRatesWithMood, userMentalRating }: Props) => {
     }
 
     return "🥉";
-  }, []);
+  }, [userMentalRating]);
 
   return (
     <div className="flex h-full flex-col items-center justify-evenly font-bold">

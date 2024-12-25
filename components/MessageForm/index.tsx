@@ -82,7 +82,7 @@ const MessageForm = ({ user }: Props) => {
         clearTimeout(timeoutId);
       }
     };
-  }, [alert_visible]);
+  }, [alert_visible, timeoutId]);
 
   useEffect(() => {
     let id: NodeJS.Timeout;
@@ -329,7 +329,7 @@ const MessageForm = ({ user }: Props) => {
     }
 
     return null;
-  }, [alert_visible]);
+  }, [alert_visible, imagesError, linkError, message, submitResult, user]);
 
   const renderSuccess = useMemo(() => {
     if (submitResult === SubmitResult.SUCCESS) {

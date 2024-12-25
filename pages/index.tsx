@@ -62,7 +62,7 @@ const Home: NextPage = () => {
         });
         router.push(`/500?error=${err.toString()}`);
       });
-  }, []);
+  }, [form_id, router]);
 
   if (loading || !user || !form_id || Array.isArray(form_id)) {
     return <Loading />;

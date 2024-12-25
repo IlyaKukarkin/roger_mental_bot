@@ -180,9 +180,11 @@ const checkAlreadySendToday = async (userId: ObjectId) => {
   return rates.length !== 0;
 };
 
-export const getAllMoodRates2023 = async (userId: ObjectId) => {
+export const getAllMoodRatesYearly = async (userId: ObjectId) => {
   const client = await clientPromise;
   const rateCol = client.db("roger-bot-db").collection("mental_rate");
+
+  const currentYear = new Date().getFullYear();
 
   const mentalRatesCursor: FindCursor<MentalRate> = await rateCol.aggregate([
     {
@@ -190,8 +192,8 @@ export const getAllMoodRates2023 = async (userId: ObjectId) => {
         $and: [
           {
             date: {
-              $gte: new Date("2023-01-01T00:00:00.000+00:00"),
-              $lte: new Date("2024-01-01T00:00:00.000+00:00"),
+              $gte: new Date(`${currentYear}-01-01T00:00:00.000+00:00`),
+              $lte: new Date(`${currentYear + 1}-01-01T00:00:00.000+00:00`),
             },
           },
           {
@@ -201,6 +203,7 @@ export const getAllMoodRates2023 = async (userId: ObjectId) => {
       },
     },
   ]);
+
   const mentalRates = await mentalRatesCursor.toArray();
 
   return mentalRates;

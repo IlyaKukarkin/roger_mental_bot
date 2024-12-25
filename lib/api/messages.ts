@@ -246,9 +246,11 @@ export const submitForm = async ({
   }
 };
 
-export const countCreatedMessagesByUser2023 = async (userId: ObjectId) => {
+export const countCreatedMessagesByUserYearly = async (userId: ObjectId) => {
   const client = await clientPromise;
   const collection = client.db("roger-bot-db").collection("messages");
+
+  const currentYear = new Date().getFullYear();
 
   const messagesCursor: FindCursor<MessageWithRates> =
     await collection.aggregate([
@@ -256,8 +258,8 @@ export const countCreatedMessagesByUser2023 = async (userId: ObjectId) => {
         $match: {
           id_user: userId,
           created_date: {
-            $gte: new Date("2023-01-01T00:00:00.000+00:00"),
-            $lte: new Date("2024-01-01T00:00:00.000+00:00"),
+            $gte: new Date(`${currentYear}-01-01T00:00:00.000+00:00`),
+            $lte: new Date(`${currentYear + 1}-01-01T00:00:00.000+00:00`),
           },
         },
       },

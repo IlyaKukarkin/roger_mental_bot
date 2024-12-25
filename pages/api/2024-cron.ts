@@ -10,7 +10,7 @@ import {
   LogError,
 } from "./types";
 
-const CRON_NAME = CronName.STATA_2023;
+const CRON_NAME = CronName.STATA_2024;
 const logData: CronLogData = {
   name: CRON_NAME,
 };

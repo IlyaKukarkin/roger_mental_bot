@@ -25,7 +25,7 @@ type Props = {
 export const NUMBER_OF_PAGES = 6;
 export const TIME_PER_PAGE = 8000;
 
-const Results2023 = ({ statistic }: Props) => {
+const Results2024 = ({ statistic }: Props) => {
   const { general, messages, months, userCreatedAt } = statistic;
   const timerRef = useRef<null | NodeJS.Timeout>(null);
 
@@ -55,7 +55,7 @@ const Results2023 = ({ statistic }: Props) => {
   }, [index, transRef]);
 
   useEffect(() => {
-    amplitude.track(`Open 2023 page #${index + 1}`, {
+    amplitude.track(`Open 2024 page #${index + 1}`, {
       page_id: statistic.userId,
     });
   }, [index, statistic.userId]);
@@ -227,4 +227,4 @@ const Results2023 = ({ statistic }: Props) => {
   );
 };
 
-export default Results2023;
+export default Results2024;

@@ -26,11 +26,11 @@ type UserStata = User & {
   rate_week: number;
 };
 
-type User2023 = User & {
-  mental_rate_2023: number;
+type UserYearly = User & {
+  mental_rate_yearly: number;
 };
 
-type Rates2023 = {
+type RatesYearly = {
   totalRates: number;
   _id: ObjectId;
 };
@@ -45,11 +45,12 @@ type Rate = {
 
 export type Statistics = {
   _id: ObjectId;
+  year: number;
   users_rate_month: number[];
   users_rate_2week: number[];
   users_rate_week: number[];
-  users_rate_2023: number[];
-  support_rates_2023: number[];
+  users_rate_yearly: number[];
+  support_rates_yearly: number[];
 };
 
 const logData: APILog = {
@@ -150,14 +151,16 @@ export const updateUserRateStatistics = async (): Promise<void> => {
   );
 };
 
-export const update2023Statistics = async (): Promise<void> => {
+export const updateYearlyStatistics = async (): Promise<void> => {
   const client = await clientPromise;
   const usersCol = client.db("roger-bot-db").collection("users");
   const messagesCol = client.db("roger-bot-db").collection("messages");
   const statisticCol = client.db("roger-bot-db").collection("statistic");
 
-  const startDate = new Date("2023-01-01T00:00:00.000+00:00");
-  const endDate = new Date("2024-01-01T00:00:00.000+00:00");
+  const currentYear = new Date().getFullYear();
+
+  const startDate = new Date(`${currentYear}-01-01T00:00:00.000+00:00`);
+  const endDate = new Date(`${currentYear + 1}-01-01T00:00:00.000+00:00`);
 
   const prepareUsers = usersCol.aggregate([
     {
@@ -171,7 +174,7 @@ export const update2023Statistics = async (): Promise<void> => {
     },
     {
       $addFields: {
-        mental_rate_2023: {
+        mental_rate_yearly: {
           $size: {
             $filter: {
               input: "$rates",
@@ -206,8 +209,8 @@ export const update2023Statistics = async (): Promise<void> => {
           {
             $match: {
               time_to_send: {
-                $gte: new Date("2023-01-01T00:00:00.000+00:00"),
-                $lte: new Date("2024-01-01T00:00:00.000+00:00"),
+                $gte: new Date(`${currentYear}-01-01T00:00:00.000+00:00`),
+                $lte: new Date(`${currentYear + 1}-01-01T00:00:00.000+00:00`),
               },
               rate: {
                 $eq: true,
@@ -236,8 +239,8 @@ export const update2023Statistics = async (): Promise<void> => {
   ]);
 
   const [cursorUsers, cursorMessages]: [
-    FindCursor<User2023>,
-    FindCursor<Rates2023>,
+    FindCursor<UserYearly>,
+    FindCursor<RatesYearly>,
   ] = await Promise.all([prepareUsers, prepareMessages]);
 
   const [users, rates] = await Promise.all([
@@ -246,29 +249,33 @@ export const update2023Statistics = async (): Promise<void> => {
   ]);
 
   log.info(
-    `Retrieved ${users.length} users from the database to update 2023 statistic`,
+    `Retrieved ${users.length} users from the database to update ${currentYear} statistic`,
     {
       ...logData,
     },
   );
   log.info(
-    `Retrieved ${rates.length} rates from the database to update 2023 statistic`,
+    `Retrieved ${rates.length} rates from the database to update ${currentYear} statistic`,
     {
       ...logData,
     },
   );
 
-  const statistic: Statistics = await statisticCol.findOne();
+  const statistic: Statistics = await statisticCol.findOne({
+    year: currentYear,
+  });
 
-  const users_rate_2023: number[] = users.map((user) =>
-    Number(user.mental_rate_2023),
+  console.log(statistic);
+
+  const users_rate_yearly: number[] = users.map((user) =>
+    Number(user.mental_rate_yearly),
   );
-  const support_rates_2023: number[] = rates.map((rate) =>
+  const support_rates_yearly: number[] = rates.map((rate) =>
     Number(rate.totalRates),
   );
 
-  users_rate_2023.sort((a, b) => b - a);
-  support_rates_2023.sort((a, b) => b - a);
+  users_rate_yearly.sort((a, b) => b - a);
+  support_rates_yearly.sort((a, b) => b - a);
 
   statisticCol.update(
     {
@@ -276,8 +283,8 @@ export const update2023Statistics = async (): Promise<void> => {
     },
     {
       $set: {
-        users_rate_2023,
-        support_rates_2023,
+        users_rate_yearly: users_rate_yearly,
+        support_rates_yearly: support_rates_yearly,
       },
     },
   );
@@ -287,7 +294,11 @@ export const getStatistic = async () => {
   const client = await clientPromise;
   const statisticCol = client.db("roger-bot-db").collection("statistic");
 
-  const statistic: Statistics = await statisticCol.findOne();
+  const currentYear = new Date().getFullYear();
+
+  const statistic: Statistics = await statisticCol.findOne({
+    year: currentYear,
+  });
 
   return statistic;
 };

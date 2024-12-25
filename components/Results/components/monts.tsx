@@ -1,10 +1,10 @@
 import React, { memo, useMemo } from "react";
 import { Trans, Plural } from "@lingui/macro";
 
-import { User2023Stata } from "../../../lib/api/users";
+import { UserYearlyStata } from "../../../lib/api/users";
 import { mapMonthToText } from "../utils";
 
-type Props = Pick<User2023Stata, "months">;
+type Props = Pick<UserYearlyStata, "months">;
 
 const Months = ({ months }: Props) => {
   const bestMonth = useMemo(() => {

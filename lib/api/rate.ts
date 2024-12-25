@@ -1,4 +1,3 @@
-import { type Rate } from "./dislike";
 import { type Message } from "./messages";
 
 import { FindCursor, ObjectId } from "mongodb";
@@ -33,7 +32,7 @@ type RateResponse = {
   update_to_review: number;
 };
 
-export type User2023Rates = {
+export type UserYearlyRates = {
   // message ID
   _id: ObjectId;
   show: number;
@@ -352,16 +351,18 @@ const calculateRate = (
   };
 };
 
-export const get2023UsersRates = async (userId: ObjectId) => {
+export const getYearlyUsersRates = async (userId: ObjectId) => {
   const client = await clientPromise;
   const rateCol = client.db("roger-bot-db").collection("user_messages");
 
-  const rates2023Cursor: FindCursor<User2023Rates> = await rateCol.aggregate([
+  const currentYear = new Date().getFullYear();
+
+  const yearlyRatesCursor: FindCursor<UserYearlyRates> = await rateCol.aggregate([
     {
       $match: {
         time_to_send: {
-          $gte: new Date("2023-01-01T00:00:00.000+00:00"),
-          $lte: new Date("2024-01-01T00:00:00.000+00:00"),
+          $gte: new Date(`${currentYear}-01-01T00:00:00.000+00:00`),
+          $lte: new Date(`${currentYear + 1}-01-01T00:00:00.000+00:00`),
         },
       },
     },
@@ -410,8 +411,8 @@ export const get2023UsersRates = async (userId: ObjectId) => {
           {
             $match: {
               time_to_send: {
-                $gte: new Date("Sun, 01 Jan 2023 00:00:00 GMT"),
-                $lte: new Date("Mon, 01 Jan 2024 00:00:00 GMT"),
+                $gte: new Date(`Sun, 01 Jan ${currentYear} 00:00:00 GMT`),
+                $lte: new Date(`Mon, 01 Jan ${currentYear + 1} 00:00:00 GMT`),
               },
             },
           },
@@ -453,7 +454,7 @@ export const get2023UsersRates = async (userId: ObjectId) => {
     },
   ]);
 
-  const rates2023 = await rates2023Cursor.toArray();
+  const yearyRates = await yearlyRatesCursor.toArray();
 
-  return rates2023;
+  return yearyRates;
 };
