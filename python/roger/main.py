@@ -885,8 +885,8 @@ async def newyearstata_command(message: types.Message):
 
     await botClient.send_message(
         message.chat.id,
-        "Твоя статистика за " + current_year + " год готова!\n\nПереходи по ссылке: " +
-        "https://rogerbot.tech/2023/" +
+        "Твоя статистика за " + str(current_year) + " год готова!\n\nПереходи по ссылке: " +
+        "https://rogerbot.tech/2024/" +
         str(user["_id"]), disable_web_page_preview=True
     )
 
