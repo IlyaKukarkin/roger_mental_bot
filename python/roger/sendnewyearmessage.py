@@ -8,6 +8,9 @@ from db.users import (
     get_user_by_telegram_id,
 )
 
+# Add timeout for sending messages
+# Maybe 10 messages, then 15 seconds sleep
+
 
 async def send_new_year_message(telegram_id: str):
     """
