@@ -3,6 +3,7 @@
 
 import os
 import json
+from datetime import datetime
 from bson import ObjectId
 from aiogram.utils import executor
 from aiogram import types, dispatcher
@@ -36,6 +37,7 @@ from reg.after_registration import create_new_message_after_registration
 from stata import stata_show_mes, delete_from_cart_handler1
 from ratestata import send_rate_stata, get_rate_stata
 from sendmessage import sendmes, callback_after_click_on_color_button
+from sendnewyearmessage import send_new_year_message
 from variables import botClient, botDispatcher
 from handlers import rate_message
 from fillform import fillform_command
@@ -868,16 +870,26 @@ async def settings_change_time_to_send_messages_callback(callback_query: types.C
     await get_user_time_to_send_messages(user["_id"], callback_query.from_user.id, "settings")
 
 
-# @botDispatcher.message_handler(commands=['newyearstata'])
-# async def newyearstata_command(message: types.Message):
-#     """sending new year 2023 stata by command"""
-#     user = get_user_by_telegram_id(str(message.chat.id))
-#     await botClient.send_message(
-#         message.chat.id,
-#         "Твоя статистика за 2023 год готова!\n\nПереходи по ссылке: " +
-#         "https://rogerbot.tech/2023/" +
-#         str(user["_id"]), disable_web_page_preview=True
-#     )
+@botDispatcher.message_handler(commands=['sendnewyearstata'])
+async def sendnewyearstata_command(message: types.Message):
+    """sending new year messages to all active users"""
+    await send_new_year_message(str(message.chat.id))
+
+
+@botDispatcher.message_handler(commands=['newyearstata'])
+async def newyearstata_command(message: types.Message):
+    """sending new year stata by command"""
+    user = get_user_by_telegram_id(str(message.chat.id))
+
+    current_year = datetime.now().year
+
+    await botClient.send_message(
+        message.chat.id,
+        "Твоя статистика за " + current_year + " год готова!\n\nПереходи по ссылке: " +
+        "https://rogerbot.tech/2023/" +
+        str(user["_id"]), disable_web_page_preview=True
+    )
+
 
 @botDispatcher.message_handler(content_types='text', state='*')
 async def process_any_command(message: types.Message):

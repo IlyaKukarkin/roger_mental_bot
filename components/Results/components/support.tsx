@@ -1,11 +1,14 @@
 import React, { memo, useMemo } from "react";
 import { Trans, Plural } from "@lingui/macro";
 
-import { User2023Stata } from "../../../lib/api/users";
+import { UserYearlyStata } from "../../../lib/api/users";
 import RogerLink from "./rogerLink";
 
-type Props = Pick<User2023Stata, "months" | "messages"> &
-  Pick<User2023Stata["general"], "userSupportRating" | "totalCreatedMessages">;
+type Props = Pick<UserYearlyStata, "months" | "messages"> &
+  Pick<
+    UserYearlyStata["general"],
+    "userSupportRating" | "totalCreatedMessages"
+  >;
 
 const Support = ({
   messages,

@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 import { ObjectId } from "mongodb";
 
-import { getUser2023Stata } from "../../lib/api/users";
+import { getUserYearlyStata } from "../../lib/api/users";
 
 export const config = {
   api: {
@@ -17,7 +17,7 @@ export default async function handler(
   switch (req.method) {
     case "GET":
       try {
-        const stata = await getUser2023Stata(
+        const stata = await getUserYearlyStata(
           new ObjectId(req.query.user_id as string),
         );
 

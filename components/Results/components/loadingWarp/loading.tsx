@@ -28,9 +28,9 @@ const Loading = () => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);
 
-  const SIDES = [topRef, rightRef, bottomRef, leftRef] as const;
-
   useEffect(() => {
+    const SIDES = [topRef, rightRef, bottomRef, leftRef] as const;
+
     let hue = 0,
       x = 0,
       speed = 0,
@@ -100,7 +100,7 @@ const Loading = () => {
           <br />
           Собираем твою статистику
           <br />
-          за 2023 год
+          за {new Date().getFullYear()} год
         </h2>
       </article>
       <div className={`${styles.warp}`}>

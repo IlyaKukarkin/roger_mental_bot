@@ -15,6 +15,7 @@ export enum CronName {
   RATE = "Rate",
   STATA = "Stata",
   STATA_2023 = "STATA_2023",
+  STATA_2024 = "STATA_2024",
 }
 
 export enum CronLogEvent {

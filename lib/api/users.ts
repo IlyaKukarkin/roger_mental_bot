@@ -17,12 +17,12 @@ import {
   APILogError,
   APILogErrorName,
 } from "./types";
-import { countCreatedMessagesByUser2023 } from "./messages";
-import { getAllMoodRates2023 } from "./ask-mood";
+import { countCreatedMessagesByUserYearly } from "./messages";
+import { getAllMoodRatesYearly } from "./ask-mood";
 import { getStatistic } from "./stata";
-import { get2023UsersRates } from "./rate";
+import { getYearlyUsersRates } from "./rate";
 
-export type User2023Stata = {
+export type UserYearlyStata = {
   general: {
     totalRates: number;
     totalRatesWithMood: number;
@@ -275,17 +275,17 @@ export const sendMoodMessage = async (
   return null;
 };
 
-export const getUser2023Stata = async (userId: ObjectId) => {
+export const getUserYearlyStata = async (userId: ObjectId) => {
   const [totalCreatedMessages, messagesRates, moodRates, statistic, user] =
     await Promise.all([
-      countCreatedMessagesByUser2023(userId),
-      get2023UsersRates(userId),
-      getAllMoodRates2023(userId),
+      countCreatedMessagesByUserYearly(userId),
+      getYearlyUsersRates(userId),
+      getAllMoodRatesYearly(userId),
       getStatistic(),
       getUserById(userId),
     ]);
 
-  const result: Omit<User2023Stata, "userId"> = {
+  const result: Omit<UserYearlyStata, "userId"> = {
     general: {
       totalRates: 0,
       totalRatesWithMood: 0,
@@ -336,12 +336,12 @@ export const getUser2023Stata = async (userId: ObjectId) => {
     }
   });
 
-  if (statistic.users_rate_2023) {
+  if (statistic.users_rate_yearly) {
     result.general.averageUserTotalRates =
-      statistic.users_rate_2023.reduce(
+      statistic.users_rate_yearly.reduce(
         (accum, currValue) => accum + currValue,
         0,
-      ) / statistic.users_rate_2023.length;
+      ) / statistic.users_rate_yearly.length;
 
     const getValidIndex = ([left, curr, right]: [number, number, number]) => {
       if (curr !== -1) {
@@ -356,11 +356,13 @@ export const getUser2023Stata = async (userId: ObjectId) => {
 
     // Fallback values
     const mentalFallbacks: [number, number, number] = [
-      statistic.users_rate_2023.lastIndexOf(
+      statistic.users_rate_yearly.lastIndexOf(
         result.general.totalRatesWithMood - 1,
       ),
-      statistic.users_rate_2023.lastIndexOf(result.general.totalRatesWithMood),
-      statistic.users_rate_2023.lastIndexOf(
+      statistic.users_rate_yearly.lastIndexOf(
+        result.general.totalRatesWithMood,
+      ),
+      statistic.users_rate_yearly.lastIndexOf(
         result.general.totalRatesWithMood + 1,
       ),
     ];
@@ -373,9 +375,9 @@ export const getUser2023Stata = async (userId: ObjectId) => {
     );
 
     const ratesFallbacks: [number, number, number] = [
-      statistic.support_rates_2023.lastIndexOf(rates - 1),
-      statistic.support_rates_2023.lastIndexOf(rates),
-      statistic.support_rates_2023.lastIndexOf(rates + 1),
+      statistic.support_rates_yearly.lastIndexOf(rates - 1),
+      statistic.support_rates_yearly.lastIndexOf(rates),
+      statistic.support_rates_yearly.lastIndexOf(rates + 1),
     ];
     result.general.userSupportRating = getValidIndex(ratesFallbacks) + 1;
   }

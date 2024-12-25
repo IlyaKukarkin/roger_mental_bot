@@ -2,14 +2,15 @@ import React, { memo } from "react";
 import Image from "next/legacy/image";
 import { Trans } from "@lingui/macro";
 
-import { User2023Stata } from "../../../lib/api/users";
+import { UserYearlyStata } from "../../../lib/api/users";
 import RogerLink from "./rogerLink";
 
-type Props = Pick<User2023Stata, "userCreatedAt">;
+type Props = Pick<UserYearlyStata, "userCreatedAt">;
 
 const Welcome = ({ userCreatedAt }: Props) => {
   const startDate = (createdAt: Date) => {
-    const baseDate = new Date("2023-01-01T00:00:00.000+00:00");
+    const currentYear = new Date().getFullYear();
+    const baseDate = new Date(`${currentYear}-01-01T00:00:00.000+00:00`);
     return createdAt > baseDate ? createdAt : baseDate;
   };
 

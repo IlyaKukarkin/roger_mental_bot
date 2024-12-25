@@ -1,5 +1,6 @@
 """Module providing handlers for "Send message to all" command."""
 
+from typing import Callable
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.utils.exceptions import BotBlocked, ChatNotFound, MessageError
@@ -64,6 +65,31 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
     # Do we need this? Not sure atm
     await state.finish()
 
+    count_received_messages, count_bot_blocked, count_other_exceptions = await sending_function(
+        lambda _: message.text
+    )
+
+    await botClient.send_message(
+        message.chat.id,
+        (
+            "Сообщение доставлено " + str(count_received_messages) +
+            " пользователям. Бот заблокирован: " + str(count_bot_blocked) +
+            ". Прочие ошибки: " + str(count_other_exceptions)
+        )
+    )
+
+
+async def sending_function(get_message: Callable[[int], str]):
+    """
+    Function to send message to all users
+
+    Parameters:
+    get_message (function): function to get message
+
+    Returns:
+    None
+    """
+
     limit = 10
     skip = 0
 
@@ -83,7 +109,7 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
             try:
                 await botClient.send_message(
                     int(user["telegram_id"]),
-                    message.text,
+                    get_message(user["_id"]),
                     disable_web_page_preview=True
                 )
 
@@ -110,11 +136,4 @@ async def send_message_to_all(message: types.Message, state: FSMContext):
                 print(exc)
                 count_other_exceptions += 1
 
-    await botClient.send_message(
-        message.chat.id,
-        (
-            "Сообщение доставлено " + str(count_received_messages) +
-            " пользователям. Бот заблокирован: " + str(count_bot_blocked) +
-            ". Прочие ошибки: " + str(count_other_exceptions)
-        )
-    )
+    return [count_received_messages, count_bot_blocked, count_other_exceptions]

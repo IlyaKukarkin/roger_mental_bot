@@ -6,7 +6,7 @@ import { useLingui } from "@lingui/react";
 
 import { amplitude } from "../../utils/useAmplitudeInit";
 import { UserYearlyStata } from "../../lib/api/users";
-import Results2023 from "../../components/Results/Results2023";
+import Results2024 from "../../components/Results/Results2024";
 import Loading from "../../components/Results/components/loadingWarp/loading";
 import { loadCatalog } from "../../utils/useLocales";
 
@@ -16,7 +16,7 @@ type Props = {
   statistic: UserYearlyStata;
 };
 
-const Results2023Page: NextPage<Props> = ({ statistic }) => {
+const Results2024Page: NextPage<Props> = ({ statistic }) => {
   const router = useRouter();
   const { t: trackingId } = router.query;
   const userId = router.query.userid;
@@ -64,7 +64,7 @@ const Results2023Page: NextPage<Props> = ({ statistic }) => {
     );
   }
 
-  return <Results2023 statistic={statistic} />;
+  return <Results2024 statistic={statistic} />;
 };
 
 export async function getStaticProps(
@@ -84,6 +84,8 @@ export async function getStaticProps(
   ]);
   const statistic = await res.json();
 
+  console.log(statistic);
+
   return {
     props: {
       statistic: { ...statistic, userId },
@@ -97,4 +99,4 @@ export async function getStaticPaths() {
   return { paths: [], fallback: "blocking" };
 }
 
-export default Results2023Page;
+export default Results2024Page;
