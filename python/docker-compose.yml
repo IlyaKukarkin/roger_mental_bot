@@ -22,3 +22,8 @@ services:
     environment:
       - DOPPLER_TOKEN=${VPNBOT_DOPPLER_TOKEN}
     restart: on-failure
+  memebot:
+    image: "ikukarkin/memebot:latest"
+    environment:
+      - DOPPLER_TOKEN=${MEMEBOT_DOPPLER_TOKEN}
+    restart: on-failure
