@@ -357,102 +357,103 @@ export const getYearlyUsersRates = async (userId: ObjectId) => {
 
   const currentYear = new Date().getFullYear();
 
-  const yearlyRatesCursor: FindCursor<UserYearlyRates> = await rateCol.aggregate([
-    {
-      $match: {
-        time_to_send: {
-          $gte: new Date(`${currentYear}-01-01T00:00:00.000+00:00`),
-          $lte: new Date(`${currentYear + 1}-01-01T00:00:00.000+00:00`),
-        },
-      },
-    },
-    {
-      $lookup: {
-        from: "messages",
-        localField: "id_message",
-        foreignField: "_id",
-        pipeline: [
-          {
-            $match: {
-              id_user: userId,
-            },
+  const yearlyRatesCursor: FindCursor<UserYearlyRates> =
+    await rateCol.aggregate([
+      {
+        $match: {
+          time_to_send: {
+            $gte: new Date(`${currentYear}-01-01T00:00:00.000+00:00`),
+            $lte: new Date(`${currentYear + 1}-01-01T00:00:00.000+00:00`),
           },
-        ],
-        as: "message",
-      },
-    },
-    {
-      $match: {
-        message: {
-          $ne: [],
         },
       },
-    },
-    {
-      $addFields: {
-        message: {
-          $arrayElemAt: ["$message", 0],
+      {
+        $lookup: {
+          from: "messages",
+          localField: "id_message",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $match: {
+                id_user: userId,
+              },
+            },
+          ],
+          as: "message",
         },
       },
-    },
-    {
-      $group: {
-        _id: "$id_message",
-        show: {
-          $sum: 1,
+      {
+        $match: {
+          message: {
+            $ne: [],
+          },
         },
       },
-    },
-    {
-      $lookup: {
-        from: "rate",
-        localField: "_id",
-        pipeline: [
-          {
-            $match: {
-              time_to_send: {
-                $gte: new Date(`Sun, 01 Jan ${currentYear} 00:00:00 GMT`),
-                $lte: new Date(`Mon, 01 Jan ${currentYear + 1} 00:00:00 GMT`),
+      {
+        $addFields: {
+          message: {
+            $arrayElemAt: ["$message", 0],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$id_message",
+          show: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "rate",
+          localField: "_id",
+          pipeline: [
+            {
+              $match: {
+                time_to_send: {
+                  $gte: new Date(`Sun, 01 Jan ${currentYear} 00:00:00 GMT`),
+                  $lte: new Date(`Mon, 01 Jan ${currentYear + 1} 00:00:00 GMT`),
+                },
+              },
+            },
+          ],
+          foreignField: "id_message",
+          as: "rates",
+        },
+      },
+      {
+        $addFields: {
+          dislikes: {
+            $size: {
+              $filter: {
+                input: "$rates",
+                as: "item",
+                cond: {
+                  $eq: ["$$item.rate", false],
+                },
               },
             },
           },
-        ],
-        foreignField: "id_message",
-        as: "rates",
-      },
-    },
-    {
-      $addFields: {
-        dislikes: {
-          $size: {
-            $filter: {
-              input: "$rates",
-              as: "item",
-              cond: {
-                $eq: ["$$item.rate", false],
-              },
-            },
-          },
-        },
-        likes: {
-          $size: {
-            $filter: {
-              input: "$rates",
-              as: "item",
-              cond: {
-                $eq: ["$$item.rate", true],
+          likes: {
+            $size: {
+              $filter: {
+                input: "$rates",
+                as: "item",
+                cond: {
+                  $eq: ["$$item.rate", true],
+                },
               },
             },
           },
         },
       },
-    },
-    {
-      $project: {
-        rates: 0,
+      {
+        $project: {
+          rates: 0,
+        },
       },
-    },
-  ]);
+    ]);
 
   const yearyRates = await yearlyRatesCursor.toArray();
 
