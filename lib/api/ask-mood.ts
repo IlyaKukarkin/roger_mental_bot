@@ -62,12 +62,22 @@ export const askMood = async (): Promise<Boolean> => {
         current_user_time: {
           $add: ["$user_time", "$current_time"],
         },
+        current_user_time_negative: {
+          $add: ["$user_time", "$current_time", 24],
+        },
       },
     },
     {
       $addFields: {
         result: {
-          $lte: ["$time_to_send_messages", "$current_user_time"],
+          $or: [
+            {
+              $eq: ["$time_to_send_messages", "$current_user_time"],
+            },
+            {
+              $eq: ["$time_to_send_messages", "$current_user_time_negative"],
+            },
+          ],
         },
       },
     },
