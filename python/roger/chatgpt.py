@@ -150,7 +150,7 @@ async def await_for_a_problem(message: types.Message, state: FSMContext):
         answer = {'role': role, 'content': mes}
         array_of_chats.add_message(message.chat.id, answer)
         completions = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4.1-mini",
             messages=array_of_chats.get_chat(message.chat.id)
         )
         message_text = str(completions.choices[0].message.content).encode(
