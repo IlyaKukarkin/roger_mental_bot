@@ -3,7 +3,7 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 import openai
-from openai.error import RateLimitError
+from openai import OpenAI
 from pymongo.errors import PyMongoError
 
 from variables import botClient, CHATGPT_TOKEN
@@ -19,6 +19,9 @@ from common import delete_keyboard
 from classes.chatgpt_arrays import ArrayOfChats
 
 array_of_chats = ArrayOfChats()
+client = OpenAI(
+    api_key=CHATGPT_TOKEN
+)
 
 
 async def support_message(message: types.Message):
@@ -134,8 +137,6 @@ async def await_for_a_problem(message: types.Message, state: FSMContext):
         return
 
     try:
-        openai.api_key = CHATGPT_TOKEN
-
         id_user_db = get_user_by_telegram_id(str(message.chat.id))
 
         insert_income_support_message(
@@ -149,9 +150,9 @@ async def await_for_a_problem(message: types.Message, state: FSMContext):
         mes = message.text.replace('\n', ' ')
         answer = {'role': role, 'content': mes}
         array_of_chats.add_message(message.chat.id, answer)
-        completions = openai.ChatCompletion.create(
+        completions = client.responses.create(
             model="gpt-4.1-mini",
-            messages=array_of_chats.get_chat(message.chat.id)
+            input=array_of_chats.get_chat(message.chat.id)
         )
         message_text = str(completions.choices[0].message.content).encode(
             'unicode_escape').decode('unicode_escape', 'ignore')
@@ -173,7 +174,7 @@ async def await_for_a_problem(message: types.Message, state: FSMContext):
             id_message.text)
 
         await Recording.AwaitForAProblem.set()
-    except RateLimitError:
+    except openai.RateLimitError:
         await botClient.send_message(
             message.chat.id,
             "Бот сейчас перегружен запросами 😿 Подожди 10 секунд и повтори свой вопрос"
