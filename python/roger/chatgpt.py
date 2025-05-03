@@ -154,7 +154,7 @@ async def await_for_a_problem(message: types.Message, state: FSMContext):
             model="gpt-4.1-mini",
             input=array_of_chats.get_chat(message.chat.id)
         )
-        message_text = str(completions.choices[0].message.content).encode(
+        message_text = str(completions.output[0].content[0].text).encode(
             'unicode_escape').decode('unicode_escape', 'ignore')
 
         id_message = await botClient.send_message(
