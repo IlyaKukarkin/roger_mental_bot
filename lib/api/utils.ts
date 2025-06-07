@@ -92,12 +92,14 @@ export const checkAndDeleteMoodKeyboard = async (userId: ObjectId) => {
         },
       });
 
-      if (dateDiff === 3) {
+      const currentMinutesUTC = new Date().getUTCMinutes();
+
+      if (dateDiff === 3 && currentMinutesUTC < 15) {
         const telegramId = await getTelegramId(userId);
         await sendHurryUpMessage(telegramId);
       }
 
-      if (dateDiff === 9) {
+      if (dateDiff === 9 && currentMinutesUTC < 15) {
         const telegramId = await getTelegramId(userId);
         await deleteMarkupKeyboard(telegramId, tgMessage);
         // await sendThatsItMessage(telegramId);
