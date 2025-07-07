@@ -123,27 +123,6 @@ async def start_command(message: types.Message, args: str):
 
         return
 
-    if user["is_active"]:
-        await botClient.send_message(
-            message.chat.id,
-            "Кажется, мы уже знакомы, " + user['name']
-        )
-        await amplitude_send_start_source_event(str(message.chat.id), args, "started_when_active")
-        return
-
-    # это последний степ регистрации; если он задан, значит, пользователь уже
-    # зарегался
-    if user.get("timezone"):
-        await botClient.send_message(
-            message.chat.id,
-            "Здорово, что ты вернулся, " +
-            user['name'] + " 😍\n\nЯ продолжу интересоваться твоим настроением 😌"
-        )
-        update_user_is_active(user['_id'], True)
-        await amplitude_send_start_source_event(str(message.chat.id), args, "started_again")
-
-        return
-
     await botClient.send_message(
         message.chat.id,
         "Ты уже начал регистрацию\n\nЗаверши ее с того места, где ты остановился, "
