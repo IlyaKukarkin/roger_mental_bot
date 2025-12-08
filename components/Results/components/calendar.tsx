@@ -46,7 +46,6 @@ const Calendar = ({ months }: Props) => {
   };
 
   const onMonthClick = (index: number) => {
-    // console.log("HERE: ", index);
     setShowMonth(index === showMonth ? -1 : index);
   };
 

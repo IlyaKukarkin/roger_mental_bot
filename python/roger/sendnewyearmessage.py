@@ -57,7 +57,7 @@ def get_new_year_message(user_id: int):
     str: new year message
     """
 
-    link = "https://rogerbot.tech/2024/" + str(user_id)
+    link = "https://rogerbot.tech/2025/" + str(user_id)
     current_year = datetime.now().year
 
     return f"""
