@@ -55,7 +55,7 @@ const Results2025 = ({ statistic }: Props) => {
   }, [index, transRef]);
 
   useEffect(() => {
-    amplitude.track(`Open 2025 page #${index + 1}`, {
+    amplitude?.track?.(`Open 2025 page #${index + 1}`, {
       page_id: statistic.userId,
     });
   }, [index, statistic.userId]);
