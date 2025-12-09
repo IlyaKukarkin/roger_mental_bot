@@ -1,4 +1,4 @@
-import { ObjectId, FindCursor } from "mongodb";
+import { AggregationCursor, ObjectId, FindCursor } from "mongodb";
 import { log } from "@logtail/next";
 
 import clientPromise from "../mongodb";
@@ -113,10 +113,17 @@ export const sendMessageToAdmins = async (message: string): Promise<void> => {
   await Promise.all(
     adminUsers.map(async (user) => {
       try {
-        await fetch(
-          `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${user.telegram_id}&text=${message}`,
-          { method: "POST" },
-        );
+        const apiUrl = `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage`;
+        await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            chat_id: user.telegram_id,
+            text: message,
+          }),
+        });
       } catch (e) {
         console.log("Ошибка при отправке сообщения Админам: ", e);
       }
@@ -127,11 +134,79 @@ export const sendMessageToAdmins = async (message: string): Promise<void> => {
 export const sendMessageToUser = async (
   userTelegramId: string,
   message: string,
+  removeHTMLpreview = false,
 ): Promise<void> => {
-  await fetch(
-    `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage?chat_id=${userTelegramId}&text=${message}`,
-    { method: "POST" },
-  );
+  const apiUrl = `https://api.telegram.org/bot${process.env.ROGER_TOKEN_BOT}/sendMessage`;
+  await fetch(apiUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      chat_id: userTelegramId,
+      text: message,
+      disable_web_page_preview: removeHTMLpreview,
+    }),
+  });
+};
+
+export const sendMessageToUserShard = async (
+  bucketHex: string,
+): Promise<{ sent: number; sentUsersIds: ObjectId[] }> => {
+  const bucket = bucketHex.trim().toLowerCase();
+
+  if (!/^[0-9a-f]$/.test(bucket)) {
+    throw new Error("Bucket must be a single hex character (0-9 or a-f)");
+  }
+
+  const client = await clientPromise;
+  const collection = client.db("roger-bot-db").collection("users");
+
+  // Match active users whose ObjectId last hex character equals the bucket.
+  const cursor = collection.aggregate([
+    { $match: { is_active: true } },
+    {
+      $match: {
+        $expr: {
+          $eq: [
+            { $substrBytes: [{ $toString: "$_id" }, 23, 1] },
+            bucket,
+          ],
+        },
+      },
+    },
+    { $project: { telegram_id: 1, _id: 1 } },
+  ]) as AggregationCursor<Pick<User, "telegram_id" | '_id'>>;
+
+  let sent = 0;
+  const sentUsersIds: ObjectId[] = [];
+
+  const year = 2025
+  const link = `https://rogerbot.tech/${year}/`;
+
+  for await (const user of cursor) {
+    const messageText = `Привет, друг! 💙
+
+Я подготовил статистику по твоему настроению в уходящем ${year} году. Переходи по ссылке и узнай:
+1. каким цветом можно описать твой год и каждый месяц
+2. сколько человек стали счастливее благодаря твоей поддержке
+3. каким ты запомнишь этот год
+
+Твоя статистика доступна по ссылке ${link}${user._id}
+
+А если тебе нравится пользоваться Роджером, поделись своей статистикой в соцсетях! Тогда еще больше людей смогут следить за своим настроением вместе со мной 😌
+
+С наступающим Новым годом! Надеюсь, твой следующий год будет только в 🟢 цветах.
+
+Твой новогодний Роджер 🎄
+`;
+    await sendMessageToUser(user.telegram_id, messageText, true);
+
+    sentUsersIds.push(user._id);
+    sent += 1;
+  }
+
+  return { sent, sentUsersIds };
 };
 
 export const sendHurryUpMessage = async (

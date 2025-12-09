@@ -197,6 +197,13 @@ export const updateYearlyStatistics = async (): Promise<void> => {
     {
       $unset: ["rates"],
     },
+    {
+      $match: {
+        mental_rate_yearly: {
+          $ne: 0,
+        },
+      },
+    },
   ]);
 
   const prepareMessages = messagesCol.aggregate([
