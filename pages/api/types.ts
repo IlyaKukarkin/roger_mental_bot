@@ -17,6 +17,7 @@ export enum CronName {
   STATA_2023 = "STATA_2023",
   STATA_2024 = "STATA_2024",
   STATA_2025 = "STATA_2025",
+  SEND_LINK_SHARD = "SEND_LINK_SHARD",
 }
 
 export enum CronLogEvent {
