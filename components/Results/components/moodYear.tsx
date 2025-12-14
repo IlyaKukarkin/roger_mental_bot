@@ -46,8 +46,7 @@ const MoodYear = ({ months, userId }: Props) => {
     let hash = 0;
     for (let i = 0; i < userId.length; i++) {
       const char = userId.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Конвертируем в 32-битное целое
+      hash = (hash * 31 + char) | 0; // | 0 конвертирует в 32-битное целое
     }
 
     const index = Math.abs(hash) % variants.length;
