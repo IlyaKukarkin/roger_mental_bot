@@ -13,7 +13,7 @@ const End = () => {
         </div>
 
         <p className="mt-4 text-3xl leading-tight">
-          <Trans>С Новым 2025 годом!</Trans>
+          <Trans>С Новым 2026 годом!</Trans>
         </p>
 
         <div className="mx-auto mt-8 max-w-md rounded-lg bg-gray-700/30 px-6 py-4">

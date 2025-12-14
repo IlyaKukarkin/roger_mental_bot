@@ -4,9 +4,9 @@ import { Trans } from "@lingui/macro";
 import { UserYearlyStata } from "../../../lib/api/users";
 import RogerLink from "./rogerLink";
 
-type Props = Pick<UserYearlyStata, "months">;
+type Props = Pick<UserYearlyStata, "months"> & { userId: string };
 
-const MoodYear = ({ months }: Props) => {
+const MoodYear = ({ months, userId }: Props) => {
   const getYearMood = useMemo((): number => {
     let noRates = 0;
     const summ = {
@@ -41,8 +41,18 @@ const MoodYear = ({ months }: Props) => {
     };
 
     const variants = emojiVariants[getYearMood as keyof typeof emojiVariants] || emojiVariants[0];
-    return variants[Math.floor(Math.random() * variants.length)];
-  }, [getYearMood]);
+
+    // Простая хеш-функция для строки
+    let hash = 0;
+    for (let i = 0; i < userId.length; i++) {
+      const char = userId.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Конвертируем в 32-битное целое
+    }
+
+    const index = Math.abs(hash) % variants.length;
+    return variants[index];
+  }, [getYearMood, userId]);
 
   const getYearText = useMemo(() => {
     switch (getYearMood) {

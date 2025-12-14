@@ -108,7 +108,7 @@ const Results2025 = ({ statistic }: Props) => {
     ),
     ({ style }) => (
       <animated.div className={styles.page} style={{ ...style }}>
-        <MoodYear months={months} />
+        <MoodYear months={months} userId={statistic.userId} />
       </animated.div>
     ),
     ({ style }) => (
