@@ -39,7 +39,7 @@ const Welcome = ({ userCreatedAt }: Props) => {
         </div>
       </div>
 
-      <div className="text-3xl">
+      <div className="text-2xl">
         <p>
           <Trans>Смотри, каким был твой год</Trans>{" "}
           <span className="animate-pulse text-4xl">👉</span>

@@ -32,20 +32,16 @@ const MoodYear = ({ months }: Props) => {
   }, [months]);
 
   const getYearEmoji = useMemo(() => {
-    switch (getYearMood) {
-      case 0:
-        return "🙃";
-      case 1:
-        return "😒";
-      case 2:
-        return "🙂";
-      case 3:
-        return "😌";
-      case 4:
-        return "😍";
-      default:
-        return "🙃";
-    }
+    const emojiVariants = {
+      0: ["🙃", "😶", "🤷", "😐"],
+      1: ["😒", "😔", "😞", "😢", "😕"],
+      2: ["🙂", "😊", "☺️", "🤗"],
+      3: ["😌", "😄", "😁", "✨", "🌟"],
+      4: ["😍", "🥰", "🤩", "💖", "🎉"],
+    };
+
+    const variants = emojiVariants[getYearMood as keyof typeof emojiVariants] || emojiVariants[0];
+    return variants[Math.floor(Math.random() * variants.length)];
   }, [getYearMood]);
 
   const getYearText = useMemo(() => {
