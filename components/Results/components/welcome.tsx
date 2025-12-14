@@ -21,15 +21,14 @@ const Welcome = ({ userCreatedAt }: Props) => {
           src="/android-chrome-512x512.png"
           className="h-32 w-32 rounded-full shadow-lg dark:bg-gray-500"
           alt="Roger Bot Logo"
-          width="200"
-          height="200"
+          width="140"
+          height="140"
         />
-        <p className="mt-4 text-5xl">✨</p>
       </div>
 
       <div className="text-center">
         <p className="-mt-6 text-4xl leading-tight">
-          <Trans>Твоя статистика за год от Роджера</Trans>
+          <Trans>Твоя статистика за год от Роджера ✨</Trans>
         </p>
 
         <div className="mt-6 inline-block rounded-lg bg-gray-700/30 px-6 py-3">
@@ -40,11 +39,11 @@ const Welcome = ({ userCreatedAt }: Props) => {
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <p className="text-3xl">
-          <Trans>Смотри, каким был твой год</Trans>
+      <div className="text-3xl">
+        <p>
+          <Trans>Смотри, каким был твой год</Trans>{" "}
+          <span className="animate-pulse text-4xl">👉</span>
         </p>
-        <p className="animate-pulse text-4xl">👉</p>
       </div>
 
       <RogerLink />

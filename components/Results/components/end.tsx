@@ -12,7 +12,7 @@ const End = () => {
           <p className="animate-pulse text-6xl">✨</p>
         </div>
 
-        <p className="mt-4 text-5xl leading-tight">
+        <p className="mt-4 text-3xl leading-tight">
           <Trans>С Новым 2025 годом!</Trans>
         </p>
 
@@ -22,7 +22,7 @@ const End = () => {
           </p>
         </div>
 
-        <p className="mt-8 text-3xl text-gray-300">
+        <p className="mt-8 text-2xl text-gray-300">
           <Trans>Роджер</Trans> <span className="text-red-400">♥</span>
         </p>
       </div>
