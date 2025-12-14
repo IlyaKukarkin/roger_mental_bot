@@ -5,6 +5,7 @@
   -webkit-user-select: none;
   user-select: none;
   padding: 2rem;
+  padding-top: calc(2rem + 4rem); /* 2rem base padding + 4rem for timeline (mt-4 + p-4) */
   top: 0;
   bottom: 0;
 }

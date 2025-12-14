@@ -63,8 +63,8 @@ const Calendar = ({ months }: Props) => {
               onClick={() => onMonthClick(Number(month))}
               className="group relative z-50 flex flex-col items-center"
             >
-              <p className="text-4xl">{getMoodEmoji(getMoodForMonth(data))}</p>
-              <p className="text-base md:text-xl">
+              <p className="text-3xl">{getMoodEmoji(getMoodForMonth(data))}</p>
+              <p className="text-sm md:text-base">
                 {mapMonthToText(Number(month))}
               </p>
               <p className="invisible text-xs group-hover:visible">
