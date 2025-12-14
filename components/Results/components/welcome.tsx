@@ -27,7 +27,7 @@ const Welcome = ({ userCreatedAt }: Props) => {
       </div>
 
       <div>
-        <p className="text-3xl">
+        <p className="-mt-6 text-3xl">
           <Trans>Твоя статистика за год от Роджера</Trans>
         </p>
 

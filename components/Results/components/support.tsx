@@ -106,7 +106,7 @@ const Support = ({
       {Object.keys(messages).length ? (
         <>
           <p className="text-2xl">
-            <Trans>Но ты тоже не отставал!</Trans>
+            <Trans>А вот твои результаты:</Trans>
           </p>
 
           <div className="grid grid-cols-2 grid-rows-2 items-center justify-center gap-y-8">

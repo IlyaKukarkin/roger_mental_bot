@@ -6,8 +6,8 @@ import RogerLink from "./rogerLink";
 const End = () => {
   return (
     <div className="flex h-full flex-col items-center justify-center font-bold">
-      <div>
-        <p className="text-[150px]">🎄</p>
+      <div className="-mt-12">
+        <p className="text-[120px]">🎄</p>
         <p className="text-4xl">
           <Trans>С Новым годом!</Trans>
         </p>
