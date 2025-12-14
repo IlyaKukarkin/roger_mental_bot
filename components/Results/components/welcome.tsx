@@ -16,30 +16,36 @@ const Welcome = ({ userCreatedAt }: Props) => {
 
   return (
     <div className="flex h-full flex-col items-center justify-evenly font-bold">
-      <div className="">
+      <div className="flex flex-col items-center">
         <Image
           src="/android-chrome-512x512.png"
-          className="h-32 w-32 rounded-full pt-10 dark:bg-gray-500"
+          className="h-32 w-32 rounded-full shadow-lg dark:bg-gray-500"
           alt="Roger Bot Logo"
           width="200"
           height="200"
         />
+        <p className="mt-4 text-5xl">✨</p>
       </div>
 
-      <div>
-        <p className="-mt-6 text-3xl">
+      <div className="text-center">
+        <p className="-mt-6 text-4xl leading-tight">
           <Trans>Твоя статистика за год от Роджера</Trans>
         </p>
 
-        <p className="mt-4 text-xl">
-          {startDate(new Date(userCreatedAt)).toLocaleDateString()} -{" "}
-          {new Date().toLocaleDateString()}
-        </p>
+        <div className="mt-6 inline-block rounded-lg bg-gray-700/30 px-6 py-3">
+          <p className="text-lg font-semibold text-gray-200">
+            {startDate(new Date(userCreatedAt)).toLocaleDateString()} -{" "}
+            {new Date().toLocaleDateString()}
+          </p>
+        </div>
       </div>
 
-      <p className="text-3xl">
-        <Trans>Смотри, каким был твой год 👉</Trans>
-      </p>
+      <div className="flex items-center gap-3">
+        <p className="text-3xl">
+          <Trans>Смотри, каким был твой год</Trans>
+        </p>
+        <p className="animate-pulse text-4xl">👉</p>
+      </div>
 
       <RogerLink />
     </div>
