@@ -31,7 +31,7 @@ trap 'on_exit' EXIT
 hc_ping "/start" || true
 hc_log "rate cron started" || true
 
-curl -fsS -m 30 -X POST http://localhost:3000/api/rate-cron \
+curl -fsS -m 180 -X POST http://localhost:3000/api/rate-cron \
   -H "Authorization: Bearer 123"
 
 hc_log "rate cron finished" || true
