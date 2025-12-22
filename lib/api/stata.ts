@@ -19,8 +19,7 @@ type User = {
   time_to_send_messages: number;
 };
 
-type UserStata = User & {
-  rates: Rate[];
+type UserStata = Pick<User, '_id'> & {
   rate_month: number;
   rate_week2: number;
   rate_week: number;
@@ -116,6 +115,11 @@ export const updateUserRateStatistics = async (): Promise<void> => {
         },
       },
     },
+    {
+      rate_month: 1,
+      rate_week2: 1,
+      rate_week: 1
+    }
   ]);
 
   log.info(
