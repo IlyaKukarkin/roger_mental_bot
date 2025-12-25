@@ -116,9 +116,12 @@ export const updateUserRateStatistics = async (): Promise<void> => {
       },
     },
     {
-      rate_month: 1,
-      rate_week2: 1,
-      rate_week: 1
+      $project: {
+        _id: 1,
+        rate_month: 1,
+        rate_week2: 1,
+        rate_week: 1,
+      },
     }
   ]);
 

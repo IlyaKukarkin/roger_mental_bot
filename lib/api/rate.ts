@@ -51,15 +51,7 @@ export const getCalculatedRates = async (): Promise<RateResponse> => {
   const messagesCol = client.db("roger-bot-db").collection("messages");
   const settingsCol = client.db("roger-bot-db").collection("app_settings");
 
-  const date6mthAgo = new Date();
-  date6mthAgo.setMonth(date6mthAgo.getMonth() - 6);
-
   const messages: FindCursor<MessageToRate> = await messagesCol.aggregate([
-    {
-      created_date: {
-        $gte: date6mthAgo
-      }
-    },
     {
       $lookup: {
         from: "rate",
