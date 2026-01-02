@@ -8,11 +8,19 @@ import RogerLink from "./rogerLink";
 type Props = Pick<UserYearlyStata, "userCreatedAt">;
 
 const Welcome = ({ userCreatedAt }: Props) => {
+  const currentYear = new Date('2025-01-01T00:00:00.000').getFullYear()
+
   const startDate = (createdAt: Date) => {
-    const currentYear = new Date().getFullYear();
-    const baseDate = new Date(`${currentYear}-01-01T00:00:00.000+00:00`);
+    const baseDate = new Date(`${currentYear}-01-01T00:00:00.000`);
     return createdAt > baseDate ? createdAt : baseDate;
   };
+
+  const endDate = () => {
+    const baseDate = new Date(`${currentYear}-12-31T23:59:59.999`);
+    const now = new Date();
+
+    return now > baseDate ? baseDate : now;
+  }
 
   return (
     <div className="flex h-full flex-col items-center justify-evenly font-bold">
@@ -34,7 +42,7 @@ const Welcome = ({ userCreatedAt }: Props) => {
         <div className="mt-6 inline-block rounded-lg bg-gray-700/30 px-6 py-3">
           <p className="text-lg font-semibold text-gray-200">
             {startDate(new Date(userCreatedAt)).toLocaleDateString()} -{" "}
-            {new Date().toLocaleDateString()}
+            {endDate().toLocaleDateString()}
           </p>
         </div>
       </div>

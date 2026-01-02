@@ -246,12 +246,12 @@ export const submitForm = async ({
   }
 };
 
-export const countCreatedMessagesByUserYearly = async (userId: ObjectId) => {
+export const countCreatedMessagesByUserYearly = async (userId: ObjectId, year?: number) => {
   const client = await clientPromise;
   const collection = client.db("roger-bot-db").collection("messages");
 
-  const currentYear = new Date().getFullYear();
-
+  const currentYear = year || new Date().getFullYear();
+  
   const messagesCursor: FindCursor<MessageWithRates> =
     await collection.aggregate([
       {

@@ -190,12 +190,12 @@ const checkAlreadySendToday = async (userId: ObjectId) => {
   return rates.length !== 0;
 };
 
-export const getAllMoodRatesYearly = async (userId: ObjectId) => {
+export const getAllMoodRatesYearly = async (userId: ObjectId, year?: number) => {
   const client = await clientPromise;
   const rateCol = client.db("roger-bot-db").collection("mental_rate");
 
-  const currentYear = new Date().getFullYear();
-
+  const currentYear = year || new Date().getFullYear();
+  
   const mentalRatesCursor: FindCursor<MentalRate> = await rateCol.aggregate([
     {
       $match: {

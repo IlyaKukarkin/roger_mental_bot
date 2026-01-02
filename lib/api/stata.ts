@@ -304,12 +304,12 @@ export const updateYearlyStatistics = async (): Promise<void> => {
   );
 };
 
-export const getStatistic = async () => {
+export const getStatistic = async (year?: number) => {
   const client = await clientPromise;
   const statisticCol = client.db("roger-bot-db").collection("statistic");
 
-  const currentYear = new Date().getFullYear();
-
+  const currentYear = year || new Date().getFullYear();
+  
   const statistic: Statistics = await statisticCol.findOne({
     year: currentYear,
   });

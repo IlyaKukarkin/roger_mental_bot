@@ -19,6 +19,7 @@ export default async function handler(
       try {
         const stata = await getUserYearlyStata(
           new ObjectId(req.query.user_id as string),
+          parseInt(req.query.year as string, 10),
         );
 
         if (stata) {

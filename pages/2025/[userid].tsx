@@ -79,7 +79,7 @@ export async function getStaticProps(
       : "https://rogerbot.tech/api";
 
   const [res, translation] = await Promise.all([
-    fetch(`${apiURL}/statistic?user_id=${userId}`),
+    fetch(`${apiURL}/statistic?user_id=${userId}&year=2025`),
     loadCatalog(locale!),
   ]);
   const statistic = await res.json();

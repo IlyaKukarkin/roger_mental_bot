@@ -350,13 +350,13 @@ export const sendMoodMessage = async (
   return null;
 };
 
-export const getUserYearlyStata = async (userId: ObjectId) => {
+export const getUserYearlyStata = async (userId: ObjectId, year: number) => {
   const [totalCreatedMessages, messagesRates, moodRates, statistic, user] =
     await Promise.all([
-      countCreatedMessagesByUserYearly(userId),
-      getYearlyUsersRates(userId),
-      getAllMoodRatesYearly(userId),
-      getStatistic(),
+      countCreatedMessagesByUserYearly(userId, year),
+      getYearlyUsersRates(userId, year),
+      getAllMoodRatesYearly(userId, year),
+      getStatistic(year),
       getUserById(userId),
     ]);
 

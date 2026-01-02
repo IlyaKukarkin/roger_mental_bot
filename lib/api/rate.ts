@@ -352,12 +352,12 @@ const calculateRate = (
   };
 };
 
-export const getYearlyUsersRates = async (userId: ObjectId) => {
+export const getYearlyUsersRates = async (userId: ObjectId, year?: number) => {
   const client = await clientPromise;
   const rateCol = client.db("roger-bot-db").collection("user_messages");
 
-  const currentYear = new Date().getFullYear();
-
+  const currentYear = year || new Date().getFullYear();
+  
   const yearlyRatesCursor: FindCursor<UserYearlyRates> =
     await rateCol.aggregate([
       {
