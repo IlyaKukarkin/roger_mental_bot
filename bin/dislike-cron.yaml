@@ -9,5 +9,5 @@ jobs:
       - name: Call our API route to recalculate dislikes in a row
         run: |
           curl --request POST \
-          --url 'https://rogerbot.tech/api/dislike-cron' \
+          --url 'https://rogerbot.app/api/dislike-cron' \
           --header 'Authorization: Bearer ${{ secrets.CRON_API_KEY }}'

@@ -76,7 +76,7 @@ export async function getStaticProps(
   const apiURL =
     process.env.NODE_ENV === "development"
       ? "http://localhost:3000/api"
-      : "https://rogerbot.tech/api";
+      : "https://rogerbot.app/api";
 
   const [res, translation] = await Promise.all([
     fetch(`${apiURL}/statistic?user_id=${userId}&year=2025`),

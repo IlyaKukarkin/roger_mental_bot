@@ -23,5 +23,5 @@ jobs:
       - name: Notification for admins
         run: |
           curl --request POST \
-          --url 'https://rogerbot.tech/api/restart-success' \
+          --url 'https://rogerbot.app/api/restart-success' \
           --header 'Authorization: Bearer ${{ secrets.CRON_API_KEY }}'

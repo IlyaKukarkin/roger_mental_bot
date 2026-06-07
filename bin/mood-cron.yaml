@@ -9,6 +9,6 @@ jobs:
       - name: Call our API route to ask for MOOD
         uses: JamesIves/fetch-api-data-action@v2
         with:
-          endpoint: https://rogerbot.tech/api/ask-mood-cron
+          endpoint: https://rogerbot.app/api/ask-mood-cron
           configuration: '{ "method": "POST", "headers": {"Authorization": "Bearer ${{ secrets.CRON_API_KEY }}"} }'
           retry: true
