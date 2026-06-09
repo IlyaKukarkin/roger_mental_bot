@@ -110,7 +110,7 @@ async def send_rate_stata(
         "&data=" + urllib.parse.quote(json.dumps(data))
     )
 
-    image_url = 'https://rogerbot.tech/api/user-stats' + image_url_params
+    image_url = 'https://rogerbot.app/api/user-stats' + image_url_params
 
     await botClient.send_photo(id_tg_user, image_url)
 

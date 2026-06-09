@@ -183,6 +183,6 @@ async def send_stata(
         image_url = image_url + \
             f"&image={urllib.parse.quote('https://' + image)}"
 
-    result_image_url = 'https://rogerbot.tech/api/message-stats' + image_url
+    result_image_url = 'https://rogerbot.app/api/message-stats' + image_url
 
     await botClient.send_photo(id_tg_user, result_image_url)

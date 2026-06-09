@@ -182,7 +182,7 @@ export const sendMessageToUserShard = async (
   const sentUsersIds: ObjectId[] = [];
 
   const year = 2025
-  const link = `https://rogerbot.tech/${year}/`;
+  const link = `https://rogerbot.app/${year}/`;
 
   for await (const user of cursor) {
     const messageText = `Привет, друг! 💙

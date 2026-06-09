@@ -9,6 +9,6 @@ jobs:
       - name: Call our API route to recalculate user rate statistics
         uses: JamesIves/fetch-api-data-action@v2
         with:
-          endpoint: https://rogerbot.tech/api/2023-cron
+          endpoint: https://rogerbot.app/api/2023-cron
           configuration: '{ "method": "POST", "headers": {"Authorization": "Bearer ${{ secrets.CRON_API_KEY }}"} }'
           retry: true
