@@ -32,6 +32,6 @@ hc_ping "/start" || true
 hc_log "2025 cron started" || true
 
 curl -fsS -m 180 -X POST http://localhost:3000/api/2025-cron \
-  -H "Authorization: Bearer 123"
+  -H "Authorization: Bearer ${CRON_API_KEY:-123}"
 
 hc_log "2025 cron finished" || true

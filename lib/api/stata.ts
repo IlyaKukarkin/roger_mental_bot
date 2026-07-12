@@ -144,7 +144,7 @@ export const updateUserRateStatistics = async (): Promise<void> => {
     updateWeek.push(user.rate_week);
   }
 
-  statisticCol.update(
+  await statisticCol.updateOne(
     {
       _id: statistic._id,
     },
@@ -291,7 +291,7 @@ export const updateYearlyStatistics = async (): Promise<void> => {
   users_rate_yearly.sort((a, b) => b - a);
   support_rates_yearly.sort((a, b) => b - a);
 
-  statisticCol.update(
+  await statisticCol.updateOne(
     {
       _id: statistic._id,
     },

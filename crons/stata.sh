@@ -32,6 +32,6 @@ hc_ping "/start" || true
 hc_log "stata cron started" || true
 
 curl -fsS -m 180 -X POST http://localhost:3000/api/stata-cron \
-  -H "Authorization: Bearer 123"
+  -H "Authorization: Bearer ${CRON_API_KEY:-123}"
 
 hc_log "stata cron finished" || true

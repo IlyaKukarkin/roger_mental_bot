@@ -60,7 +60,6 @@ from common import (
 )
 from keyboards import (
     kb_for_mental_poll,
-    support_start_keyboard,
     ask_for_rate_messages
 )
 from volunteers import is_mental_rate_threashhold_reached, how_many_days_user_with_us
@@ -94,6 +93,7 @@ from db.user_messages import (
 from db.rate import (
     get_rate_by_user_and_message
 )
+from logger import logger
 
 
 # read texts from json file
@@ -175,48 +175,45 @@ async def callback_after_click_on_color_button(
     await delete_keyboard(callback_query.from_user.id, callback_query.message.message_id)
 
     try:
-        # добавил две строки ниже, чтобы по коллбеку стирать контекст общения с чатжпт,
-        #   чтобы он не копился
-        # UPD: не добавил( надо написать чето,
-        #   чтобы контекст общения с чатжпт не держался в памяти, а дропался по крону в полночь :(
-        #   сорри пацаны
-        # if array_of_chats != None:
-        #    array_of_chats.delete_array(callback_query.from_user.id)
-        #    array_of_chats.add_message(
-        #        callback_query.from_user.id,
-        #        {
-        #            'role': 'assistant',
-        #            'content': (
-        #                "Отвечай от имени Роджера. Это бот, "
-        #                "который поддерживает людей с плохим настроением"
-        #            )
-        #         }
-        #     )
-
         user = get_user_by_telegram_id(str(callback_query.from_user.id))
-
-        # find_one_and_update returns a record that is to be updated;
-        #   in this case it is irrelevant whether
-        # we receive the updated version of the record or not, since we're only
-        # interested in the date
 
         rate_record = get_mental_rate_by_user_and_tg_message(
             user["_id"],
             callback_query.message.message_id
         )
-        update_mental_rate_value(rate_record['_id'], rate)
+        # Записи может не быть (клик по старой кнопке после чистки/пересоздания
+        # опроса) — тогда просто пропускаем обновление рейтинга и статистику,
+        # но остальной колбэк (цвет, стрик, друзья) отрабатываем как обычно.
+        if rate_record is not None:
+            update_mental_rate_value(rate_record['_id'], rate)
+        else:
+            logger.warning(
+                "no mental rate record for tg_user %s, message %s — skipping rate update",
+                callback_query.from_user.id,
+                callback_query.message.message_id
+            )
 
         await get_options_color(color, callback_query.from_user.id)
         await row_message(callback_query.from_user.id)
         await is_mental_rate_threashhold_reached(callback_query.from_user.id, 'volunteer')
 
         if rate_record is not None:
-            if need_send_weekly_rate_stata(
-                    int(user['timezone']), user['created_at'], user['_id'], rate_record['date']):
-                await sunday_send_rate_stata(callback_query.from_user.id, rate_record['date'])
+            # Изолируем недельную статистику: любая ошибка тут не должна
+            # ломать остальной колбэк (друзья/ивенты). Раньше необработанное
+            # исключение молча убивало отправку картинки по воскресеньям.
+            try:
+                if need_send_weekly_rate_stata(
+                        int(user['timezone']), user['created_at'],
+                        user['_id'], rate_record['date']):
+                    await sunday_send_rate_stata(
+                        callback_query.from_user.id, rate_record['date'])
+            except Exception as weekly_stata_error:  # pylint: disable=broad-except
+                logger.exception(
+                    "weekly rate stata failed for tg_user %s: %s",
+                    callback_query.from_user.id,
+                    weekly_stata_error
+                )
 
-        # отключил чатжпт в колбеках
-        # await offer_to_chat_with_chatgpt(color, callback_query.from_user.id)
         if color in ('red', 'orange'):
             await send_a_friend_message_about_bad_mood(callback_query.from_user.id, color)
 
@@ -506,33 +503,6 @@ async def row_message(chat_id: int):
     )
 
 
-async def offer_to_chat_with_chatgpt(color: str, user_id: int):
-    """
-    Function to offer to use ChatGPT
-
-    Parameters:
-    color (int): color of mental rate, can be:
-        "green"
-        "yellow"
-        "orange"
-        "red"
-    user_id (int): Telegram ID of user to send a message
-
-    Returns:
-    None
-    """
-
-    if color in ['red', 'orange']:
-        await botClient.send_message(
-            user_id,
-            (
-                "Как насчет поболтать со мной? Я могу поддержать диалог: "
-                "умею распознавать проблемы и давать осмысленные ответы. Попробуем?"
-            ),
-            reply_markup=support_start_keyboard
-        )
-
-
 def need_send_weekly_rate_stata(
     timezone_offset: int,
     created_at: datetime,
@@ -563,8 +533,10 @@ def need_send_weekly_rate_stata(
             today_is_monday_or_sunday and \
             n_days_since_date(3, created_at) and \
             any_ratings_in_previous_n_days(id_user, 6)
-    except MessageError as e:
-        print(f'need_send_weekly_rate_stata failed check, exception: {e}')
+    except Exception as e:  # pylint: disable=broad-except
+        # Ловим всё, а не только MessageError: проверка дёргает БД и работу
+        # с датами, где раньше ValueError/TypeError проскакивали мимо.
+        logger.exception('need_send_weekly_rate_stata failed check: %s', e)
         return False
 
 

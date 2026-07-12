@@ -1,32 +1,55 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app)
+# Roger Mental Bot
 
-## Getting Started
+Телеграм-бот психологической самопомощи: каждый вечер спрашивает у пользователя
+настроение (🟢🟡🟠🔴), показывает слова поддержки от других людей, ведёт
+статистику настроения, поддерживает «друзей», волонтёрство и годовые отчёты.
 
-First, run the development server:
+## Архитектура
+
+Монорепо из трёх рантаймов поверх одной MongoDB (`roger-bot-db`):
+
+| Компонент | Технологии | Роль |
+| --- | --- | --- |
+| `python/roger` | Python 3.11, aiogram 2.x (polling) | Основной бот: настроение, друзья, статистика, поддержка |
+| `python/jimmy` | Python, aiogram | Бот модерации сообщений (аппрув/блок от волонтёров) |
+| Next.js (`pages`, `lib`, `components`) | Next.js 13, TypeScript | Веб-отчёты, API-роуты-краны и генерация PNG-картинок статистики (`@vercel/og`) |
+
+Краны (`crons/*.sh` на VPS и `bin/*-cron.yaml` в GitHub Actions) дёргают
+API-роуты `pages/api/*-cron`, которые вызывают логику из `lib/api/*`.
+
+**Интеграции:** Doppler (секреты), MongoDB Atlas, Contentful (медиа),
+Amplitude (аналитика), Cutt.ly (короткие ссылки), OpenAI, Healthchecks.io
+(мониторинг кранов), Docker Compose на VPS.
+
+## Локальный запуск
+
+### Next.js (веб + API)
 
 ```bash
-yarn dev
+yarn install
+yarn dev          # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Нужна переменная `MONGODB_URI` (через Doppler или `.env.local`).
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+### Python-боты
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+См. подробную инструкцию в [python/README.md](python/README.md). Кратко:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+```bash
+cd python/roger
+source roger-venv/bin/activate
+pip install -r requirements.txt
+doppler run -- python3 main.py
+```
 
-## Learn More
+## Краны
 
-To learn more about Next.js, take a look at the following resources:
+Описание всех кранов, включая ежедневный бэкап БД в Cloudflare R2, —
+в [crons/README.md](crons/README.md).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Деплой
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Боты и Next.js крутятся в Docker Compose на VPS
+(`python/docker-compose.yml`). Перезапуск — через GitHub Action `restart`
+(`.github/workflows/restart.yaml`).

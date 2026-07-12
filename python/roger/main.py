@@ -553,26 +553,9 @@ async def chat_wait_for_a_problem(message: types.Message, state: dispatcher.FSMC
     await await_for_a_problem(message, state)
 
 
-@botDispatcher.message_handler(commands=['donate'])
+@botDispatcher.message_handler(commands=['donate', 'money'])
 async def donate_handler(message: types.Message):
-    """команда задонатить боту, пожалуйста закиьте деньги на пончики 🙏🍩"""
-    await botClient.send_message(
-        message.chat.id,
-        (
-            "Задонатить Роджеру: https://www.tinkoff.ru/cf/2ihm5UElRfV.\n\n"
-            "Деньги будут потрачены на более мощный сервер 🔥"
-        ),
-        disable_web_page_preview=True
-    )
-    await amplitude_send_default_source_event("Donate. Command Called",
-                                              str(message.chat.id),
-                                              "",
-                                              "")
-
-
-@botDispatcher.message_handler(commands=['money'])
-async def money_handler(message: types.Message):
-    """команда задонатить боту, пожалуйста закиьте деньги на пончики 🙏🍩"""
+    """команда задонатить боту, пожалуйста закиньте деньги на пончики 🙏🍩"""
     await botClient.send_message(
         message.chat.id,
         (

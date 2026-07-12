@@ -6,6 +6,44 @@
 2. Rate cron - approve/block user submitted messages. Stored in the file `rate.ts`. Runs 2 times per 24 hours
 3. Stata cron - calculates global user rates stats for the images. Stored in the file `stata.ts`. Runs 1 time per 24 hours
 4. `db.ts` file with utils to connect to the Mongo DB
+5. Backup cron - dumps the whole MongoDB, encrypts the dump and uploads it to a Cloudflare R2 bucket. Lives on the shared OVH host (`/opt/mongo-backup.sh`), not in this repo. Runs 1 time per 24 hours
+
+## Database backup cron
+
+The production backup does NOT run from this repo. It lives on the shared
+OVH host (the one also running vpnbot): root crontab runs
+`/opt/mongo-backup.sh` daily at 02:00 UTC, logging to
+`/opt/backups/mongodump-cron.log`. The script streams
+`mongodump → age (encryption) → aws s3 cp` without touching the disk and
+backs up both projects: roger (bucket `roger`) and vpnbot (bucket `vpnbot`),
+under the `mongodump/` prefix.
+
+Secrets:
+
+- R2 credentials and `MONGODB_URI` come from the `prd` Doppler config of
+  `roger-mental-bot` (service token in `/opt/.env` on the host)
+- the age key pair lives in the `server-configs` Doppler project (`prd`):
+  `BACKUP_AGE_RECIPIENT` (public) / `BACKUP_AGE_PRIVATE_KEY` (private);
+  the private key is also in `/opt/BACKUP_AGE_KEYS.txt` on the host (root, 600)
+
+Retention is handled by R2 itself: an object lifecycle rule on the bucket
+(Dashboard → R2 → bucket → Settings → Object lifecycle rules) deletes old
+objects.
+
+To restore a backup:
+
+```bash
+age -d -i key.txt roger-<timestamp>.archive.gz.age | mongorestore --archive --gzip --uri="$MONGODB_URI"
+```
+
+There is also a standalone `crons/backup.sh` in this repo — a self-contained
+variant of the same dump-encrypt-upload flow (file-based, with healthchecks
+pings) that can be run manually from any machine with
+`mongodb-database-tools`, `awscli`, `curl` and `age` installed:
+
+```bash
+doppler run --config prd -- bash crons/backup.sh
+```
 
 ## Requirements
 

@@ -191,6 +191,11 @@ def get_statistic_data(
             if count_rates > other_user_rates:
                 compare += 1
 
+    # Защита от деления на ноль: если статистика ещё не посчитана краном
+    # (пустой массив сравнения), считаем, что сравнивать не с кем.
+    if compare_total_users == 0:
+        return 0
+
     return round(compare / compare_total_users * 100)
 
 

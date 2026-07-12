@@ -244,8 +244,11 @@ def any_ratings_in_previous_n_days(id_user: ObjectId, n: int = 6) -> bool:
     """
 
     today = datetime.utcnow()
+    # Берём конец предыдущего дня через timedelta, а не "today.day - 1":
+    # иначе 1-го числа месяца получался day=0 и datetime() падал с ValueError.
+    yesterday = today - timedelta(days=1)
     period_end = datetime(
-        today.year, today.month, today.day - 1, hour=23, minute=59)
+        yesterday.year, yesterday.month, yesterday.day, hour=23, minute=59)
     period_start = period_end - timedelta(days=n)
 
     past_week_ratings = get_mental_rates_period(

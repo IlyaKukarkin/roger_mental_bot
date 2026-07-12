@@ -32,6 +32,6 @@ hc_ping "/start" || true
 hc_log "ask-mood cron started" || true
 
 curl -fsS -m 30 -X POST http://localhost:3000/api/ask-mood-cron \
-  -H "Authorization: Bearer 123"
+  -H "Authorization: Bearer ${CRON_API_KEY:-123}"
 
 hc_log "ask-mood cron finished" || true
